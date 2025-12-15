@@ -1,19 +1,49 @@
-import { useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 
-import { ThemedText } from '@/components/themed-text';
 import { SearchInput } from '@/components/ui/search-input';
+import { LocationInputField } from '@/components/ui/location-input-field';
+import { PopularLocations } from '@/components/popular-locations';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import type { PopularLocation } from '@/components/ui/popular-location-card';
+
+// Enable LayoutAnimation on Android
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 type DestinationBottomSheetProps = {
-  onSearchPress?: () => void;
+  bottomInset?: number;
+  onLocationSelect?: (location: PopularLocation) => void;
+  onSeeMorePress?: () => void;
 };
 
 export function DestinationBottomSheet({
-  onSearchPress,
+  bottomInset = 0,
+  onLocationSelect,
+  onSeeMorePress,
 }: DestinationBottomSheetProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const destinationInputRef = useRef<TextInput>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [destination, setDestination] = useState('');
 
   const backgroundColor = useThemeColor(
     { light: '#FFFFFF', dark: '#1A1A1A' },
@@ -24,11 +54,46 @@ export function DestinationBottomSheet({
     'text'
   );
 
-  // Snap points for the bottom sheet
-  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
+  // Snap points: collapsed (accounts for tab bar) and expanded
+  const snapPoints = useMemo(
+    () => [140 + bottomInset, '65%'],
+    [bottomInset]
+  );
 
   const handleSheetChanges = useCallback((index: number) => {
-    // Handle sheet position changes if needed
+    const expanded = index >= 1;
+    if (expanded !== isExpanded) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setIsExpanded(expanded);
+    }
+
+    // If collapsed, dismiss keyboard and clear destination
+    if (index === 0) {
+      Keyboard.dismiss();
+    }
+  }, [isExpanded]);
+
+  const handleSearchPress = useCallback(() => {
+    // Expand sheet and focus destination input
+    bottomSheetRef.current?.snapToIndex(1);
+    setTimeout(() => {
+      destinationInputRef.current?.focus();
+    }, 300);
+  }, []);
+
+  const handleLocationPress = useCallback(
+    (location: PopularLocation) => {
+      setDestination(location.name);
+      onLocationSelect?.(location);
+      Keyboard.dismiss();
+    },
+    [onLocationSelect]
+  );
+
+  const handleCollapse = useCallback(() => {
+    bottomSheetRef.current?.snapToIndex(0);
+    setDestination('');
+    Keyboard.dismiss();
   }, []);
 
   return (
@@ -43,22 +108,51 @@ export function DestinationBottomSheet({
         { backgroundColor: handleIndicatorColor },
       ]}
       enablePanDownToClose={false}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustResize"
     >
-      <BottomSheetView style={styles.contentContainer}>
-        <View style={styles.header}>
-          <ThemedText style={styles.greeting}>Nice to see you!</ThemedText>
-          <ThemedText type="title" style={styles.title}>
-            Where are you going?
-          </ThemedText>
-        </View>
+      <BottomSheetScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: bottomInset + 20 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
+        {!isExpanded ? (
+          // Collapsed State: Single search input
+          <View style={styles.collapsedContent}>
+            <SearchInput
+              placeholder="Search destination"
+              onPress={handleSearchPress}
+            />
+          </View>
+        ) : (
+          // Expanded State: Origin + Destination + Popular Locations
+          <View style={styles.expandedContent}>
+            <LocationInputField
+              label="Origin"
+              value="Current location"
+              isLocked
+            />
 
-        <View style={styles.searchContainer}>
-          <SearchInput
-            placeholder="Search destination"
-            onPress={onSearchPress}
-          />
-        </View>
-      </BottomSheetView>
+            <LocationInputField
+              ref={destinationInputRef}
+              label="Destination"
+              placeholder="Where are you going?"
+              value={destination}
+              onChangeText={setDestination}
+              autoFocus
+            />
+
+            <PopularLocations
+              onLocationPress={handleLocationPress}
+              onSeeMorePress={onSeeMorePress}
+            />
+          </View>
+        )}
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }
@@ -82,25 +176,17 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     marginTop: 8,
   },
-  contentContainer: {
+  scrollView: {
     flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 16,
   },
-  header: {
-    marginBottom: 20,
+  collapsedContent: {
+    width: '100%',
   },
-  greeting: {
-    fontSize: 14,
-    opacity: 0.6,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  searchContainer: {
+  expandedContent: {
     width: '100%',
   },
 });
-
