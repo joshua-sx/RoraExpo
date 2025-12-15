@@ -23,19 +23,19 @@ export function VenueHeader({
 }: VenueHeaderProps) {
   const router = useRouter();
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#0C0A09' },
+    { light: '#FFFFFF', dark: '#0E0F0F' },
     'surface'
   );
   const textColor = useThemeColor(
-    { light: '#4B6468', dark: '#FAFAF9' },
+    { light: '#262626', dark: '#E5E7EA' },
     'text'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
   const chipBackgroundColor = useThemeColor(
-    { light: '#F3F3EE', dark: '#292524' },
+    { light: '#EEF3ED', dark: '#1F1F1F' },
     'background'
   );
   const starColor = '#FBBF24';
@@ -196,4 +196,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

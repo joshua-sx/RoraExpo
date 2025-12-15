@@ -12,18 +12,18 @@ type RideCtaCardProps = {
 
 export function RideCtaCard({ venue, onPress }: RideCtaCardProps) {
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1C1917' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const textColor = useThemeColor(
-    { light: '#4B6468', dark: '#FAFAF9' },
+    { light: '#262626', dark: '#E5E7EA' },
     'text'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -42,7 +42,7 @@ export function RideCtaCard({ venue, onPress }: RideCtaCardProps) {
       <Pressable
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: '#21808D' },
+          { backgroundColor: primaryColor },
           pressed && styles.buttonPressed,
         ]}
         onPress={onPress}
@@ -102,4 +102,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

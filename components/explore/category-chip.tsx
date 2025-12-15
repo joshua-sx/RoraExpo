@@ -17,15 +17,12 @@ export function CategoryChip({
   onPress,
 }: CategoryChipProps) {
   const backgroundColor = useThemeColor(
-    { light: '#F3F3EE', dark: '#292524' },
+    { light: '#EEF3ED', dark: '#1F1F1F' },
     'background'
   );
-  const activeBackgroundColor = useThemeColor(
-    { light: '#21808D', dark: '#2A9BA8' },
-    'tint'
-  );
+  const activeBackgroundColor = useThemeColor({}, 'tint');
   const textColor = useThemeColor(
-    { light: '#4B6468', dark: '#FAFAF9' },
+    { light: '#262626', dark: '#E5E7EA' },
     'text'
   );
   const activeTextColor = '#FFFFFF';
@@ -91,4 +88,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

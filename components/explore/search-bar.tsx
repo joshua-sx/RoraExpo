@@ -3,6 +3,7 @@ import { StyleSheet, View, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
+import { Fonts } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 type SearchBarProps = {
@@ -31,23 +32,27 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(
     const [isFocused, setIsFocused] = useState(false);
     
     const textColor = useThemeColor(
-      { light: '#4B6468', dark: '#FAFAF9' },
+      { light: '#262626', dark: '#E5E7EA' },
       'text'
     );
     const placeholderColor = useThemeColor(
-      { light: '#8E8E93', dark: '#78716C' },
+      { light: '#5C5F62', dark: '#8B8F95' },
       'textSecondary'
     );
     const iconColor = useThemeColor(
-      { light: '#8E8E93', dark: '#A8A29E' },
+      { light: '#5C5F62', dark: '#8B8F95' },
       'textSecondary'
     );
-    const cancelColor = '#21808D';
-    
-    // White background for search bar
-    const inputBackgroundColor = '#FCFCF9';
-    // Soft gray border, Rora Teal when focused
-    const borderColor = isFocused ? '#21808D' : '#E5E5DE';
+    const cancelColor = useThemeColor({}, 'tint');
+    const inputBackgroundColor = useThemeColor(
+      { light: '#FFFFFF', dark: '#1A1A1A' },
+      'surface'
+    );
+    const borderBaseColor = useThemeColor(
+      { light: '#E3E6E3', dark: '#2F3237' },
+      'border'
+    );
+    const borderColor = isFocused ? cancelColor : borderBaseColor;
 
     const handleFocus = () => {
       setIsFocused(true);
@@ -128,6 +133,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '400',
+    fontFamily: Fonts?.sans,
     padding: 0,
     margin: 0,
   },

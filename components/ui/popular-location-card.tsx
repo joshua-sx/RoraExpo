@@ -20,11 +20,11 @@ export function PopularLocationCard({
   onPress,
 }: PopularLocationCardProps) {
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1F2937' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const borderColor = useThemeColor(
-    { light: '#E5E5DE', dark: '#374151' },
+    { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
 
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: 80,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#EEF3ED',
   },
   image: {
     width: '100%',
@@ -82,4 +82,3 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
 });
-

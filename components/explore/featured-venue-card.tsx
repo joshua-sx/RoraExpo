@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: '#0D9488',
+    backgroundColor: '#00BE3C',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -119,4 +119,3 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
 });
-

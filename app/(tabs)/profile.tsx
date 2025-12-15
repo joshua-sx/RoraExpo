@@ -10,11 +10,11 @@ import { Fonts } from '@/constants/theme';
 export default function ProfileScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#C9B4E6', dark: '#4A3B5F' }}
+      headerBackgroundColor={{ light: '#E9F8EE', dark: '#0F160F' }}
       headerImage={
         <IconSymbol
           size={310}
-          color="#7B68A8"
+          color="#00BE3C"
           name="person.circle.fill"
           style={styles.headerImage}
         />
@@ -59,7 +59,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   headerImage: {
-    color: '#7B68A8',
+    color: '#00BE3C',
     bottom: -90,
     left: -35,
     position: 'absolute',
@@ -75,4 +75,3 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-

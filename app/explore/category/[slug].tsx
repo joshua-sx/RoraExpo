@@ -28,18 +28,18 @@ export default function CategoryListingScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const backgroundColor = useThemeColor(
-    { light: '#F3F3EE', dark: '#0C0A09' },
+    { light: '#F9F9F9', dark: '#0E0F0F' },
     'background'
   );
   const headerBackgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1C1917' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   const category = getCategoryBySlug(slug as VenueCategory);
   const venues = getVenuesByCategory(slug as VenueCategory);
@@ -117,7 +117,7 @@ export default function CategoryListingScreen() {
               style={[
                 styles.filterChip,
                 activeFilter === filter.key && {
-                  backgroundColor: tealColor,
+                  backgroundColor: primaryColor,
                 },
               ]}
               onPress={() => handleFilterPress(filter.key)}
@@ -152,10 +152,10 @@ export default function CategoryListingScreen() {
             <Ionicons name="search-outline" size={48} color={subtextColor} />
             <ThemedText style={styles.emptyTitle}>No places found here</ThemedText>
             <Pressable
-              style={[styles.resetButton, { borderColor: tealColor }]}
+              style={[styles.resetButton, { borderColor: primaryColor }]}
               onPress={() => setActiveFilter('all')}
             >
-              <ThemedText style={[styles.resetButtonText, { color: tealColor }]}>
+              <ThemedText style={[styles.resetButtonText, { color: primaryColor }]}>
                 Reset filters
               </ThemedText>
             </Pressable>
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F5F5F4',
+    backgroundColor: '#EEF3ED',
   },
   filterChipText: {
     fontSize: 14,
@@ -251,4 +251,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

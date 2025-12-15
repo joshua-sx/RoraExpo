@@ -5,8 +5,8 @@ export default function TabLayout() {
   return (
     <NativeTabs 
       blurEffect="systemMaterial"
-      iconColor="#8E8E93"
-      selectedIconColor="#21808D"
+      iconColor="#8C9390"
+      selectedIconColor="#00BE3C"
     >
       <NativeTabs.Trigger name="index">
         <Label>Home</Label>

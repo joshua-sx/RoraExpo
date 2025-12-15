@@ -10,11 +10,11 @@ import { Fonts } from '@/constants/theme';
 export default function DriversScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A8E6CF', dark: '#2D5F4F' }}
+      headerBackgroundColor={{ light: '#E6F6EC', dark: '#0F160F' }}
       headerImage={
         <IconSymbol
           size={310}
-          color="#4A8F6F"
+          color="#00BE3C"
           name="car.fill"
           style={styles.headerImage}
         />
@@ -53,7 +53,7 @@ export default function DriversScreen() {
 
 const styles = StyleSheet.create({
   headerImage: {
-    color: '#4A8F6F',
+    color: '#00BE3C',
     bottom: -90,
     left: -35,
     position: 'absolute',
@@ -69,4 +69,3 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-

@@ -45,10 +45,7 @@ export function PopularLocations({
   onLocationPress,
   onSeeMorePress,
 }: PopularLocationsProps) {
-  const linkColor = useThemeColor(
-    { light: '#3B82F6', dark: '#60A5FA' },
-    'text'
-  );
+  const linkColor = useThemeColor({}, 'link');
 
   return (
     <View style={styles.container}>
@@ -97,4 +94,3 @@ const styles = StyleSheet.create({
     paddingRight: 24,
   },
 });
-

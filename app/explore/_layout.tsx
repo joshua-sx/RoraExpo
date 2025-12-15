@@ -4,7 +4,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function ExploreLayout() {
   const backgroundColor = useThemeColor(
-    { light: '#FFFFFF', dark: '#0C0A09' },
+    { light: '#F9F9F9', dark: '#0E0F0F' },
     'background'
   );
 
@@ -21,4 +21,3 @@ export default function ExploreLayout() {
     </Stack>
   );
 }
-

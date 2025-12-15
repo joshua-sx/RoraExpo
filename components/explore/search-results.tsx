@@ -19,18 +19,17 @@ export function SearchResults({
   onCategoryPress,
 }: SearchResultsProps) {
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#0C0A09' },
+    { light: '#FFFFFF', dark: '#0E0F0F' },
     'surface'
   );
   const borderColor = useThemeColor(
-    { light: '#E5E5DE', dark: '#292524' },
+    { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
-  const tealColor = '#21808D';
 
   const venues = searchVenues(query);
   const matchingCategories = CATEGORIES.filter((cat) =>
@@ -177,4 +176,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

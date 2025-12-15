@@ -18,19 +18,19 @@ export function VenueListItem({
   showCategory = false,
 }: VenueListItemProps) {
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1C1917' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const borderColor = useThemeColor(
-    { light: '#E5E5DE', dark: '#292524' },
+    { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
   const starColor = '#FBBF24';
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   return (
     <Pressable
@@ -50,7 +50,7 @@ export function VenueListItem({
           transition={200}
         />
         {venue.isPopular && (
-          <View style={styles.popularBadge}>
+          <View style={[styles.popularBadge, { backgroundColor: primaryColor }]}>
             <ThemedText style={styles.popularText}>Popular</ThemedText>
           </View>
         )}
@@ -79,8 +79,8 @@ export function VenueListItem({
             </ThemedText>
           </View>
           {showCategory && (
-            <View style={[styles.categoryBadge, { backgroundColor: tealColor + '20' }]}>
-              <ThemedText style={[styles.categoryText, { color: tealColor }]}>
+            <View style={[styles.categoryBadge, { backgroundColor: primaryColor + '20' }]}>
+              <ThemedText style={[styles.categoryText, { color: primaryColor }]}>
                 {venue.category.charAt(0).toUpperCase() + venue.category.slice(1)}
               </ThemedText>
             </View>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: '#0D9488',
+    backgroundColor: '#00BE3C',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -180,4 +180,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

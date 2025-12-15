@@ -34,14 +34,10 @@ export default function ExploreScreen() {
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   const backgroundColor = useThemeColor(
-    { light: '#F3F3EE', dark: '#0C0A09' },
+    { light: '#F9F9F9', dark: '#0E0F0F' },
     'background'
   );
-  const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
-    'textSecondary'
-  );
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   const featuredVenues = getFeaturedVenues();
   const nearbyVenues = getNearbyVenues(5);
@@ -79,9 +75,9 @@ export default function ExploreScreen() {
   }, [router]);
 
   return (
-    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+    <ThemedView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         {!isSearchActive && (
           <ThemedText style={styles.title}>Explore</ThemedText>
         )}
@@ -134,7 +130,7 @@ export default function ExploreScreen() {
               <View style={styles.sectionHeader}>
                 <ThemedText style={styles.sectionTitle}>FEATURED</ThemedText>
                 <ThemedText
-                  style={[styles.seeAll, { color: tealColor }]}
+                  style={[styles.seeAll, { color: primaryColor }]}
                   onPress={handleSeeAllPress}
                 >
                   See all →
@@ -182,7 +178,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 16,
   },
   title: {

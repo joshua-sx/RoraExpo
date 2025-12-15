@@ -9,34 +9,36 @@
 
 export const Colors = {
   // Primary Brand
-  primary: '#21808D', // Rora Teal
-  primaryLight: '#2A9BA8',
-  primaryDark: '#1A6470',
+  primary: '#00BE3C', // Evergreen
+  primaryLight: '#1FD455',
+  primaryDark: '#008F2F',
+  accent: '#008F2F',
 
   // Backgrounds
-  canvasMist: '#F3F3EE', // Soft warm grey app background
-  cardWhite: '#FCFCF9', // Cards, inputs, sheets
+  canvasMist: '#F9F9F9', // App background
+  cardWhite: '#FFFFFF', // Cards, inputs, sheets
 
   // Text
-  textSlate: '#4B6468', // Primary text
-  neutralStone: '#8E8E93', // Secondary text, placeholders, disabled
+  textSlate: '#262626', // Primary text
+  neutralStone: '#5C5F62', // Secondary text, placeholders, disabled
 
   // Functional
-  success: '#3D8856', // Success, confirmation
-  error: '#CF423C', // Errors, blocking states
+  success: '#00BE3C', // Success, confirmation
+  error: '#D14343', // Errors, blocking states
   warning: '#E9A63A', // Warnings, inline alerts
-  info: '#0EA5E9', // Informational
+  info: '#2F89FC', // Informational
 
   // Dividers & Borders
-  dividerMist: '#E5E5DE',
+  dividerMist: '#E3E6E3',
+  link: '#00BE3C',
 
   // Aliases for semantic use
-  background: '#F3F3EE',
-  surface: '#FCFCF9',
-  text: '#4B6468',
-  textSecondary: '#8E8E93',
-  border: '#E5E5DE',
-  tint: '#21808D',
+  background: '#F9F9F9',
+  surface: '#FFFFFF',
+  text: '#262626',
+  textSecondary: '#5C5F62',
+  border: '#E3E6E3',
+  tint: '#00BE3C',
 };
 
 // ============================================================================
@@ -46,8 +48,8 @@ export const Colors = {
 export const Typography = {
   // Font Families
   fonts: {
-    sans: 'system-ui', // Roboto / System UI for body
-    grotesk: 'system-ui', // Using system-ui as fallback (ideally fkGroteskNeue for headings)
+    sans: "Suisse, 'Segoe UI', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', system-ui, -apple-system, sans-serif",
+    grotesk: "Suisse, 'Segoe UI', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', system-ui, -apple-system, sans-serif",
   },
 
   // Font Sizes
@@ -188,4 +190,3 @@ export const ZIndex = {
   popover: 1060,
   tooltip: 1070,
 };
-

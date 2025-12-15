@@ -26,22 +26,22 @@ export function RideCtaSheet({
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const backgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1C1917' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const handleIndicatorColor = useThemeColor(
-    { light: '#E5E5DE', dark: '#4B5563' },
+    { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
   const borderColor = useThemeColor(
-    { light: '#E5E5DE', dark: '#374151' },
+    { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   const snapPoints = useMemo(() => ['55%'], []);
 
@@ -90,7 +90,7 @@ export function RideCtaSheet({
             style={[styles.fieldInput, { borderColor }]}
             onPress={onEditPickup}
           >
-            <Ionicons name="location" size={18} color={tealColor} />
+            <Ionicons name="location" size={18} color={primaryColor} />
             <ThemedText style={styles.fieldValue}>Current Location</ThemedText>
             <Ionicons name="chevron-down" size={18} color={subtextColor} />
           </Pressable>
@@ -120,7 +120,7 @@ export function RideCtaSheet({
               ~{venue.estimatedDuration || 12} min
             </ThemedText>
           </View>
-          <View style={styles.routeDivider} />
+          <View style={[styles.routeDivider, { backgroundColor: borderColor }]} />
           <View style={styles.routeItem}>
             <Ionicons name="navigate-outline" size={20} color={subtextColor} />
             <ThemedText style={styles.routeText}>
@@ -133,7 +133,7 @@ export function RideCtaSheet({
         <Pressable
           style={({ pressed }) => [
             styles.ctaButton,
-            { backgroundColor: '#21808D' },
+            { backgroundColor: primaryColor },
             pressed && styles.ctaButtonPressed,
           ]}
           onPress={onGetQuote}
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   routeDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#E7E5E4',
+    backgroundColor: '#E3E6E3',
     marginHorizontal: 24,
   },
   routeText: {
@@ -242,4 +242,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

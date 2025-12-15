@@ -17,28 +17,30 @@ export const ThemeColors = {
     background: Colors.canvasMist,
     surface: Colors.cardWhite,
     tint: Colors.primary,
-    icon: Colors.neutralStone,
+    icon: '#8C9390',
     border: Colors.dividerMist,
     success: Colors.success,
     error: Colors.error,
     warning: Colors.warning,
     info: Colors.info,
-    tabIconDefault: Colors.neutralStone,
+    link: Colors.primary,
+    tabIconDefault: '#8C9390',
     tabIconSelected: Colors.primary,
   },
   dark: {
-    text: '#FAFAF9', // Light off-white
-    textSecondary: '#A8A29E', // Lighter stone
-    background: '#1C1917', // Very dark
-    surface: '#292524', // Dark grey
+    text: '#E5E7EA', // Light neutral
+    textSecondary: '#A0A5AA', // Muted neutral
+    background: '#0E0F0F', // Deep charcoal
+    surface: '#161616', // Card surfaces
     tint: Colors.primary,
-    icon: '#A8A29E',
-    border: '#3F3F3F',
+    icon: '#A0A5AA',
+    border: '#2F3237',
     success: Colors.success,
     error: Colors.error,
     warning: Colors.warning,
     info: Colors.info,
-    tabIconDefault: '#A8A29E',
+    link: Colors.primary,
+    tabIconDefault: '#7C8086',
     tabIconSelected: Colors.primary,
   },
 };
@@ -51,8 +53,8 @@ export const Colors_compat = ThemeColors;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS - System sans-serif (Roboto equivalent) */
-    sans: 'system-ui',
+    /** iOS - Body */
+    sans: 'Suisse',
     /** iOS - Serif */
     serif: 'ui-serif',
     /** iOS - Rounded (for headings) */
@@ -61,13 +63,13 @@ export const Fonts = Platform.select({
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: 'Suisse',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    sans: "Suisse, 'Segoe UI', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",

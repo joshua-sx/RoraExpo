@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
+import { Fonts } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 type LocationInputFieldProps = {
@@ -18,8 +19,13 @@ type LocationInputFieldProps = {
   onChangeText?: (text: string) => void;
   onPress?: () => void;
   onFocus?: () => void;
+  onClear?: () => void;
   isLocked?: boolean;
+  isFocused?: boolean;
   autoFocus?: boolean;
+  iconName?: keyof typeof Ionicons.glyphMap;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
+  onRightIconPress?: () => void;
 } & Omit<TextInputProps, 'style'>;
 
 export const LocationInputField = forwardRef<TextInput, LocationInputFieldProps>(
@@ -31,78 +37,104 @@ export const LocationInputField = forwardRef<TextInput, LocationInputFieldProps>
       onChangeText,
       onPress,
       onFocus,
+      onClear,
       isLocked = false,
+      isFocused = false,
       autoFocus = false,
+      iconName,
+      rightIcon,
+      onRightIconPress,
       ...textInputProps
     },
     ref
   ) {
     const backgroundColor = useThemeColor(
-      { light: '#F3F3EE', dark: '#2A2A2A' },
-      'background'
+      { light: '#FFFFFF', dark: '#1A1A1A' },
+      'surface'
     );
     const textColor = useThemeColor(
-      { light: '#4B6468', dark: '#FFFFFF' },
+      { light: '#262626', dark: '#E5E7EA' },
       'text'
     );
     const placeholderColor = useThemeColor(
-      { light: '#8E8E93', dark: '#6B7280' },
+      { light: '#5C5F62', dark: '#8B8F95' },
       'textSecondary'
     );
     const iconColor = useThemeColor(
-      { light: '#8E8E93', dark: '#9CA3AF' },
+      { light: '#5C5F62', dark: '#8B8F95' },
       'textSecondary'
     );
     const lockedTextColor = useThemeColor(
-      { light: '#4B6468', dark: '#D1D5DB' },
+      { light: '#262626', dark: '#D1D5DB' },
       'text'
     );
-    const checkColor = useThemeColor(
-      { light: '#3D8856', dark: '#34D399' },
-      'tint'
-    );
-    const borderColor = useThemeColor(
-      { light: '#E5E5DE', dark: '#374151' },
+    const checkColor = useThemeColor({}, 'tint');
+    const tintColor = useThemeColor({}, 'tint');
+    const baseBorderColor = useThemeColor(
+      { light: '#E3E6E3', dark: '#2F3237' },
       'border'
     );
+    const borderColor = isFocused ? tintColor : baseBorderColor;
+
+    const displayIcon = iconName || (isLocked ? 'location' : 'search');
 
     const content = (
       <View style={styles.container}>
         <ThemedText style={styles.label}>{label}</ThemedText>
-        <View
-          style={[
-            styles.inputContainer,
-            { backgroundColor, borderColor },
-            isLocked && styles.lockedContainer,
-          ]}
-        >
-          <Ionicons
-            name={isLocked ? 'location' : 'search'}
-            size={18}
-            color={isLocked ? checkColor : iconColor}
-            style={styles.icon}
-          />
-          {isLocked ? (
-            <View style={styles.lockedContent}>
-              <ThemedText style={[styles.lockedText, { color: lockedTextColor }]}>
-                {value || 'Current location'}
-              </ThemedText>
-              <Ionicons name="checkmark-circle" size={18} color={checkColor} />
-            </View>
-          ) : (
-            <TextInput
-              ref={ref}
-              style={[styles.input, { color: textColor }]}
-              placeholder={placeholder}
-              placeholderTextColor={placeholderColor}
-              value={value}
-              onChangeText={onChangeText}
-              onFocus={onFocus}
-              autoFocus={autoFocus}
-              editable={!onPress}
-              pointerEvents={onPress ? 'none' : 'auto'}
-              {...textInputProps}
+        <View style={styles.rowContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              { backgroundColor, borderColor },
+              isLocked && styles.lockedContainer,
+              isFocused && styles.focusedContainer,
+            ]}
+          >
+            <Ionicons
+              name={displayIcon}
+              size={18}
+              color={isLocked ? checkColor : iconColor}
+              style={styles.icon}
             />
+            {isLocked ? (
+              <View style={styles.lockedContent}>
+                <ThemedText style={[styles.lockedText, { color: lockedTextColor }]}>
+                  {value || 'Current location'}
+                </ThemedText>
+                <Ionicons name="checkmark-circle" size={18} color={checkColor} />
+              </View>
+            ) : (
+              <>
+                <TextInput
+                  ref={ref}
+                  style={[styles.input, { color: textColor }]}
+                  placeholder={placeholder}
+                  placeholderTextColor={placeholderColor}
+                  value={value}
+                  onChangeText={onChangeText}
+                  onFocus={onFocus}
+                  autoFocus={autoFocus}
+                  editable={!onPress}
+                  pointerEvents={onPress ? 'none' : 'auto'}
+                  {...textInputProps}
+                />
+                {value && value.length > 0 && onClear && !onPress && (
+                  <Pressable onPress={onClear} hitSlop={8} style={styles.clearButton}>
+                    <Ionicons name="close-circle" size={18} color={iconColor} />
+                  </Pressable>
+                )}
+              </>
+            )}
+          </View>
+          {rightIcon && (
+            <Pressable
+              onPress={onRightIconPress}
+              style={styles.rightIconButton}
+              hitSlop={8}
+              disabled={!onRightIconPress}
+            >
+              <Ionicons name={rightIcon} size={20} color={iconColor} />
+            </Pressable>
           )}
         </View>
       </View>
@@ -134,17 +166,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     opacity: 0.8,
   },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   inputContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 14,
-    width: '100%',
   },
   lockedContainer: {
     opacity: 0.9,
+  },
+  focusedContainer: {
+    borderWidth: 2,
   },
   icon: {
     marginRight: 10,
@@ -153,8 +193,19 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '400',
+    fontFamily: Fonts?.sans,
     padding: 0,
     margin: 0,
+  },
+  clearButton: {
+    marginLeft: 8,
+  },
+  rightIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   lockedContent: {
     flex: 1,
@@ -165,6 +216,6 @@ const styles = StyleSheet.create({
   lockedText: {
     fontSize: 16,
     fontWeight: '400',
+    fontFamily: Fonts?.sans,
   },
 });
-

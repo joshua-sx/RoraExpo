@@ -23,18 +23,18 @@ export default function VenueDetailScreen() {
   const [showRideSheet, setShowRideSheet] = useState(false);
 
   const backgroundColor = useThemeColor(
-    { light: '#F3F3EE', dark: '#0C0A09' },
+    { light: '#F9F9F9', dark: '#0E0F0F' },
     'background'
   );
   const cardBackgroundColor = useThemeColor(
-    { light: '#FCFCF9', dark: '#1C1917' },
+    { light: '#FFFFFF', dark: '#161616' },
     'surface'
   );
   const subtextColor = useThemeColor(
-    { light: '#8E8E93', dark: '#A8A29E' },
+    { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
-  const tealColor = '#21808D';
+  const primaryColor = useThemeColor({}, 'tint');
 
   const venue = getVenueById(id);
 
@@ -64,10 +64,10 @@ export default function VenueDetailScreen() {
           <Ionicons name="alert-circle-outline" size={48} color={subtextColor} />
           <ThemedText style={styles.errorText}>Venue not found</ThemedText>
           <Pressable
-            style={[styles.backButton, { borderColor: tealColor }]}
+            style={[styles.backButton, { borderColor: primaryColor }]}
             onPress={() => router.back()}
           >
-            <ThemedText style={[styles.backButtonText, { color: tealColor }]}>
+            <ThemedText style={[styles.backButtonText, { color: primaryColor }]}>
               Go back
             </ThemedText>
           </Pressable>
@@ -113,7 +113,7 @@ export default function VenueDetailScreen() {
                       <Ionicons
                         name="checkmark-circle-outline"
                         size={18}
-                        color={tealColor}
+                        color={primaryColor}
                       />
                       <ThemedText style={styles.amenityText}>{amenity}</ThemedText>
                     </View>
@@ -143,7 +143,7 @@ export default function VenueDetailScreen() {
                     latitude: venue.latitude,
                     longitude: venue.longitude,
                   }}
-                  pinColor={tealColor}
+                  pinColor={primaryColor}
                 />
               </MapView>
             </View>
@@ -256,4 +256,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
