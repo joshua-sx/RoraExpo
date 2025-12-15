@@ -46,12 +46,12 @@ export function DestinationBottomSheet({
   const [destination, setDestination] = useState('');
 
   const backgroundColor = useThemeColor(
-    { light: '#FFFFFF', dark: '#1A1A1A' },
-    'background'
+    { light: '#FCFCF9', dark: '#1C1917' },
+    'surface'
   );
   const handleIndicatorColor = useThemeColor(
-    { light: '#D1D5DB', dark: '#4B5563' },
-    'text'
+    { light: '#E5E5DE', dark: '#4B5563' },
+    'border'
   );
 
   // Snap points: collapsed (accounts for tab bar) and expanded

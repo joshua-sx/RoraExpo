@@ -1,112 +1,231 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState, useRef, useCallback } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  TextInput,
+  Keyboard,
+  FlatList,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { SearchBar } from '@/components/explore/search-bar';
+import { CategoryChip } from '@/components/explore/category-chip';
+import { FeaturedVenueCard } from '@/components/explore/featured-venue-card';
+import { VenueListItem } from '@/components/explore/venue-list-item';
+import { SearchResults } from '@/components/explore/search-results';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import {
+  CATEGORIES,
+  getFeaturedVenues,
+  getNearbyVenues,
+} from '@/data/venues';
+import type { Venue, CategoryInfo } from '@/types/venue';
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const searchInputRef = useRef<TextInput>(null);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const backgroundColor = useThemeColor(
+    { light: '#F3F3EE', dark: '#0C0A09' },
+    'background'
+  );
+  const subtextColor = useThemeColor(
+    { light: '#8E8E93', dark: '#A8A29E' },
+    'textSecondary'
+  );
+  const tealColor = '#21808D';
+
+  const featuredVenues = getFeaturedVenues();
+  const nearbyVenues = getNearbyVenues(5);
+
+  const handleSearchFocus = useCallback(() => {
+    setIsSearchActive(true);
+  }, []);
+
+  const handleSearchCancel = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery('');
+    Keyboard.dismiss();
+  }, []);
+
+  const handleCategoryPress = useCallback(
+    (category: CategoryInfo) => {
+      router.push(`/explore/category/${category.slug}`);
+    },
+    [router]
+  );
+
+  const handleVenuePress = useCallback(
+    (venue: Venue) => {
+      setIsSearchActive(false);
+      setSearchQuery('');
+      Keyboard.dismiss();
+      router.push(`/explore/venue/${venue.id}`);
+    },
+    [router]
+  );
+
+  const handleSeeAllPress = useCallback(() => {
+    // For now, navigate to first category
+    router.push('/explore/category/beach');
+  }, [router]);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        {!isSearchActive && (
+          <ThemedText style={styles.title}>Explore</ThemedText>
+        )}
+        <SearchBar
+          ref={searchInputRef}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onFocus={handleSearchFocus}
+          onCancel={handleSearchCancel}
+          isActive={isSearchActive}
+          autoFocus={isSearchActive}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
+      </View>
+
+      {/* Search Results */}
+      {isSearchActive ? (
+        <SearchResults
+          query={searchQuery}
+          onVenuePress={handleVenuePress}
+          onCategoryPress={handleCategoryPress}
         />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          scrollEventThrottle={16}
+        >
+          <View style={styles.scrollWrapper}>
+            {/* Categories */}
+            <View style={styles.categoriesSection}>
+              <FlatList
+                horizontal
+                data={CATEGORIES}
+                keyExtractor={(item) => item.slug}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoriesContent}
+                renderItem={({ item }) => (
+                  <CategoryChip
+                    category={item}
+                    onPress={handleCategoryPress}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Featured Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <ThemedText style={styles.sectionTitle}>FEATURED</ThemedText>
+                <ThemedText
+                  style={[styles.seeAll, { color: tealColor }]}
+                  onPress={handleSeeAllPress}
+                >
+                  See all →
+                </ThemedText>
+              </View>
+              <View style={styles.sectionContent}>
+                {featuredVenues.map((venue) => (
+                  <FeaturedVenueCard
+                    key={venue.id}
+                    venue={venue}
+                    onPress={handleVenuePress}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* Near You Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <ThemedText style={styles.sectionTitle}>NEAR YOU</ThemedText>
+              </View>
+              <View style={styles.sectionContent}>
+                {nearbyVenues.map((venue) => (
+                  <VenueListItem
+                    key={venue.id}
+                    venue={venue}
+                    onPress={handleVenuePress}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* Bottom Padding */}
+            <View style={{ height: 100 }} />
+          </View>
+        </ScrollView>
+      )}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  header: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  scrollWrapper: {
+    flex: 1,
+  },
+  categoriesSection: {
+    marginBottom: 32,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    opacity: 0.6,
+  },
+  seeAll: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  sectionContent: {
+    paddingHorizontal: 20,
+  },
+  categoriesContent: {
+    paddingHorizontal: 20,
+    paddingRight: 20,
   },
 });

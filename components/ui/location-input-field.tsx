@@ -38,32 +38,32 @@ export const LocationInputField = forwardRef<TextInput, LocationInputFieldProps>
     ref
   ) {
     const backgroundColor = useThemeColor(
-      { light: '#F5F5F5', dark: '#2A2A2A' },
+      { light: '#F3F3EE', dark: '#2A2A2A' },
       'background'
     );
     const textColor = useThemeColor(
-      { light: '#1A1A1A', dark: '#FFFFFF' },
+      { light: '#4B6468', dark: '#FFFFFF' },
       'text'
     );
     const placeholderColor = useThemeColor(
-      { light: '#9CA3AF', dark: '#6B7280' },
-      'text'
+      { light: '#8E8E93', dark: '#6B7280' },
+      'textSecondary'
     );
     const iconColor = useThemeColor(
-      { light: '#6B7280', dark: '#9CA3AF' },
-      'text'
+      { light: '#8E8E93', dark: '#9CA3AF' },
+      'textSecondary'
     );
     const lockedTextColor = useThemeColor(
-      { light: '#374151', dark: '#D1D5DB' },
+      { light: '#4B6468', dark: '#D1D5DB' },
       'text'
     );
     const checkColor = useThemeColor(
-      { light: '#10B981', dark: '#34D399' },
-      'text'
+      { light: '#3D8856', dark: '#34D399' },
+      'tint'
     );
     const borderColor = useThemeColor(
-      { light: '#E5E7EB', dark: '#374151' },
-      'text'
+      { light: '#E5E5DE', dark: '#374151' },
+      'border'
     );
 
     const content = (

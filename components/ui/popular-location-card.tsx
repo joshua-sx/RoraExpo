@@ -20,12 +20,12 @@ export function PopularLocationCard({
   onPress,
 }: PopularLocationCardProps) {
   const backgroundColor = useThemeColor(
-    { light: '#F9FAFB', dark: '#1F2937' },
-    'background'
+    { light: '#FCFCF9', dark: '#1F2937' },
+    'surface'
   );
   const borderColor = useThemeColor(
-    { light: '#E5E7EB', dark: '#374151' },
-    'text'
+    { light: '#E5E5DE', dark: '#374151' },
+    'border'
   );
 
   return (

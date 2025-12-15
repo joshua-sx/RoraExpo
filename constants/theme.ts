@@ -1,41 +1,63 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Rora Design System
+ * Color palette and typography for light and dark modes
  */
 
 import { Platform } from 'react-native';
+import { Colors, Typography } from './design-tokens';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// ============================================================================
+// SEMANTIC COLORS FOR LIGHT AND DARK MODES
+// ============================================================================
 
-export const Colors = {
+export const ThemeColors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: Colors.textSlate,
+    textSecondary: Colors.neutralStone,
+    background: Colors.canvasMist,
+    surface: Colors.cardWhite,
+    tint: Colors.primary,
+    icon: Colors.neutralStone,
+    border: Colors.dividerMist,
+    success: Colors.success,
+    error: Colors.error,
+    warning: Colors.warning,
+    info: Colors.info,
+    tabIconDefault: Colors.neutralStone,
+    tabIconSelected: Colors.primary,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: '#FAFAF9', // Light off-white
+    textSecondary: '#A8A29E', // Lighter stone
+    background: '#1C1917', // Very dark
+    surface: '#292524', // Dark grey
+    tint: Colors.primary,
+    icon: '#A8A29E',
+    border: '#3F3F3F',
+    success: Colors.success,
+    error: Colors.error,
+    warning: Colors.warning,
+    info: Colors.info,
+    tabIconDefault: '#A8A29E',
+    tabIconSelected: Colors.primary,
   },
 };
 
+export const Colors_compat = ThemeColors;
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
+    /** iOS - System sans-serif (Roboto equivalent) */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
+    /** iOS - Serif */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
+    /** iOS - Rounded (for headings) */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
+    /** iOS - Monospaced */
     mono: 'ui-monospace',
   },
   default: {
@@ -51,3 +73,5 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+export { Typography };

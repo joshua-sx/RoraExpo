@@ -19,20 +19,20 @@ export function SearchInput({
   editable = true,
 }: SearchInputProps) {
   const backgroundColor = useThemeColor(
-    { light: '#F5F5F5', dark: '#2A2A2A' },
+    { light: '#F3F3EE', dark: '#2A2A2A' },
     'background'
   );
   const textColor = useThemeColor(
-    { light: '#1A1A1A', dark: '#FFFFFF' },
+    { light: '#4B6468', dark: '#FFFFFF' },
     'text'
   );
   const placeholderColor = useThemeColor(
-    { light: '#9CA3AF', dark: '#6B7280' },
-    'text'
+    { light: '#8E8E93', dark: '#6B7280' },
+    'textSecondary'
   );
   const iconColor = useThemeColor(
-    { light: '#6B7280', dark: '#9CA3AF' },
-    'text'
+    { light: '#8E8E93', dark: '#9CA3AF' },
+    'textSecondary'
   );
 
   const content = (
