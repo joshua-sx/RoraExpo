@@ -11,6 +11,8 @@ import {
   SINT_MAARTEN_LOCATION,
 } from "@/constants/config";
 
+import { decodePolyline as decodePolylineUtil } from "@/utils/route-validation";
+
 // Type definitions for Google Maps API responses
 export interface LatLng {
   latitude: number;
@@ -164,56 +166,15 @@ class GoogleMapsService {
    * (Google Directions API format)
    */
   public decodePolyline(encoded: string): LatLng[] {
-    if (typeof encoded !== "string" || encoded.trim().length === 0) {
-      throw new GoogleMapsError("Invalid polyline encoding", "INVALID_POLYLINE");
+    try {
+      return decodePolylineUtil(encoded) as LatLng[];
+    } catch (error) {
+      throw new GoogleMapsError(
+        "Invalid polyline encoding",
+        "INVALID_POLYLINE",
+        error
+      );
     }
-
-    let index = 0;
-    const len = encoded.length;
-    let lat = 0;
-    let lng = 0;
-    const coordinates: LatLng[] = [];
-
-    while (index < len) {
-      let b;
-      let shift = 0;
-      let result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-
-      coordinates.push({
-        latitude: lat / 1e5,
-        longitude: lng / 1e5,
-      });
-    }
-
-    if (
-      coordinates.length === 0 ||
-      coordinates.some(
-        (coord) =>
-          !Number.isFinite(coord.latitude) ||
-          !Number.isFinite(coord.longitude)
-      )
-    ) {
-      throw new GoogleMapsError("Invalid polyline encoding", "INVALID_POLYLINE");
-    }
-
-    return coordinates;
   }
 
   /**
@@ -266,6 +227,26 @@ class GoogleMapsService {
     }
 
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'debug-session',
+          runId: 'run1',
+          hypothesisId: 'H1',
+          location: 'google-maps.service.ts:searchPlaces:pre-request',
+          message: 'searchPlaces called',
+          data: {
+            hasQuery: !!query,
+            queryLength: query.length,
+            hasBounds: !!bounds,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+
       const params = new URLSearchParams({
         input: query,
         location: `${SINT_MAARTEN_LOCATION.latitude},${SINT_MAARTEN_LOCATION.longitude}`,
@@ -275,6 +256,31 @@ class GoogleMapsService {
 
       const url = `${this.getProxyBaseUrl()}/maps/places/autocomplete?${params}`;
       const response = await this.makeRequest<any>(url);
+
+      // #region agent log
+      fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'debug-session',
+          runId: 'run1',
+          hypothesisId: 'H2',
+          location: 'google-maps.service.ts:searchPlaces:post-response',
+          message: 'searchPlaces autocomplete response received',
+          data: {
+            predictionsCount: Array.isArray(response?.predictions)
+              ? response.predictions.length
+              : 0,
+            // Only log minimal, non-PII structural info
+            firstPredictionTypes:
+              Array.isArray(response?.predictions) && response.predictions[0]?.types
+                ? response.predictions[0].types
+                : [],
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
 
       const results: PlaceResult[] = (response.predictions || []).map(
         (prediction: any) => ({

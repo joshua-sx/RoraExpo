@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
+import { Alert, StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -16,6 +16,7 @@ import { getVenueById } from '@/data/venues';
 import { googleMapsService } from '@/services/google-maps.service';
 import { useRouteStore } from '@/store/route-store';
 import { calculatePrice } from '@/utils/pricing';
+import { extractRouteData } from '@/utils/route-validation';
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -75,33 +76,8 @@ export default function VenueDetailScreen() {
         currentLocation,
         { latitude: venue.latitude, longitude: venue.longitude }
       );
-      
-      if (directions.status === "ZERO_RESULTS") {
-        throw new Error("No route found");
-      }
+      const { distanceKm, durationMin, coordinates } = extractRouteData(directions);
 
-      const route = directions.routes?.[0];
-      const leg = route?.legs?.[0];
-      const encoded = route?.overview_polyline?.points;
-      
-      if (!leg || !encoded) {
-        throw new Error('Could not calculate route');
-      }
-      
-      const distanceValue = leg.distance?.value;
-      const durationValue = leg.duration?.value;
-
-      if (!Number.isFinite(distanceValue) || !Number.isFinite(durationValue)) {
-        throw new Error('Directions response missing distance or duration');
-      }
-
-      const distanceKm = distanceValue / 1000;
-      const durationMin = durationValue / 60;
-      const coords = googleMapsService.decodePolyline(encoded);
-
-      if (!coords.length) {
-        throw new Error('Directions response missing route geometry');
-      }
       const price = calculatePrice(distanceKm, durationMin);
       
       // Set origin (current location)
@@ -125,15 +101,22 @@ export default function VenueDetailScreen() {
         distance: distanceKm,
         duration: durationMin,
         price,
-        coordinates: coords,
+        coordinates: coordinates,
       });
       
       // Navigate to trip preview
       router.push('/trip-preview');
     } catch (error) {
       console.error('[venue] Error fetching route:', error);
-      setError(error instanceof Error ? error.message : 'Failed to calculate route');
-      // Optionally show an alert to the user
+      const message = error instanceof Error ? error.message : 'Failed to calculate route';
+      setError(message);
+      const isNoRoute = message === 'No route found';
+      Alert.alert(
+        isNoRoute ? 'No route found' : 'Service error',
+        isNoRoute
+          ? 'Try a different pickup or destination.'
+          : 'We could not calculate this route. Please try again.'
+      );
     } finally {
       setIsLoadingRoute(false);
     }

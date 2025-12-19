@@ -1,11 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { PanResponder, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import PagerView from "react-native-pager-view";
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,6 +15,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useRouteStore } from "@/store/route-store";
 import { useTripHistoryStore } from "@/store/trip-history-store";
 import { formatDistance, formatDuration, formatPrice } from "@/utils/pricing";
+import { fitMapToRoute } from "@/utils/map";
 
 export default function TripPreviewScreen() {
 	const router = useRouter();
@@ -25,12 +25,12 @@ export default function TripPreviewScreen() {
 	const bottomSheetRef = useRef<BottomSheet>(null);
 
 	const { origin, destination, routeData } = useRouteStore();
-	const { addTrip } = useTripHistoryStore();
+	const { addTrip, toggleSaved } = useTripHistoryStore();
 	const [currentPage, setCurrentPage] = useState(0); // 0 = details, 1 = qr
 	const [tripId, setTripId] = useState<string | null>(null);
+	const [isSaved, setIsSaved] = useState(false);
 
 	// Theme colors
-	const backgroundColor = useThemeColor({ light: "#FFFFFF", dark: "#161616" }, "background");
 	const surfaceColor = useThemeColor({ light: "#FFFFFF", dark: "#161616" }, "surface");
 	const textColor = useThemeColor({ light: "#262626", dark: "#E5E7EA" }, "text");
 	const secondaryTextColor = useThemeColor({ light: "#5C5F62", dark: "#8B8F95" }, "textSecondary");
@@ -38,11 +38,14 @@ export default function TripPreviewScreen() {
 	const handleIndicatorColor = useThemeColor({ light: "#E3E6E3", dark: "#2F3237" }, "border");
 	const tintColor = useThemeColor({}, "tint");
 
+	// Bottom sheet snap point: single expanded height
+	// Increased to 65% to ensure Save Trip button is always visible
 	const bottomSheetHeight = useMemo(
-		() => Math.round(screenHeight * 0.6) + insets.bottom,
+		() => Math.round(screenHeight * 0.65) + insets.bottom,
 		[screenHeight, insets.bottom],
 	);
 	const snapPoints = useMemo(() => [bottomSheetHeight], [bottomSheetHeight]);
+
 	const mapEdgePadding = useMemo(
 		() => ({
 			top: insets.top + 64,
@@ -53,58 +56,9 @@ export default function TripPreviewScreen() {
 		[insets.top, bottomSheetHeight],
 	);
 
-	const fitMapToRoute = useCallback(
+	const handleFitMapToRoute = useCallback(
 		(coords: Array<{ latitude: number; longitude: number }>) => {
-			if (!mapRef.current || coords.length === 0) return;
-
-			const minDelta = 0.02;
-
-			if (coords.length === 1) {
-				const single = coords[0];
-				mapRef.current.animateToRegion(
-					{
-						latitude: single.latitude,
-						longitude: single.longitude,
-						latitudeDelta: minDelta,
-						longitudeDelta: minDelta,
-					},
-					500,
-				);
-				return;
-			}
-
-			let minLat = coords[0].latitude;
-			let maxLat = coords[0].latitude;
-			let minLng = coords[0].longitude;
-			let maxLng = coords[0].longitude;
-
-			for (const coord of coords) {
-				minLat = Math.min(minLat, coord.latitude);
-				maxLat = Math.max(maxLat, coord.latitude);
-				minLng = Math.min(minLng, coord.longitude);
-				maxLng = Math.max(maxLng, coord.longitude);
-			}
-
-			const latDelta = maxLat - minLat;
-			const lngDelta = maxLng - minLng;
-
-			if (latDelta < minDelta && lngDelta < minDelta) {
-				mapRef.current.animateToRegion(
-					{
-						latitude: (minLat + maxLat) / 2,
-						longitude: (minLng + maxLng) / 2,
-						latitudeDelta: minDelta,
-						longitudeDelta: minDelta,
-					},
-					500,
-				);
-				return;
-			}
-
-			mapRef.current.fitToCoordinates(coords, {
-				edgePadding: mapEdgePadding,
-				animated: true,
-			});
+			fitMapToRoute(mapRef, coords, { edgePadding: mapEdgePadding });
 		},
 		[mapEdgePadding],
 	);
@@ -138,22 +92,46 @@ export default function TripPreviewScreen() {
 	useEffect(() => {
 		if (routeData?.coordinates) {
 			setTimeout(() => {
-				fitMapToRoute(routeData.coordinates);
+				handleFitMapToRoute(routeData.coordinates);
 			}, 500);
 		}
-	}, [routeData, fitMapToRoute]);
+	}, [routeData, handleFitMapToRoute]);
 
 	const handleBack = useCallback(() => {
 		router.back();
 	}, [router]);
 
-	const handleEditRoute = useCallback(() => {
-		router.back();
-	}, [router]);
+	const handleSaveAndGoHome = useCallback(() => {
+		if (tripId && !isSaved) {
+			toggleSaved(tripId);
+			setIsSaved(true);
+		}
+		router.push("/");
+	}, [tripId, toggleSaved, isSaved, router]);
 
-	const handleFindDriver = useCallback(() => {
-		router.push("/find-driver-info");
-	}, [router]);
+	const togglePage = useCallback(() => {
+		setCurrentPage(prev => prev === 0 ? 1 : 0);
+	}, []);
+
+	// Pan responder for swipe gestures
+	const panResponder = useRef(
+		PanResponder.create({
+			onMoveShouldSetPanResponder: (_evt, gestureState) => {
+				// Only respond to horizontal swipes (not vertical scrolling)
+				return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 10;
+			},
+			onPanResponderRelease: (_evt, gestureState) => {
+				const SWIPE_THRESHOLD = 50;
+				if (gestureState.dx > SWIPE_THRESHOLD && currentPage === 1) {
+					// Swipe right → go to page 0
+					setCurrentPage(0);
+				} else if (gestureState.dx < -SWIPE_THRESHOLD && currentPage === 0) {
+					// Swipe left → go to page 1
+					setCurrentPage(1);
+				}
+			},
+		})
+	).current;
 
 	if (!routeData || !origin || !destination) {
 		return null;
@@ -218,141 +196,127 @@ export default function TripPreviewScreen() {
 					{ backgroundColor: handleIndicatorColor },
 				]}
 			>
-				<BottomSheetView
-					style={[
-						styles.bottomSheetContent,
-						{ paddingBottom: insets.bottom + Spacing.lg },
-					]}
+				<BottomSheetScrollView
+					style={styles.bottomSheetContent}
+					contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.md }}
 				>
-					{/* Page Indicator */}
-					<View style={styles.pageIndicator}>
-						<View
-							style={[
-								styles.dot,
-								currentPage === 0
-									? { backgroundColor: tintColor }
-									: { backgroundColor: "#D0D3D7" },
-							]}
-						/>
-						<View
-							style={[
-								styles.dot,
-								currentPage === 1
-									? { backgroundColor: tintColor }
-									: { backgroundColor: "#D0D3D7" },
-							]}
-						/>
-					</View>
+					<View {...panResponder.panHandlers}>
+						{/* Page Indicator - Swipeable */}
+						<Pressable onPress={togglePage} style={styles.pageIndicator}>
+							<View
+								style={[
+									styles.dot,
+									currentPage === 0
+										? { backgroundColor: tintColor }
+										: { backgroundColor: "#D0D3D7" },
+								]}
+							/>
+							<View
+								style={[
+									styles.dot,
+									currentPage === 1
+										? { backgroundColor: tintColor }
+										: { backgroundColor: "#D0D3D7" },
+								]}
+							/>
+						</Pressable>
 
-					{/* Horizontal Pager */}
-					<PagerView
-						style={styles.pager}
-						initialPage={0}
-						onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
-					>
 						{/* Page 1: Trip Details */}
-						<View key="1" style={styles.page}>
-							<ThemedText style={styles.pageTitle}>Trip details</ThemedText>
+						{currentPage === 0 && (
+							<View style={styles.page}>
+								<ThemedText style={styles.pageTitle}>Trip details</ThemedText>
 
-							{/* Route Points */}
-							<View style={styles.routeInfo}>
-								<View style={styles.routePoint}>
-									<View style={[styles.routeDot, { backgroundColor: tintColor }]} />
-									<View style={styles.routePointText}>
-										<ThemedText style={styles.routePointLabel}>Pickup</ThemedText>
-										<ThemedText style={styles.routePointName} numberOfLines={1}>
-											{origin.name}
+								{/* Route Points */}
+								<View style={styles.routeInfo}>
+									<View style={styles.routePoint}>
+										<View style={[styles.routeDot, { backgroundColor: tintColor }]} />
+										<View style={styles.routePointText}>
+											<ThemedText style={styles.routePointLabel}>Pickup</ThemedText>
+											<ThemedText style={styles.routePointName} numberOfLines={1}>
+												{origin.name}
+											</ThemedText>
+										</View>
+									</View>
+
+									<View style={[styles.routeLine, { backgroundColor: borderColor }]} />
+
+									<View style={styles.routePoint}>
+										<View style={[styles.routeDot, { backgroundColor: "#FF5733" }]} />
+										<View style={styles.routePointText}>
+											<ThemedText style={styles.routePointLabel}>Dropoff</ThemedText>
+											<ThemedText style={styles.routePointName} numberOfLines={1}>
+												{destination.name}
+											</ThemedText>
+										</View>
+									</View>
+								</View>
+
+								{/* Trip Details */}
+								<View style={styles.tripDetails}>
+									<View style={styles.detailItem}>
+										<Ionicons name="time-outline" size={20} color={secondaryTextColor} />
+										<ThemedText style={styles.detailText}>
+											{formatDuration(routeData.duration)}
+										</ThemedText>
+									</View>
+									<View style={styles.detailItem}>
+										<Ionicons name="car-outline" size={20} color={secondaryTextColor} />
+										<ThemedText style={styles.detailText}>
+											{formatDistance(routeData.distance)}
 										</ThemedText>
 									</View>
 								</View>
 
-								<View style={[styles.routeLine, { backgroundColor: borderColor }]} />
-
-								<View style={styles.routePoint}>
-									<View style={[styles.routeDot, { backgroundColor: "#FF5733" }]} />
-									<View style={styles.routePointText}>
-										<ThemedText style={styles.routePointLabel}>Dropoff</ThemedText>
-										<ThemedText style={styles.routePointName} numberOfLines={1}>
-											{destination.name}
-										</ThemedText>
-									</View>
-								</View>
-							</View>
-
-							{/* Trip Details */}
-							<View style={styles.tripDetails}>
-								<View style={styles.detailItem}>
-									<Ionicons name="time-outline" size={20} color={secondaryTextColor} />
-									<ThemedText style={styles.detailText}>
-										{formatDuration(routeData.duration)}
+								{/* Price Display */}
+								<View style={[styles.priceContainer, { borderColor }]}>
+									<ThemedText style={styles.priceLabel}>Estimated fare</ThemedText>
+									<ThemedText style={styles.price}>
+										{formatPrice(routeData.price)}
 									</ThemedText>
 								</View>
-								<View style={styles.detailItem}>
-									<Ionicons name="car-outline" size={20} color={secondaryTextColor} />
-									<ThemedText style={styles.detailText}>
-										{formatDistance(routeData.distance)}
-									</ThemedText>
-								</View>
-							</View>
 
-							{/* Price Display */}
-							<View style={[styles.priceContainer, { borderColor }]}>
-								<ThemedText style={styles.priceLabel}>Estimated fare</ThemedText>
-								<ThemedText style={styles.price}>
-									{formatPrice(routeData.price)}
-								</ThemedText>
-							</View>
-
-							{/* Action Buttons */}
-							<View style={styles.actions}>
+								{/* Save Trip Button */}
 								<Pressable
-									onPress={handleEditRoute}
-									style={[styles.secondaryButton, { borderColor }]}
+									onPress={handleSaveAndGoHome}
+									style={[styles.saveTripButton, { backgroundColor: tintColor }]}
 									accessible
 									accessibilityRole="button"
-									accessibilityLabel="Edit route"
+									accessibilityLabel="Save trip and go home"
 								>
-									<ThemedText style={styles.secondaryButtonText}>Edit Route</ThemedText>
-								</Pressable>
-
-								<Pressable
-									onPress={handleFindDriver}
-									style={[styles.primaryButton, { backgroundColor: tintColor }]}
-									accessible
-									accessibilityRole="button"
-									accessibilityLabel="Find driver"
-								>
-									<ThemedText style={styles.primaryButtonText}>Find Driver</ThemedText>
+									<Ionicons name="heart-outline" size={24} color="#FFFFFF" />
+									<ThemedText style={styles.saveTripButtonText}>Save Trip</ThemedText>
 								</Pressable>
 							</View>
-						</View>
+						)}
 
 						{/* Page 2: QR Code */}
-						<View key="2" style={styles.page}>
-							<ThemedText style={styles.pageTitle}>Your QR Code</ThemedText>
+						{currentPage === 1 && (
+							<View style={styles.page}>
+								<ThemedText style={styles.pageTitle}>Your QR Code</ThemedText>
 
-							{/* QR Code */}
-							<View style={styles.qrContainer}>
-								{tripId && (
-									<QRCode
-										value={tripId}
-										size={200}
-										backgroundColor="white"
-										color="black"
-									/>
-								)}
+								{/* QR Code */}
+								<View style={styles.qrContainer}>
+									{tripId && (
+										<QRCode
+											value={tripId}
+											size={200}
+											backgroundColor="white"
+											color="black"
+										/>
+									)}
+								</View>
+
+								{/* Instruction Text */}
+								<ThemedText style={styles.qrInstruction}>
+									Show the driver
+								</ThemedText>
+								<ThemedText style={[styles.qrSubtext, { color: secondaryTextColor }]}>
+									Let driver scan for verification
+								</ThemedText>
 							</View>
-
-							{/* Instruction Text */}
-							<ThemedText style={styles.qrInstruction}>
-								Show the driver
-							</ThemedText>
-							<ThemedText style={[styles.qrSubtext, { color: secondaryTextColor }]}>
-								Present this code to your driver to confirm your trip
-							</ThemedText>
-						</View>
-					</PagerView>
-				</BottomSheetView>
+						)}
+					</View>
+				</BottomSheetScrollView>
 			</BottomSheet>
 		</GestureHandlerRootView>
 	);
@@ -407,29 +371,25 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		gap: 8,
 		justifyContent: "center",
-		paddingVertical: 12,
+		paddingVertical: Spacing.sm,
+		marginBottom: Spacing.sm,
 	},
 	dot: {
 		width: 8,
 		height: 8,
 		borderRadius: 4,
 	},
-	pager: {
-		flex: 1,
-	},
 	page: {
-		flex: 1,
 		paddingHorizontal: Spacing.xl,
-		paddingBottom: 20,
 	},
 	pageTitle: {
 		fontSize: 20,
 		fontWeight: "700",
-		marginBottom: Spacing.lg,
+		marginBottom: Spacing.md,
 	},
 	routeInfo: {
-		paddingVertical: Spacing.md,
-		marginBottom: Spacing.md,
+		paddingVertical: Spacing.sm,
+		marginBottom: Spacing.sm,
 	},
 	routePoint: {
 		flexDirection: "row",
@@ -456,15 +416,15 @@ const styles = StyleSheet.create({
 	},
 	routeLine: {
 		width: 2,
-		height: 24,
+		height: 16,
 		marginLeft: 5,
-		marginVertical: 4,
+		marginVertical: 2,
 	},
 	tripDetails: {
 		flexDirection: "row",
 		gap: Spacing.xl,
 		paddingVertical: Spacing.sm,
-		marginBottom: Spacing.lg,
+		marginBottom: Spacing.md,
 	},
 	detailItem: {
 		flexDirection: "row",
@@ -476,11 +436,11 @@ const styles = StyleSheet.create({
 		fontWeight: "500",
 	},
 	priceContainer: {
-		paddingVertical: Spacing.lg,
+		paddingVertical: Spacing.md,
 		paddingHorizontal: Spacing.lg,
 		borderWidth: 1,
 		borderRadius: BorderRadius.card,
-		marginBottom: Spacing.xl,
+		marginBottom: Spacing.md,
 	},
 	priceLabel: {
 		fontSize: 13,
@@ -491,6 +451,21 @@ const styles = StyleSheet.create({
 	price: {
 		fontSize: 32,
 		fontWeight: "700",
+		lineHeight: 38,
+	},
+	saveTripButton: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: Spacing.md,
+		paddingVertical: Spacing.lg,
+		borderRadius: BorderRadius.button,
+		marginBottom: Spacing.sm,
+	},
+	saveTripButtonText: {
+		color: "#FFFFFF",
+		fontSize: 18,
+		fontWeight: "600",
 	},
 	qrContainer: {
 		alignItems: "center",
@@ -510,34 +485,5 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		marginTop: Spacing.sm,
 		paddingHorizontal: Spacing.lg,
-	},
-	actions: {
-		flexDirection: "row",
-		gap: Spacing.md,
-		paddingBottom: Spacing.lg,
-	},
-	secondaryButton: {
-		flex: 1,
-		paddingVertical: Spacing.lg,
-		borderRadius: BorderRadius.button,
-		borderWidth: 2,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	secondaryButtonText: {
-		fontSize: 16,
-		fontWeight: "600",
-	},
-	primaryButton: {
-		flex: 1,
-		paddingVertical: Spacing.lg,
-		borderRadius: BorderRadius.button,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	primaryButtonText: {
-		color: "#FFFFFF",
-		fontSize: 16,
-		fontWeight: "600",
 	},
 });

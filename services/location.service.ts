@@ -23,19 +23,19 @@ export class LocationError extends Error {
 class LocationService {
   /**
    * Request foreground location permissions from the device
-   * @returns Promise<boolean> - true if permission granted, false otherwise
+   * @returns Promise<Location.PermissionStatus>
    */
-  async requestPermissions(): Promise<boolean> {
+  async requestPermissions(): Promise<Location.PermissionStatus> {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status === "granted") {
         console.log("[LocationService] Permission granted");
-        return true;
+      } else {
+        console.warn("[LocationService] Permission not granted:", status);
       }
 
-      console.warn("[LocationService] Permission denied:", status);
-      return false;
+      return status;
     } catch (error) {
       console.error("[LocationService] Permission request error:", error);
       throw new LocationError(

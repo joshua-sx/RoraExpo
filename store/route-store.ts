@@ -50,10 +50,17 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
 
   // Actions
   setOrigin: (origin) => {
+    const currentOrigin = get().origin;
+    const shouldClearRoute =
+      !origin || !currentOrigin || origin.placeId !== currentOrigin.placeId;
     // #region agent log
     DEBUG_LOG('route-store.ts:46', 'setOrigin called', { hypothesisId: 'A', origin: origin ? { placeId: origin.placeId, name: origin.name } : null });
     // #endregion
-    set({ origin, error: null });
+    set({
+      origin,
+      error: null,
+      routeData: shouldClearRoute ? null : get().routeData,
+    });
     // #region agent log
     const state = get();
     DEBUG_LOG('route-store.ts:49', 'setOrigin state after update', { hypothesisId: 'D', origin: state.origin ? { placeId: state.origin.placeId, name: state.origin.name } : null, destination: state.destination ? { placeId: state.destination.placeId, name: state.destination.name } : null });
@@ -61,10 +68,19 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
   },
 
   setDestination: (destination) => {
+    const currentDestination = get().destination;
+    const shouldClearRoute =
+      !destination ||
+      !currentDestination ||
+      destination.placeId !== currentDestination.placeId;
     // #region agent log
     DEBUG_LOG('route-store.ts:48', 'setDestination called', { hypothesisId: 'A', destination: destination ? { placeId: destination.placeId, name: destination.name } : null });
     // #endregion
-    set({ destination, error: null });
+    set({
+      destination,
+      error: null,
+      routeData: shouldClearRoute ? null : get().routeData,
+    });
     // #region agent log
     const state = get();
     DEBUG_LOG('route-store.ts:51', 'setDestination state after update', { hypothesisId: 'D', origin: state.origin ? { placeId: state.origin.placeId, name: state.origin.name } : null, destination: state.destination ? { placeId: state.destination.placeId, name: state.destination.name } : null });
@@ -81,6 +97,7 @@ export const useRouteStore = create<RouteStore>((set, get) => ({
       origin: destination,
       destination: origin,
       routeData: null, // Clear route data on swap
+      error: null,
     });
   },
 

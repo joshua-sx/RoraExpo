@@ -5,6 +5,7 @@ interface TripHistoryStore {
   trips: Trip[];
   addTrip: (trip: Trip) => void;
   updateTripStatus: (id: string, status: TripStatus, driverId?: string) => void;
+  toggleSaved: (id: string) => void;
   getTripById: (id: string) => Trip | undefined;
   getRecentTrips: (limit?: number) => Trip[];
   getNotTakenTrips: () => Trip[];
@@ -23,7 +24,29 @@ export const useTripHistoryStore = create<TripHistoryStore>((set, get) => ({
   updateTripStatus: (id, status, driverId) => {
     set((state) => ({
       trips: state.trips.map((trip) =>
-        trip.id === id ? { ...trip, status, ...(driverId && { driverId }) } : trip
+        trip.id === id
+          ? {
+              ...trip,
+              status,
+              driverId:
+                status === 'not_taken' || status === 'cancelled'
+                  ? undefined
+                  : driverId ?? trip.driverId,
+            }
+          : trip
+      ),
+    }));
+  },
+
+  toggleSaved: (id) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === id
+          ? {
+              ...trip,
+              saved: !trip.saved,
+            }
+          : trip
       ),
     }));
   },
@@ -44,4 +67,3 @@ export const useTripHistoryStore = create<TripHistoryStore>((set, get) => ({
     set({ trips: [] });
   },
 }));
-

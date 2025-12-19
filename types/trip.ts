@@ -10,5 +10,6 @@ export interface Trip {
   routeData: RouteData;
   status: TripStatus;
   driverId?: string;
+  saved?: boolean;
 }
 

@@ -1,10 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { LatLng } from "@/services/google-maps.service";
+import type { PermissionStatus } from "expo-location";
 
 interface PersistedLocationData {
 	currentLocation: LatLng | null;
 	formattedAddress: string | null;
 	permissionGranted: boolean;
+	permissionStatus?: PermissionStatus;
 	lastUpdated: number;
 }
 
@@ -24,6 +26,7 @@ class LocationStorageService {
 					data.formattedAddress ?? existing?.formattedAddress ?? null,
 				permissionGranted:
 					data.permissionGranted ?? existing?.permissionGranted ?? false,
+				permissionStatus: data.permissionStatus ?? existing?.permissionStatus,
 				lastUpdated: Date.now(),
 			};
 

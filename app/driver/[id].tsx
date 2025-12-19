@@ -54,27 +54,7 @@ export default function DriverProfileScreen() {
   };
 
   const handleBookRide = () => {
-    if (!driver) return;
-
-    Alert.alert(
-      'Book a Ride',
-      'Choose how you want to book your ride:',
-      [
-        {
-          text: 'New Ride',
-          onPress: () => router.push('/route-input'),
-        },
-        {
-          text: 'Not Taken Ride',
-          onPress: () => router.push(`/trip-selector?driverId=${driver.id}`),
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ],
-      { cancelable: true }
-    );
+    router.push('/route-input');
   };
 
   if (!driver) {

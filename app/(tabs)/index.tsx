@@ -26,6 +26,7 @@ export default function HomeScreen() {
 		setCurrentLocation,
 		setFormattedAddress,
 		setPermissionGranted,
+		setPermissionStatus,
 		setPermissionRequested,
 		setIsLoadingLocation,
 		setLocationSubscription,
@@ -41,6 +42,19 @@ export default function HomeScreen() {
 		try {
 			setIsLoadingLocation(true);
 			console.log("[HomeScreen] Starting location tracking...");
+
+			if (locationSubscription) {
+				console.log("[HomeScreen] Removing existing location subscription");
+				locationSubscription.remove();
+				setLocationSubscription(null);
+			}
+
+			const status = await locationService.getPermissionStatus();
+			setPermissionStatus(status);
+			if (status !== Location.PermissionStatus.GRANTED) {
+				console.warn("[HomeScreen] Permission not granted, skipping tracking");
+				return;
+			}
 
 			// Get initial position
 			const position = await locationService.getCurrentPosition();
@@ -126,11 +140,11 @@ export default function HomeScreen() {
 				// 2. Check current permission status
 				const status = await locationService.getPermissionStatus();
 				console.log("[HomeScreen] Initial permission status:", status);
+				setPermissionStatus(status);
 
 				if (status === Location.PermissionStatus.GRANTED) {
 					// Permission already granted - start location tracking
 					console.log("[HomeScreen] Permission already granted");
-					setPermissionGranted(true);
 					setPermissionRequested(true);
 					await startLocationTracking();
 				} else if (status === Location.PermissionStatus.UNDETERMINED) {
@@ -141,7 +155,6 @@ export default function HomeScreen() {
 				} else {
 					// Permission denied - allow manual entry
 					console.log("[HomeScreen] Permission denied - manual entry mode");
-					setPermissionGranted(false);
 					setPermissionRequested(true);
 				}
 			} catch (error) {
@@ -153,7 +166,7 @@ export default function HomeScreen() {
 		initializeLocation();
 	}, [
 		permissionRequested,
-		setPermissionGranted,
+		setPermissionStatus,
 		setPermissionRequested,
 		setShowPermissionModal,
 		hydrate,
@@ -165,20 +178,22 @@ export default function HomeScreen() {
 			if (locationSubscription) {
 				console.log("[HomeScreen] Cleaning up location subscription");
 				locationSubscription.remove();
+				setLocationSubscription(null);
 			}
 		};
-	}, [locationSubscription]);
+	}, [locationSubscription, setLocationSubscription]);
 
 	const handleAllowAccess = async () => {
 		try {
 			console.log("[HomeScreen] User tapped 'Allow Location Access'");
 			setShowPermissionModal(false);
+			setPermissionRequested(true);
 
 			// Request system permission
-			const granted = await locationService.requestPermissions();
-			setPermissionGranted(granted);
+			const status = await locationService.requestPermissions();
+			setPermissionStatus(status);
 
-			if (granted) {
+			if (status === Location.PermissionStatus.GRANTED) {
 				console.log("[HomeScreen] Permission granted by user");
 				await startLocationTracking();
 			} else {

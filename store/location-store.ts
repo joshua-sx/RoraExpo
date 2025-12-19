@@ -8,7 +8,7 @@ import {
 	locationStorageService,
 	type PersistedLocationData,
 } from "@/services/location-storage.service";
-import type * as Location from "expo-location";
+import * as Location from "expo-location";
 import { create } from "zustand";
 
 interface LocationStore {
@@ -69,6 +69,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: location,
 			formattedAddress: state.formattedAddress,
 			permissionGranted: state.permissionGranted,
+			permissionStatus: state.permissionStatus,
 		});
 	},
 
@@ -80,6 +81,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: state.currentLocation,
 			formattedAddress: address,
 			permissionGranted: state.permissionGranted,
+			permissionStatus: state.permissionStatus,
 		});
 	},
 
@@ -94,6 +96,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: state.currentLocation,
 			formattedAddress: state.formattedAddress,
 			permissionGranted: granted,
+			permissionStatus: status,
 		});
 	},
 
@@ -105,6 +108,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: state.currentLocation,
 			formattedAddress: state.formattedAddress,
 			permissionGranted: granted,
+			permissionStatus: status,
 		});
 	},
 
@@ -123,9 +127,11 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: data.currentLocation,
 			formattedAddress: data.formattedAddress,
 			permissionGranted: data.permissionGranted,
-			permissionStatus: data.permissionGranted
-				? Location.PermissionStatus.GRANTED
-				: Location.PermissionStatus.UNDETERMINED,
+			permissionStatus:
+				data.permissionStatus ??
+				(data.permissionGranted
+					? Location.PermissionStatus.GRANTED
+					: Location.PermissionStatus.UNDETERMINED),
 		}),
 
 	reset: () =>

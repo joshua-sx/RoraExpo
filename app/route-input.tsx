@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	ActivityIndicator,
+	Alert,
 	FlatList,
 	Keyboard,
 	KeyboardAvoidingView,
@@ -40,8 +41,9 @@ import {
 	formatDuration,
 	formatPrice,
 } from "@/utils/pricing";
+import { extractRouteData } from "@/utils/route-validation";
 
-type ViewState = "input" | "loading" | "preview";
+type ViewState = "input" | "loading";
 
 /**
  * Highlights matching text in autocomplete results
@@ -95,7 +97,6 @@ export default function RouteInputScreen() {
 	const mapRef = useRef<MapView>(null);
 	const originAutocompleteRef = useRef<TextInput>(null);
 	const destinationAutocompleteRef = useRef<TextInput>(null);
-	const hasCalculatedRoute = useRef(false);
 
 	const {
 		origin,
@@ -158,82 +159,9 @@ export default function RouteInputScreen() {
 		[screenHeight, insets.bottom],
 	);
 	const snapPoints = useMemo(() => [bottomSheetHeight], [bottomSheetHeight]);
-	const mapEdgePadding = useMemo(
-		() => ({
-			top: insets.top + 64,
-			right: 50,
-			bottom: bottomSheetHeight + Spacing.lg,
-			left: 50,
-		}),
-		[insets.top, bottomSheetHeight],
-	);
-
-	const fitMapToRoute = useCallback(
-		(coords: Array<{ latitude: number; longitude: number }>) => {
-			if (!mapRef.current || coords.length === 0) return;
-
-			const minDelta = 0.02;
-
-			if (coords.length === 1) {
-				const single = coords[0];
-				mapRef.current.animateToRegion(
-					{
-						latitude: single.latitude,
-						longitude: single.longitude,
-						latitudeDelta: minDelta,
-						longitudeDelta: minDelta,
-					},
-					500,
-				);
-				return;
-			}
-
-			let minLat = coords[0].latitude;
-			let maxLat = coords[0].latitude;
-			let minLng = coords[0].longitude;
-			let maxLng = coords[0].longitude;
-
-			for (const coord of coords) {
-				minLat = Math.min(minLat, coord.latitude);
-				maxLat = Math.max(maxLat, coord.latitude);
-				minLng = Math.min(minLng, coord.longitude);
-				maxLng = Math.max(maxLng, coord.longitude);
-			}
-
-			const latDelta = maxLat - minLat;
-			const lngDelta = maxLng - minLng;
-
-			if (latDelta < minDelta && lngDelta < minDelta) {
-				mapRef.current.animateToRegion(
-					{
-						latitude: (minLat + maxLat) / 2,
-						longitude: (minLng + maxLng) / 2,
-						latitudeDelta: minDelta,
-						longitudeDelta: minDelta,
-					},
-					500,
-				);
-				return;
-			}
-
-			mapRef.current.fitToCoordinates(coords, {
-				edgePadding: mapEdgePadding,
-				animated: true,
-			});
-		},
-		[mapEdgePadding],
-	);
-
 	const handleClose = useCallback(() => {
 		router.back();
 	}, [router]);
-
-	const handleContinue = useCallback(() => {
-		// #region agent log
-		fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route-input.tsx:163',message:'MANUAL Continue button pressed - navigating to trip-preview',data:{hypothesisId:'H6',navigationType:'manual-push',viewState,hasRouteData:!!routeData,hasOrigin:!!origin,hasDestination:!!destination},timestamp:Date.now(),sessionId:'debug-session',runId:'run1'})}).catch(()=>{});
-		// #endregion
-		router.push("/trip-preview");
-	}, [router, viewState, routeData, origin, destination]);
 
 	const handleSwap = useCallback(() => {
 		swapLocations();
@@ -331,25 +259,8 @@ export default function RouteInputScreen() {
 		[setOrigin, setDestination],
 	);
 
-	// Auto-navigate to trip preview when route is calculated
-	// Only navigate if we actually calculated a route (not just pre-filled from home carousel)
-	useEffect(() => {
-		if (viewState === "preview" && routeData && origin && destination && hasCalculatedRoute.current) {
-			// #region agent log
-			fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route-input.tsx:263',message:'Auto-navigation effect triggered - will navigate in 500ms',data:{hypothesisId:'H5',viewState,hasRouteData:!!routeData,hasOrigin:!!origin,hasDestination:!!destination,routeDataComplete:{distance:routeData?.distance,duration:routeData?.duration,price:routeData?.price,coordsCount:routeData?.coordinates?.length}},timestamp:Date.now(),sessionId:'debug-session',runId:'run1'})}).catch(()=>{});
-			// #endregion
-			// Small delay to ensure route data is fully set
-			const timer = setTimeout(() => {
-				// #region agent log
-				fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route-input.tsx:270',message:'AUTO-NAVIGATION EXECUTING NOW - navigating to trip-preview',data:{hypothesisId:'H5',navigationType:'auto-replace'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1'})}).catch(()=>{});
-				// #endregion
-				// This is effectively a state-driven redirect; replace avoids stacking duplicates
-				// if the effect re-triggers.
-				router.replace("/trip-preview");
-			}, 500);
-			return () => clearTimeout(timer);
-		}
-	}, [viewState, routeData, origin, destination, router]);
+	// Note: Removed auto-navigation effect to prevent race condition with manual Continue button
+	// The Continue button now handles navigation explicitly
 
 	// Fetch route via proxied Directions API when entering loading state
 	useEffect(() => {
@@ -368,37 +279,13 @@ export default function RouteInputScreen() {
 					destination.coordinates,
 				);
 
-				if (directions.status === "ZERO_RESULTS") {
-					throw new Error("No route found");
-				}
-
-				const route = directions.routes?.[0];
-				const leg = route?.legs?.[0];
-				const encoded = route?.overview_polyline?.points;
-
-				if (!leg || !encoded) {
-					throw new Error("Directions response missing route data");
-				}
-
-				const distanceValue = leg.distance?.value;
-				const durationValue = leg.duration?.value;
-
-				if (!Number.isFinite(distanceValue) || !Number.isFinite(durationValue)) {
-					throw new Error("Directions response missing distance or duration");
-				}
-
-				const distanceKm = distanceValue / 1000;
-				const durationMin = durationValue / 60;
-				const coords = googleMapsService.decodePolyline(encoded);
-
-				if (!coords.length) {
-					throw new Error("Directions response missing route geometry");
-				}
+				const { distanceKm, durationMin, coordinates } = extractRouteData(directions);
 
 				const price = calculatePrice(distanceKm, durationMin);
+				const leg = directions.routes?.[0]?.legs?.[0];
 
 				// #region agent log
-				fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route-input.tsx:292',message:'Route calculated from Google Directions API',data:{hypothesisId:'H2',originName:origin?.name,destinationName:destination?.name,distanceMeters:leg.distance?.value,distanceKm:distanceKm,durationSeconds:leg.duration?.value,durationMin:durationMin,calculatedPrice:price,coordinatesCount:coords.length,formattedDistance:formatDistance(distanceKm),formattedDuration:formatDuration(durationMin),formattedPrice:formatPrice(price)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1'})}).catch(()=>{});
+				fetch('http://127.0.0.1:7245/ingest/3b0f41df-1efc-4a19-8400-3cd0c3ae335a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route-input.tsx:292',message:'Route calculated from Google Directions API',data:{hypothesisId:'H2',originName:origin?.name,destinationName:destination?.name,distanceMeters:leg.distance?.value,distanceKm:distanceKm,durationSeconds:leg.duration?.value,durationMin:durationMin,calculatedPrice:price,coordinatesCount:coordinates.length,formattedDistance:formatDistance(distanceKm),formattedDuration:formatDuration(durationMin),formattedPrice:formatPrice(price)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1'})}).catch(()=>{});
 				// #endregion
 
 				if (cancelled) return;
@@ -407,23 +294,24 @@ export default function RouteInputScreen() {
 					distance: distanceKm,
 					duration: durationMin,
 					price,
-					coordinates: coords,
+					coordinates: coordinates,
 				});
 
-				// Fit map to show entire route
-				if (coords.length) {
-					fitMapToRoute(coords);
-				}
-
-				// Mark that we've calculated a route (not just pre-filled)
-				hasCalculatedRoute.current = true;
-				setViewState("preview");
+				// Navigate directly to trip-preview after route is calculated
+				router.push("/trip-preview");
 			} catch (e: unknown) {
 				const message =
 					e instanceof Error ? e.message : "Failed to fetch directions";
 				console.error("[route-input] Directions error:", e);
 				if (cancelled) return;
 				setError(message);
+				const isNoRoute = message === "No route found";
+				Alert.alert(
+					isNoRoute ? "No route found" : "Service error",
+					isNoRoute
+						? "Try a different pickup or destination."
+						: "We couldn't calculate this route. Please try again."
+				);
 				setViewState("input");
 			}
 		};
@@ -433,7 +321,7 @@ export default function RouteInputScreen() {
 		return () => {
 			cancelled = true;
 		};
-	}, [viewState, origin, destination, setError, setRouteData]);
+	}, [viewState, origin, destination, setError, setRouteData, router]);
 
 	// Sync input text with store values on mount/change
 	// Don't include input values in deps to avoid clearing auto-filled values
@@ -826,98 +714,15 @@ export default function RouteInputScreen() {
 							{ paddingBottom: insets.bottom + Spacing.xxl },
 						]}
 					>
-						{viewState === "loading" ? (
-							// Loading State
-							<View style={styles.loadingContainer}>
-								<ActivityIndicator size="large" color={tintColor} />
-								<ThemedText
-									style={[styles.loadingText, { color: secondaryTextColor }]}
-								>
-									Finding best route...
-								</ThemedText>
-							</View>
-						) : (
-							// Preview State
-							<>
-								{/* Route Info */}
-								<View style={styles.routeInfo}>
-									<View style={styles.routePoint}>
-										<View
-											style={[styles.dot, { backgroundColor: tintColor }]}
-										/>
-										<ThemedText style={styles.routeText}>
-											{origin?.name || "Origin"}
-										</ThemedText>
-									</View>
-									<View
-										style={[styles.routeLine, { backgroundColor: borderColor }]}
-									/>
-									<View style={styles.routePoint}>
-										<View
-											style={[styles.dot, { backgroundColor: tintColor }]}
-										/>
-										<ThemedText style={styles.routeText}>
-											{destination?.name || "Destination"}
-										</ThemedText>
-									</View>
-								</View>
-
-								{/* Trip Details */}
-								<View style={styles.tripDetails}>
-									<View style={styles.detailItem}>
-										<Ionicons
-											name="time-outline"
-											size={20}
-											color={secondaryTextColor}
-										/>
-										<ThemedText
-											style={[styles.detailText, { color: secondaryTextColor }]}
-										>
-											{routeData
-												? formatDuration(routeData.duration)
-												: "~15 min"}
-										</ThemedText>
-									</View>
-									<View style={styles.detailItem}>
-										<Ionicons
-											name="car-outline"
-											size={20}
-											color={secondaryTextColor}
-										/>
-										<ThemedText
-											style={[styles.detailText, { color: secondaryTextColor }]}
-										>
-											{routeData
-												? formatDistance(routeData.distance)
-												: "5.2 km"}
-										</ThemedText>
-									</View>
-								</View>
-
-								{/* Price */}
-								<View style={[styles.priceContainer, { borderColor }]}>
-									<ThemedText style={styles.priceLabel}>
-										Estimated fare
-									</ThemedText>
-									<ThemedText style={styles.price}>
-										{routeData ? formatPrice(routeData.price) : "$42"}
-									</ThemedText>
-								</View>
-
-								{/* Continue Button */}
-								<Pressable
-									onPress={handleContinue}
-									style={[
-										styles.continueButton,
-										{ backgroundColor: tintColor },
-									]}
-								>
-									<ThemedText style={styles.continueButtonText}>
-										Continue
-									</ThemedText>
-								</Pressable>
-							</>
-						)}
+						{/* Loading State */}
+						<View style={styles.loadingContainer}>
+							<ActivityIndicator size="large" color={tintColor} />
+							<ThemedText
+								style={[styles.loadingText, { color: secondaryTextColor }]}
+							>
+								Finding best route...
+							</ThemedText>
+						</View>
 					</BottomSheetView>
 				</BottomSheet>
 			</View>
@@ -1131,17 +936,19 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		marginBottom: Spacing.xl,
-		paddingVertical: Spacing.md,
+		paddingVertical: Spacing.lg,
 		borderTopWidth: StyleSheet.hairlineWidth,
 		borderBottomWidth: StyleSheet.hairlineWidth,
 	},
 	priceLabel: {
 		fontSize: Typography.sizes.body,
 		fontWeight: Typography.weights.medium,
+		lineHeight: Typography.sizes.body * 1.5,
 	},
 	price: {
 		fontSize: Typography.sizes.h2,
 		fontWeight: Typography.weights.bold,
+		lineHeight: Typography.sizes.h2 * 1.2,
 	},
 	continueButton: {
 		paddingVertical: Spacing.lg,

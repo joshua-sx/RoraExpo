@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 
 const app = express();
 
@@ -24,28 +25,50 @@ if (!PROXY_TOKEN) {
   console.warn("[maps-proxy] Missing PROXY_TOKEN. Proxy will reject all calls.");
 }
 
+const IS_PROD = process.env.NODE_ENV === "production";
+
 // ----- Tiny CORS helper -----
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (!origin) return next();
 
   const allow =
-    ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(String(origin));
+    (!IS_PROD && ALLOWED_ORIGINS.length === 0) ||
+    ALLOWED_ORIGINS.includes(String(origin));
   if (allow) {
     res.setHeader("Access-Control-Allow-Origin", String(origin));
     res.setHeader("Vary", "Origin");
   }
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Credentials", "false");
   if (req.method === "OPTIONS") return res.status(204).end();
   next();
 });
 
 // ----- Auth -----
 function requireProxyAuth(req, res, next) {
-  const header = String(req.headers.authorization || "");
-  const token = header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
-  if (!PROXY_TOKEN || token !== PROXY_TOKEN) {
+  const rawHeader = req.headers.authorization;
+  if (Array.isArray(rawHeader)) {
+    return res.status(401).json({ error: "UNAUTHORIZED" });
+  }
+  const header = String(rawHeader || "");
+  if (!header.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "UNAUTHORIZED" });
+  }
+
+  const token = header.slice("Bearer ".length);
+  if (!PROXY_TOKEN) {
+    return res.status(401).json({ error: "UNAUTHORIZED" });
+  }
+
+  const provided = Buffer.from(token, "utf8");
+  const expected = Buffer.from(PROXY_TOKEN, "utf8");
+  if (provided.length !== expected.length) {
+    return res.status(401).json({ error: "UNAUTHORIZED" });
+  }
+
+  if (!crypto.timingSafeEqual(provided, expected)) {
     return res.status(401).json({ error: "UNAUTHORIZED" });
   }
   next();
@@ -54,19 +77,23 @@ function requireProxyAuth(req, res, next) {
 // ----- Basic per-IP rate limiting (in-memory; good enough for v1) -----
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 min
 const RATE_LIMIT_MAX = 120; // per IP per minute
+const RATE_LIMIT_MAX_BUCKETS = 10_000;
 const ipBuckets = new Map(); // ip -> { count, resetAt }
 
+app.set("trust proxy", 1);
+
 function rateLimit(req, res, next) {
-  const ip = String(
-    req.headers["x-forwarded-for"]?.toString().split(",")[0].trim() ||
-      req.socket.remoteAddress ||
-      "unknown"
-  );
+  const ip = String(req.ip || req.socket.remoteAddress || "unknown");
 
   const now = Date.now();
   const bucket = ipBuckets.get(ip);
   if (!bucket || now > bucket.resetAt) {
+    ipBuckets.delete(ip);
     ipBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    if (ipBuckets.size > RATE_LIMIT_MAX_BUCKETS) {
+      const oldestKey = ipBuckets.keys().next().value;
+      if (oldestKey) ipBuckets.delete(oldestKey);
+    }
     return next();
   }
 
@@ -108,13 +135,13 @@ async function callGoogle(url) {
 // ----- Routes -----
 // Note: Some Google frontends may treat certain health-check paths specially.
 // We expose both `/health` and `/healthz` for convenience.
-app.get("/health", (_req, res) => res.status(200).send("ok"));
-app.get("/healthz", (_req, res) => res.status(200).send("ok"));
+app.get("/health", rateLimit, (_req, res) => res.status(200).send("ok"));
+app.get("/healthz", rateLimit, (_req, res) => res.status(200).send("ok"));
 
 // Friendly root response
-app.get("/", (_req, res) => res.status(200).send("VoltRun maps proxy ok"));
+app.get("/", rateLimit, (_req, res) => res.status(200).send("VoltRun maps proxy ok"));
 
-app.get("/maps/places/autocomplete", requireProxyAuth, rateLimit, async (req, res) => {
+app.get("/maps/places/autocomplete", rateLimit, requireProxyAuth, async (req, res) => {
   const params = pick(req.query, [
     "input",
     "location",
@@ -137,7 +164,7 @@ app.get("/maps/places/autocomplete", requireProxyAuth, rateLimit, async (req, re
   return res.status(result.status).json(result.body);
 });
 
-app.get("/maps/places/details", requireProxyAuth, rateLimit, async (req, res) => {
+app.get("/maps/places/details", rateLimit, requireProxyAuth, async (req, res) => {
   const params = pick(req.query, ["place_id", "fields", "language", "sessiontoken"]);
   if (!params.place_id) return res.status(400).json({ error: "MISSING_PLACE_ID" });
 
@@ -151,7 +178,7 @@ app.get("/maps/places/details", requireProxyAuth, rateLimit, async (req, res) =>
   return res.status(result.status).json(result.body);
 });
 
-app.get("/maps/directions", requireProxyAuth, rateLimit, async (req, res) => {
+app.get("/maps/directions", rateLimit, requireProxyAuth, async (req, res) => {
   const params = pick(req.query, ["origin", "destination", "mode", "units", "language"]);
   if (!params.origin || !params.destination) {
     return res.status(400).json({ error: "MISSING_ORIGIN_OR_DESTINATION" });
@@ -167,7 +194,7 @@ app.get("/maps/directions", requireProxyAuth, rateLimit, async (req, res) => {
   return res.status(result.status).json(result.body);
 });
 
-app.get("/maps/distance-matrix", requireProxyAuth, rateLimit, async (req, res) => {
+app.get("/maps/distance-matrix", rateLimit, requireProxyAuth, async (req, res) => {
   const params = pick(req.query, [
     "origins",
     "destinations",
@@ -197,5 +224,4 @@ app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`[maps-proxy] listening on :${port}`);
 });
-
 
