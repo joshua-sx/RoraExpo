@@ -3,7 +3,6 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DriverCard } from '@/components/driver-card';
-import { getHeaderTopPadding } from '@/utils/safe-area';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/design-tokens';
@@ -40,17 +39,15 @@ export default function DriversScreen() {
 
   const drivers = getFilteredDrivers();
 
-  const calculatedPaddingTop = getHeaderTopPadding(insets, 16);
-
   return (
-    <ThemedView style={[styles.container, { backgroundColor }]}>
+    <ThemedView style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
       <FlatList
         data={drivers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DriverCard driver={item} />}
         contentContainerStyle={[
           styles.listContent,
-          { paddingTop: calculatedPaddingTop },
+          { paddingTop: 16 },
         ]}
         ListHeaderComponent={
           <View style={styles.header}>

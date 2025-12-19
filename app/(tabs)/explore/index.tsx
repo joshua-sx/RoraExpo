@@ -14,7 +14,6 @@ import { useCallback, useRef, useState } from "react";
 import type { TextInput } from "react-native";
 import { FlatList, Keyboard, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getHeaderTopPadding } from "@/utils/safe-area";
 
 export default function ExploreScreen() {
 	const router = useRouter();
@@ -65,12 +64,10 @@ export default function ExploreScreen() {
 		router.push("/explore/featured");
 	}, [router]);
 
-	const calculatedHeaderPaddingTop = getHeaderTopPadding(insets, 16);
-
 	return (
-		<ThemedView style={[styles.container, { backgroundColor }]}>
+		<ThemedView style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
 			{/* Header */}
-			<View style={[styles.header, { paddingTop: calculatedHeaderPaddingTop }]}>
+			<View style={[styles.header, { paddingTop: 16 }]}>
 				{!isSearchActive && (
 					<ThemedText style={styles.title}>Explore</ThemedText>
 				)}

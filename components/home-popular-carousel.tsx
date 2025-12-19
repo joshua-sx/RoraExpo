@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
-import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { PopularLocationCard } from "@/components/ui/popular-location-card";
@@ -25,7 +25,7 @@ export function HomePopularCarousel() {
 	const { setOrigin, setDestination } = useRouteStore();
 	const { currentLocation, formattedAddress } = useLocationStore();
 
-	const screenWidth = Dimensions.get("window").width;
+	const { width: screenWidth } = useWindowDimensions();
 	const CARD_WIDTH = screenWidth * 0.5; // 50% screen width
 	const CARD_GAP = Spacing.lg; // 16px gap between cards
 

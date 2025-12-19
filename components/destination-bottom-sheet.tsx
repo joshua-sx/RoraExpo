@@ -1,7 +1,18 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
-import { useCallback, useMemo, useRef } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import {
+	LayoutChangeEvent,
+	StyleSheet,
+	View,
+	useWindowDimensions,
+} from "react-native";
+import Animated, {
+	Extrapolate,
+	interpolate,
+	useAnimatedStyle,
+	useSharedValue,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HomePopularCarousel } from "@/components/home-popular-carousel";
@@ -19,6 +30,12 @@ export function DestinationBottomSheet({
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
+	const { width: screenWidth } = useWindowDimensions();
+	const animatedIndex = useSharedValue(1);
+
+	// Track bottom sheet position: true = expanded (show carousel), false = collapsed (hide carousel)
+	const [isExpanded, setIsExpanded] = useState(true);
+	const [carouselHeight, setCarouselHeight] = useState<number | null>(null);
 
 	const backgroundColor = useThemeColor(
 		{ light: "#FFFFFF", dark: "#161616" },
@@ -28,8 +45,6 @@ export function DestinationBottomSheet({
 		{ light: "#E3E6E3", dark: "#2F3237" },
 		"border",
 	);
-
-	const screenWidth = Dimensions.get("window").width;
 
 	// Calculate total bottom padding: device safe area + tab bar height + content padding
 	// This ensures content never scrolls under the floating tab bar
@@ -48,36 +63,84 @@ export function DestinationBottomSheet({
 
 		// Expanded state: pill + popular locations cards
 		const gapAfterPill = Spacing.lg; // 16px
-		const headerHeight = 28; // "Popular locations" header
 		const cardHeight = screenWidth * 0.5; // Square card (50% screen width)
+		const estimatedHeaderHeight = 24; // Icon/text row without font scaling
+		const estimatedCarouselHeight =
+			cardHeight + Spacing.lg + estimatedHeaderHeight;
+		const effectiveCarouselHeight = carouselHeight ?? estimatedCarouselHeight;
 
 		const expandedHeight =
 			handleIndicatorSpace +
 			topPadding +
 			pillHeight +
 			gapAfterPill +
-			headerHeight +
-			cardHeight +
+			effectiveCarouselHeight +
 			totalBottomPadding;
 
 		return [collapsedHeight, expandedHeight];
-	}, [screenWidth, totalBottomPadding]);
+	}, [carouselHeight, screenWidth, totalBottomPadding]);
+
+	// Callback when bottom sheet position changes
+	const handleSheetChange = useCallback((index: number) => {
+		// index 0 = collapsed (hide carousel), index 1 = expanded (show carousel)
+		setIsExpanded(index === 1);
+	}, []);
 
 	const handleSearchPress = useCallback(() => {
 		router.push("/route-input");
 	}, [router]);
+
+	const carouselAnimatedStyle = useAnimatedStyle(() => {
+		const opacity = interpolate(
+			animatedIndex.value,
+			[0, 0.2, 1],
+			[0, 0, 1],
+			Extrapolate.CLAMP,
+		);
+		const translateY = interpolate(
+			animatedIndex.value,
+			[0, 1],
+			[12, 0],
+			Extrapolate.CLAMP,
+		);
+		const scale = interpolate(
+			animatedIndex.value,
+			[0, 1],
+			[0.98, 1],
+			Extrapolate.CLAMP,
+		);
+
+		return {
+			opacity,
+			transform: [{ translateY }, { scale }],
+		};
+	}, []);
+
+	const handleCarouselLayout = useCallback(
+		(event: LayoutChangeEvent) => {
+			const nextHeight = event.nativeEvent.layout.height;
+			setCarouselHeight((current) => {
+				if (current === null) return nextHeight;
+				if (Math.abs(current - nextHeight) < 1) return current;
+				return nextHeight;
+			});
+		},
+		[setCarouselHeight],
+	);
 
 	return (
 		<BottomSheet
 			ref={bottomSheetRef}
 			index={1}
 			snapPoints={snapPoints}
+			animatedIndex={animatedIndex}
 			backgroundStyle={[styles.background, { backgroundColor }]}
 			handleIndicatorStyle={[
 				styles.handleIndicator,
 				{ backgroundColor: handleIndicatorColor },
 			]}
 			enablePanDownToClose={false}
+			onChange={handleSheetChange}
 		>
 			<BottomSheetView
 				style={{
@@ -89,10 +152,14 @@ export function DestinationBottomSheet({
 				{/* Pill search bar */}
 				<PillSearchBar onSearchPress={handleSearchPress} />
 
-				{/* Popular locations carousel */}
-				<View style={{ marginTop: Spacing.lg }}>
+				{/* Popular locations carousel - hidden when collapsed */}
+				<Animated.View
+					style={[{ marginTop: Spacing.xl }, carouselAnimatedStyle]}
+					onLayout={handleCarouselLayout}
+					pointerEvents={isExpanded ? "box-none" : "none"}
+				>
 					<HomePopularCarousel />
-				</View>
+				</Animated.View>
 			</BottomSheetView>
 		</BottomSheet>
 	);
