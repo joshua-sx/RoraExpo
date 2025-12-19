@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	FlatList,
@@ -14,6 +14,7 @@ import {
 	Text,
 	TextInput,
 	View,
+	useWindowDimensions,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -89,6 +90,7 @@ function HighlightedText({
 export default function RouteInputScreen() {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
+	const { height: screenHeight } = useWindowDimensions();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const mapRef = useRef<MapView>(null);
 	const originAutocompleteRef = useRef<TextInput>(null);
@@ -149,6 +151,77 @@ export default function RouteInputScreen() {
 	const handleIndicatorColor = useThemeColor(
 		{ light: "#E3E6E3", dark: "#2F3237" },
 		"border",
+	);
+
+	const bottomSheetHeight = useMemo(
+		() => Math.round(screenHeight * 0.45) + insets.bottom,
+		[screenHeight, insets.bottom],
+	);
+	const snapPoints = useMemo(() => [bottomSheetHeight], [bottomSheetHeight]);
+	const mapEdgePadding = useMemo(
+		() => ({
+			top: insets.top + 64,
+			right: 50,
+			bottom: bottomSheetHeight + Spacing.lg,
+			left: 50,
+		}),
+		[insets.top, bottomSheetHeight],
+	);
+
+	const fitMapToRoute = useCallback(
+		(coords: Array<{ latitude: number; longitude: number }>) => {
+			if (!mapRef.current || coords.length === 0) return;
+
+			const minDelta = 0.02;
+
+			if (coords.length === 1) {
+				const single = coords[0];
+				mapRef.current.animateToRegion(
+					{
+						latitude: single.latitude,
+						longitude: single.longitude,
+						latitudeDelta: minDelta,
+						longitudeDelta: minDelta,
+					},
+					500,
+				);
+				return;
+			}
+
+			let minLat = coords[0].latitude;
+			let maxLat = coords[0].latitude;
+			let minLng = coords[0].longitude;
+			let maxLng = coords[0].longitude;
+
+			for (const coord of coords) {
+				minLat = Math.min(minLat, coord.latitude);
+				maxLat = Math.max(maxLat, coord.latitude);
+				minLng = Math.min(minLng, coord.longitude);
+				maxLng = Math.max(maxLng, coord.longitude);
+			}
+
+			const latDelta = maxLat - minLat;
+			const lngDelta = maxLng - minLng;
+
+			if (latDelta < minDelta && lngDelta < minDelta) {
+				mapRef.current.animateToRegion(
+					{
+						latitude: (minLat + maxLat) / 2,
+						longitude: (minLng + maxLng) / 2,
+						latitudeDelta: minDelta,
+						longitudeDelta: minDelta,
+					},
+					500,
+				);
+				return;
+			}
+
+			mapRef.current.fitToCoordinates(coords, {
+				edgePadding: mapEdgePadding,
+				animated: true,
+			});
+		},
+		[mapEdgePadding],
 	);
 
 	const handleClose = useCallback(() => {
@@ -295,6 +368,10 @@ export default function RouteInputScreen() {
 					destination.coordinates,
 				);
 
+				if (directions.status === "ZERO_RESULTS") {
+					throw new Error("No route found");
+				}
+
 				const route = directions.routes?.[0];
 				const leg = route?.legs?.[0];
 				const encoded = route?.overview_polyline?.points;
@@ -303,9 +380,20 @@ export default function RouteInputScreen() {
 					throw new Error("Directions response missing route data");
 				}
 
-				const distanceKm = (leg.distance?.value ?? 0) / 1000;
-				const durationMin = (leg.duration?.value ?? 0) / 60;
+				const distanceValue = leg.distance?.value;
+				const durationValue = leg.duration?.value;
+
+				if (!Number.isFinite(distanceValue) || !Number.isFinite(durationValue)) {
+					throw new Error("Directions response missing distance or duration");
+				}
+
+				const distanceKm = distanceValue / 1000;
+				const durationMin = durationValue / 60;
 				const coords = googleMapsService.decodePolyline(encoded);
+
+				if (!coords.length) {
+					throw new Error("Directions response missing route geometry");
+				}
 
 				const price = calculatePrice(distanceKm, durationMin);
 
@@ -323,16 +411,8 @@ export default function RouteInputScreen() {
 				});
 
 				// Fit map to show entire route
-				if (mapRef.current && coords.length) {
-					mapRef.current.fitToCoordinates(coords, {
-						edgePadding: {
-							top: 100,
-							right: 50,
-							bottom: 400, // Account for bottom sheet
-							left: 50,
-						},
-						animated: true,
-					});
+				if (coords.length) {
+					fitMapToRoute(coords);
 				}
 
 				// Mark that we've calculated a route (not just pre-filled)
@@ -729,7 +809,7 @@ export default function RouteInputScreen() {
 				<BottomSheet
 					ref={bottomSheetRef}
 					index={0}
-					snapPoints={["45%"]}
+					snapPoints={snapPoints}
 					backgroundStyle={[
 						styles.bottomSheetBackground,
 						{ backgroundColor: surfaceColor },
@@ -740,7 +820,12 @@ export default function RouteInputScreen() {
 					]}
 					enablePanDownToClose={false}
 				>
-					<BottomSheetView style={styles.bottomSheetContent}>
+					<BottomSheetView
+						style={[
+							styles.bottomSheetContent,
+							{ paddingBottom: insets.bottom + Spacing.xxl },
+						]}
+					>
 						{viewState === "loading" ? (
 							// Loading State
 							<View style={styles.loadingContainer}>

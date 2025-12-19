@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import PagerView from "react-native-pager-view";
@@ -20,6 +20,7 @@ import { formatDistance, formatDuration, formatPrice } from "@/utils/pricing";
 export default function TripPreviewScreen() {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
+	const { height: screenHeight } = useWindowDimensions();
 	const mapRef = useRef<MapView>(null);
 	const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -37,8 +38,76 @@ export default function TripPreviewScreen() {
 	const handleIndicatorColor = useThemeColor({ light: "#E3E6E3", dark: "#2F3237" }, "border");
 	const tintColor = useThemeColor({}, "tint");
 
-	// Snap points for bottom sheet - fixed height
-	const snapPoints = useMemo(() => ["60%"], []);
+	const bottomSheetHeight = useMemo(
+		() => Math.round(screenHeight * 0.6) + insets.bottom,
+		[screenHeight, insets.bottom],
+	);
+	const snapPoints = useMemo(() => [bottomSheetHeight], [bottomSheetHeight]);
+	const mapEdgePadding = useMemo(
+		() => ({
+			top: insets.top + 64,
+			right: 50,
+			bottom: bottomSheetHeight + Spacing.lg,
+			left: 50,
+		}),
+		[insets.top, bottomSheetHeight],
+	);
+
+	const fitMapToRoute = useCallback(
+		(coords: Array<{ latitude: number; longitude: number }>) => {
+			if (!mapRef.current || coords.length === 0) return;
+
+			const minDelta = 0.02;
+
+			if (coords.length === 1) {
+				const single = coords[0];
+				mapRef.current.animateToRegion(
+					{
+						latitude: single.latitude,
+						longitude: single.longitude,
+						latitudeDelta: minDelta,
+						longitudeDelta: minDelta,
+					},
+					500,
+				);
+				return;
+			}
+
+			let minLat = coords[0].latitude;
+			let maxLat = coords[0].latitude;
+			let minLng = coords[0].longitude;
+			let maxLng = coords[0].longitude;
+
+			for (const coord of coords) {
+				minLat = Math.min(minLat, coord.latitude);
+				maxLat = Math.max(maxLat, coord.latitude);
+				minLng = Math.min(minLng, coord.longitude);
+				maxLng = Math.max(maxLng, coord.longitude);
+			}
+
+			const latDelta = maxLat - minLat;
+			const lngDelta = maxLng - minLng;
+
+			if (latDelta < minDelta && lngDelta < minDelta) {
+				mapRef.current.animateToRegion(
+					{
+						latitude: (minLat + maxLat) / 2,
+						longitude: (minLng + maxLng) / 2,
+						latitudeDelta: minDelta,
+						longitudeDelta: minDelta,
+					},
+					500,
+				);
+				return;
+			}
+
+			mapRef.current.fitToCoordinates(coords, {
+				edgePadding: mapEdgePadding,
+				animated: true,
+			});
+		},
+		[mapEdgePadding],
+	);
 
 	// Validate route data exists
 	useEffect(() => {
@@ -67,15 +136,12 @@ export default function TripPreviewScreen() {
 
 	// Fit map to show full route
 	useEffect(() => {
-		if (routeData?.coordinates && mapRef.current) {
+		if (routeData?.coordinates) {
 			setTimeout(() => {
-				mapRef.current?.fitToCoordinates(routeData.coordinates, {
-					edgePadding: { top: 100, right: 50, bottom: 400, left: 50 },
-					animated: true,
-				});
+				fitMapToRoute(routeData.coordinates);
 			}, 500);
 		}
-	}, [routeData]);
+	}, [routeData, fitMapToRoute]);
 
 	const handleBack = useCallback(() => {
 		router.back();
@@ -152,7 +218,12 @@ export default function TripPreviewScreen() {
 					{ backgroundColor: handleIndicatorColor },
 				]}
 			>
-				<BottomSheetView style={styles.bottomSheetContent}>
+				<BottomSheetView
+					style={[
+						styles.bottomSheetContent,
+						{ paddingBottom: insets.bottom + Spacing.lg },
+					]}
+				>
 					{/* Page Indicator */}
 					<View style={styles.pageIndicator}>
 						<View

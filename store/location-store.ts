@@ -21,6 +21,9 @@ interface LocationStore {
 	// Whether location permission has been granted
 	permissionGranted: boolean;
 
+	// Current OS permission status
+	permissionStatus: Location.PermissionStatus;
+
 	// Whether location permission has been requested at least once
 	permissionRequested: boolean;
 
@@ -37,6 +40,7 @@ interface LocationStore {
 	setCurrentLocation: (location: LatLng | null) => void;
 	setFormattedAddress: (address: string | null) => void;
 	setPermissionGranted: (granted: boolean) => void;
+	setPermissionStatus: (status: Location.PermissionStatus) => void;
 	setPermissionRequested: (requested: boolean) => void;
 	setShowPermissionModal: (show: boolean) => void;
 	setIsLoadingLocation: (loading: boolean) => void;
@@ -51,6 +55,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 	currentLocation: null,
 	formattedAddress: null,
 	permissionGranted: false,
+	permissionStatus: Location.PermissionStatus.UNDETERMINED,
 	permissionRequested: false,
 	showPermissionModal: false,
 	isLoadingLocation: false,
@@ -79,8 +84,22 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 	},
 
 	setPermissionGranted: (granted) => {
-		set({ permissionGranted: granted });
+		const status = granted
+			? Location.PermissionStatus.GRANTED
+			: Location.PermissionStatus.DENIED;
+		set({ permissionGranted: granted, permissionStatus: status });
 		// Persist permission status
+		const state = get();
+		locationStorageService.save({
+			currentLocation: state.currentLocation,
+			formattedAddress: state.formattedAddress,
+			permissionGranted: granted,
+		});
+	},
+
+	setPermissionStatus: (status) => {
+		const granted = status === Location.PermissionStatus.GRANTED;
+		set({ permissionStatus: status, permissionGranted: granted });
 		const state = get();
 		locationStorageService.save({
 			currentLocation: state.currentLocation,
@@ -104,6 +123,9 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: data.currentLocation,
 			formattedAddress: data.formattedAddress,
 			permissionGranted: data.permissionGranted,
+			permissionStatus: data.permissionGranted
+				? Location.PermissionStatus.GRANTED
+				: Location.PermissionStatus.UNDETERMINED,
 		}),
 
 	reset: () =>
@@ -111,6 +133,7 @@ export const useLocationStore = create<LocationStore>((set, get) => ({
 			currentLocation: null,
 			formattedAddress: null,
 			permissionGranted: false,
+			permissionStatus: Location.PermissionStatus.UNDETERMINED,
 			permissionRequested: false,
 			showPermissionModal: false,
 			isLoadingLocation: false,

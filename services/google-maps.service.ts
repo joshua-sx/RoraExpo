@@ -164,6 +164,10 @@ class GoogleMapsService {
    * (Google Directions API format)
    */
   public decodePolyline(encoded: string): LatLng[] {
+    if (typeof encoded !== "string" || encoded.trim().length === 0) {
+      throw new GoogleMapsError("Invalid polyline encoding", "INVALID_POLYLINE");
+    }
+
     let index = 0;
     const len = encoded.length;
     let lat = 0;
@@ -196,6 +200,17 @@ class GoogleMapsService {
         latitude: lat / 1e5,
         longitude: lng / 1e5,
       });
+    }
+
+    if (
+      coordinates.length === 0 ||
+      coordinates.some(
+        (coord) =>
+          !Number.isFinite(coord.latitude) ||
+          !Number.isFinite(coord.longitude)
+      )
+    ) {
+      throw new GoogleMapsError("Invalid polyline encoding", "INVALID_POLYLINE");
     }
 
     return coordinates;

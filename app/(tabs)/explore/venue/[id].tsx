@@ -76,6 +76,10 @@ export default function VenueDetailScreen() {
         { latitude: venue.latitude, longitude: venue.longitude }
       );
       
+      if (directions.status === "ZERO_RESULTS") {
+        throw new Error("No route found");
+      }
+
       const route = directions.routes?.[0];
       const leg = route?.legs?.[0];
       const encoded = route?.overview_polyline?.points;
@@ -84,9 +88,20 @@ export default function VenueDetailScreen() {
         throw new Error('Could not calculate route');
       }
       
-      const distanceKm = (leg.distance?.value ?? 0) / 1000;
-      const durationMin = (leg.duration?.value ?? 0) / 60;
+      const distanceValue = leg.distance?.value;
+      const durationValue = leg.duration?.value;
+
+      if (!Number.isFinite(distanceValue) || !Number.isFinite(durationValue)) {
+        throw new Error('Directions response missing distance or duration');
+      }
+
+      const distanceKm = distanceValue / 1000;
+      const durationMin = durationValue / 60;
       const coords = googleMapsService.decodePolyline(encoded);
+
+      if (!coords.length) {
+        throw new Error('Directions response missing route geometry');
+      }
       const price = calculatePrice(distanceKm, durationMin);
       
       // Set origin (current location)
@@ -323,5 +338,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
 
