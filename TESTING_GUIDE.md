@@ -72,7 +72,7 @@ GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE node scripts/test-google-maps.
 ║      Google Maps API Integration Test Suite               ║
 ╚════════════════════════════════════════════════════════════╝
 
-🔑 API Key: AIzaSyDnx60vHeQUMwgc...
+🔑 API Key: YOUR_GOOGLE_MAPS_API_KEY (set in .env file)
 📍 Test Location: Sint Maarten (18.0425, -63.0548)
 📏 Search Radius: 20km
 

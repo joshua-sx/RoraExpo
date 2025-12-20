@@ -2,8 +2,8 @@
  * Test searching for your address "Stilwalker" after removing country filter
  */
 
-const PROXY_URL = "https://volt-run-716974106554.us-east1.run.app";
-const PROXY_TOKEN = "1eb773c9e7134b006278b6f90b0a52d2f7f9e1e07a997c48f96741f02c949e21";
+const PROXY_URL = process.env.EXPO_PUBLIC_GOOGLE_MAPS_PROXY_URL || "YOUR_PROXY_URL";
+const PROXY_TOKEN = process.env.EXPO_PUBLIC_GOOGLE_MAPS_PROXY_TOKEN || "YOUR_PROXY_TOKEN";
 
 async function testSearch(query) {
   console.log(`\n🔍 Searching for: "${query}"\n`);
