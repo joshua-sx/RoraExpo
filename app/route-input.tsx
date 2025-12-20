@@ -21,29 +21,29 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ThemedText } from "@/components/themed-text";
-import { SINT_MAARTEN_REGION } from "@/constants/config";
+import { ThemedText } from "@/src/ui/components/themed-text";
+import { SINT_MAARTEN_REGION } from "@/src/constants/config";
 import {
 	BorderRadius,
 	Colors,
 	Spacing,
 	Typography,
-} from "@/constants/design-tokens";
-import { useThemeColor } from "@/hooks/use-theme-color";
+} from "@/src/constants/design-tokens";
+import { useThemeColor } from "@/src/hooks/use-theme-color";
 import {
 	googleMapsService,
 	type PlaceResult,
-} from "@/services/google-maps.service";
-import { useRouteStore } from "@/store/route-store";
-import { useLocationStore } from "@/store/location-store";
+} from "@/src/services/google-maps.service";
+import { useRouteStore } from "@/src/store/route-store";
+import { useLocationStore } from "@/src/store/location-store";
 import { useToast } from "@/src/ui/providers/ToastProvider";
 import {
 	calculatePrice,
 	formatDistance,
 	formatDuration,
 	formatPrice,
-} from "@/utils/pricing";
-import { extractRouteData } from "@/utils/route-validation";
+} from "@/src/utils/pricing";
+import { extractRouteData } from "@/src/utils/route-validation";
 
 type ViewState = "input" | "loading";
 
@@ -649,7 +649,7 @@ export default function RouteInputScreen() {
 							>
 								<Ionicons name="alert-circle-outline" size={24} color={iconColor} />
 								<ThemedText style={styles.emptyStateText}>
-									Couldn't load results
+									Couldn&apos;t load results
 								</ThemedText>
 								<ThemedText style={[styles.emptyStateSubtext, { color: iconColor }]}>
 									Check connection and try again
@@ -703,7 +703,7 @@ export default function RouteInputScreen() {
 							>
 								<Ionicons name="alert-circle-outline" size={24} color={iconColor} />
 								<ThemedText style={styles.emptyStateText}>
-									Couldn't load results
+									Couldn&apos;t load results
 								</ThemedText>
 								<ThemedText style={[styles.emptyStateSubtext, { color: iconColor }]}>
 									Check connection and try again

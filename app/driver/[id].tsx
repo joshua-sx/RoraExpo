@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BorderRadius, Spacing } from '@/constants/design-tokens';
-import { getDriverById } from '@/data/drivers';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedText } from '@/src/ui/components/themed-text';
+import { ThemedView } from '@/src/ui/components/themed-view';
+import { BorderRadius, Spacing } from '@/src/constants/design-tokens';
+import { getDriverById } from '@/src/features/drivers/data/drivers';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { useToast } from '@/src/ui/providers/ToastProvider';
 
 export default function DriverProfileScreen() {
@@ -367,4 +367,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

@@ -10,12 +10,12 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { VenueListItem } from '@/components/explore/venue-list-item';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { getFeaturedVenues } from '@/data/venues';
-import type { Venue } from '@/types/venue';
+import { ThemedText } from '@/src/ui/components/themed-text';
+import { ThemedView } from '@/src/ui/components/themed-view';
+import { VenueListItem } from '@/src/features/explore/components/venue-list-item';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { getFeaturedVenues } from '@/src/features/explore/data/venues';
+import type { Venue } from '@/src/types/venue';
 
 type FilterType = 'all' | 'near_me' | 'top_rated';
 

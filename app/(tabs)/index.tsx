@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView from "react-native-maps";
 import * as Location from "expo-location";
+import { useRouter } from "expo-router";
 
-import { DestinationBottomSheet } from "@/components/destination-bottom-sheet";
-import { LocationPermissionModal } from "@/components/location-permission-modal";
-import { locationService } from "@/services/location.service";
-import { locationStorageService } from "@/services/location-storage.service";
-import { useLocationStore } from "@/store/location-store";
+import { DestinationBottomSheet } from "@/src/features/home/components/destination-bottom-sheet";
+import { LocationPermissionModal } from "@/src/features/home/components/location-permission-modal";
+import { locationService } from "@/src/services/location.service";
+import { locationStorageService } from "@/src/services/location-storage.service";
+import { useLocationStore } from "@/src/store/location-store";
 
 // Default location: St. Maarten (matching the reference images)
 const INITIAL_REGION = {
@@ -22,6 +23,7 @@ const INITIAL_REGION = {
 const TAB_BAR_HEIGHT = 85;
 
 export default function HomeScreen() {
+	const router = useRouter();
 	const {
 		setCurrentLocation,
 		setFormattedAddress,
@@ -38,7 +40,7 @@ export default function HomeScreen() {
 	} = useLocationStore();
 	const [mapRegion, setMapRegion] = useState(INITIAL_REGION);
 
-	const startLocationTracking = async () => {
+	const startLocationTracking = useCallback(async () => {
 		try {
 			setIsLoadingLocation(true);
 			console.log("[HomeScreen] Starting location tracking...");
@@ -111,7 +113,15 @@ export default function HomeScreen() {
 		} finally {
 			setIsLoadingLocation(false);
 		}
-	};
+	}, [
+		locationSubscription,
+		setIsLoadingLocation,
+		setLocationSubscription,
+		setPermissionStatus,
+		setCurrentLocation,
+		setFormattedAddress,
+		setMapRegion,
+	]);
 
 	// Load persisted location data and initialize location tracking
 	useEffect(() => {
@@ -165,6 +175,7 @@ export default function HomeScreen() {
 
 		initializeLocation();
 	}, [
+		startLocationTracking,
 		permissionRequested,
 		setPermissionStatus,
 		setPermissionRequested,

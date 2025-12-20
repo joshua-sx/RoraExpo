@@ -19,7 +19,7 @@ I've tested your Google Maps configuration and created comprehensive testing too
 - Can run from command line in seconds
 
 ### 2. **In-App Test Screen Created** ✅
-- Location: `components/dev/api-test-screen.tsx`
+- Location: `src/features/dev/components/api-test-screen.tsx`
 - Beautiful UI with test results
 - Run tests directly on your phone/simulator
 - Shows pass/fail status for each API
@@ -470,7 +470,7 @@ If you're stuck:
 - [GOOGLE_MAPS_SETUP.md](GOOGLE_MAPS_SETUP.md) - Complete configuration
 - [TEST_RESULTS.md](TEST_RESULTS.md) - Current test results
 - [scripts/test-google-maps.js](scripts/test-google-maps.js) - Test script
-- `components/dev/api-test-screen.tsx` - Former in-app test screen (component only)
+- `src/features/dev/components/api-test-screen.tsx` - Former in-app test screen (component only)
 
 ---
 

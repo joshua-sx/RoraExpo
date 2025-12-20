@@ -130,7 +130,7 @@ The new design system **coexists** with your existing components in `/components
 
 Your existing tokens map 1:1 to the new system:
 
-| Old (constants/design-tokens.ts) | New (src/ui/tokens) |
+| Old (src/constants/design-tokens.ts) | New (src/ui/tokens) |
 |----------------------------------|---------------------|
 | `Colors.primary` | `colors.primary` |
 | `Colors.textSlate` | `colors.text` |
@@ -146,7 +146,7 @@ Replace gradually:
 | `<ThemedText>` | `<Text variant="...">` |
 | `<ThemedView>` | `<Box>` |
 | Custom buttons | `<Button variant="...">` |
-| `/components/ui/search-input` | `<SearchInput>` from `@/src/ui` |
+| `/src/ui/legacy/search-input` | `<SearchInput>` from `@/src/ui` |
 
 See [MIGRATION.md](src/ui/MIGRATION.md) for detailed steps.
 
@@ -250,10 +250,10 @@ Use the design system for any new screens or features you build. This establishe
 Start with your most-used screens (home, booking, driver list). These have the highest impact.
 
 ### Phase 3: Refactor Components (Week 4)
-Update [DriverCard](components/driver-card.tsx) and other reusable components to use the new tokens.
+Update [DriverCard](src/features/drivers/src/features/drivers/components/driver-card.tsx) and other reusable components to use the new tokens.
 
 ### Phase 4: Clean Up (Week 5)
-Remove old components from `/components/ui/` that have been replaced.
+Remove old components from `/src/ui/legacy/` that have been replaced.
 
 ## Support
 
@@ -318,7 +318,7 @@ The design system is **low maintenance**:
 Based on:
 - Dieter Rams' 10 Principles of Good Design
 - iOS Human Interface Guidelines
-- Your existing [design-tokens.ts](constants/design-tokens.ts)
+- Your existing [design-tokens.ts](src/constants/design-tokens.ts)
 - Material Design (selectively)
 
 ## License

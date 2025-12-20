@@ -75,7 +75,7 @@ import {
 
 **Before:**
 ```tsx
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/ui/components/themed-text';
 import { Colors, Spacing, Typography } from '@/constants/design-tokens';
 
 <ThemedText style={{ fontSize: Typography.sizes.h5, fontWeight: Typography.weights.semiBold }}>
@@ -189,9 +189,9 @@ Migrate remaining components that use `ThemedText` or `ThemedView`:
 
 Update custom UI components to use primitives:
 
-1. **components/ui/popular-location-card.tsx** - Use Card, Text from @/src/ui
-2. **components/ui/location-input-field.tsx** - Migrate to or replace with Input
-3. **components/ui/pill-search-bar.tsx** - Migrate to SearchInput
+1. **src/ui/legacy/popular-location-card.tsx** - Use Card, Text from @/src/ui
+2. **src/ui/legacy/location-input-field.tsx** - Migrate to or replace with Input
+3. **src/ui/legacy/pill-search-bar.tsx** - Migrate to SearchInput
 
 ### Phase 3: Screen Migration
 

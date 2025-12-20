@@ -241,7 +241,7 @@ Before considering setup complete:
 - [ ] Billing enabled in Google Cloud Console
 - [ ] All 6 APIs enabled
 - [ ] Test script passes (all 6 tests green)
-- [ ] (Optional) Dev component `components/dev/api-test-screen.tsx` shows all passing if wired into a route
+- [ ] (Optional) Dev component `src/features/dev/components/api-test-screen.tsx` shows all passing if wired into a route
 - [ ] Can search for "Princess Juliana Airport" and see suggestions
 - [ ] Can select origin and destination
 - [ ] Route calculation works (sees loading → preview)

@@ -381,13 +381,13 @@ export function BookingScreen() {
 
 ## Migration from Existing Components
 
-Your existing components in `/components/ui/` can coexist with this system. Gradually migrate screens to use the new system for consistency.
+Your existing components in `/src/ui/legacy/` can coexist with this system. Gradually migrate screens to use the new system for consistency.
 
 ### Example Migration
 
 Before:
 ```tsx
-import { SearchInput } from '@/components/ui/search-input';
+import { SearchInput } from '@/src/ui/legacy/search-input';
 ```
 
 After:

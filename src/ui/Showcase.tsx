@@ -13,12 +13,11 @@
  */
 
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Box,
   Text,
-  Pressable,
   Button,
   Input,
   SearchInput,
@@ -37,7 +36,6 @@ import {
 
 export function Showcase() {
   const [inputValue, setInputValue] = useState("");
-  const [inputError, setInputError] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   return (

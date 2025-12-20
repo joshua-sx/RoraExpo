@@ -100,7 +100,7 @@ Restrict your key to only these APIs for security:
 - Location permissions configured for both platforms
 
 ✅ **App Configuration:**
-- API keys exported from [constants/config.ts](constants/config.ts)
+- API keys exported from [src/constants/config.ts](src/constants/config.ts)
 - Sint Maarten location bounds configured
 - 20km search radius for island coverage
 

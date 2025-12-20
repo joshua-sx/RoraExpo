@@ -9,14 +9,14 @@ import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 
-import { ThemedText } from "@/components/themed-text";
-import { SINT_MAARTEN_REGION } from "@/constants/config";
-import { Colors, BorderRadius, Spacing } from "@/constants/design-tokens";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { useRouteStore } from "@/store/route-store";
-import { useTripHistoryStore } from "@/store/trip-history-store";
-import { formatDistance, formatDuration, formatPrice } from "@/utils/pricing";
-import { fitMapToRoute } from "@/utils/map";
+import { ThemedText } from "@/src/ui/components/themed-text";
+import { SINT_MAARTEN_REGION } from "@/src/constants/config";
+import { Colors, BorderRadius, Spacing } from "@/src/constants/design-tokens";
+import { useThemeColor } from "@/src/hooks/use-theme-color";
+import { useRouteStore } from "@/src/store/route-store";
+import { useTripHistoryStore } from "@/src/store/trip-history-store";
+import { formatDistance, formatDuration, formatPrice } from "@/src/utils/pricing";
+import { fitMapToRoute } from "@/src/utils/map";
 import { useToast } from "@/src/ui/providers/ToastProvider";
 
 export default function TripPreviewScreen() {
@@ -60,7 +60,7 @@ export default function TripPreviewScreen() {
 	);
 
 	const handleFitMapToRoute = useCallback(
-		(coords: Array<{ latitude: number; longitude: number }>) => {
+		(coords: { latitude: number; longitude: number }[]) => {
 			fitMapToRoute(mapRef, coords, { edgePadding: mapEdgePadding });
 		},
 		[mapEdgePadding],

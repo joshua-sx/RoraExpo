@@ -4,8 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useColorScheme } from '@/src/hooks/use-color-scheme';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { ToastProvider } from '@/src/ui/providers/ToastProvider';
 
 export const unstable_settings = {

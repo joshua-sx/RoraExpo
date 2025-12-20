@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 
 export default function ExploreLayout() {
   const backgroundColor = useThemeColor(

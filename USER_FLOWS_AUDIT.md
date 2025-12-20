@@ -55,7 +55,7 @@ Show LocationPermissionModal
 **Success State:** User location tracked and displayed on map
 **Screens Required:**
 - [app/(tabs)/index.tsx](app/(tabs)/index.tsx) (Home with map)
-- [components/location-permission-modal.tsx](components/location-permission-modal.tsx)
+- [src/features/home/components/location-permission-modal.tsx](src/features/home/components/location-permission-modal.tsx)
 
 **UX Quality:** ✅ Excellent
 - Custom modal with clear explanation
@@ -203,7 +203,7 @@ RideCtaSheet (bottom sheet) opens
 
 **Screens Required:**
 - [app/(tabs)/explore/venue/[id].tsx](app/(tabs)/explore/venue/[id].tsx) ✅
-- [components/ride-cta-sheet.tsx](components/ride-cta-sheet.tsx) ✅
+- [src/features/explore/components/ride-cta-sheet.tsx](src/features/explore/components/ride-cta-sheet.tsx) ✅
 - [app/trip-preview.tsx](app/trip-preview.tsx) ✅
 - **MISSING:** [app/find-driver-info.tsx](app/find-driver-info.tsx) ❌
 
@@ -282,7 +282,7 @@ Navigate to venue/[id]
 **Success State:** Navigate to venue detail ✅
 **Screens Required:**
 - [app/(tabs)/index.tsx](app/(tabs)/index.tsx) ✅
-- [components/destination-bottom-sheet.tsx](components/destination-bottom-sheet.tsx) ✅
+- [src/features/home/components/destination-bottom-sheet.tsx](src/features/home/components/destination-bottom-sheet.tsx) ✅
 
 **UX Quality:** ✅ Good
 - Quick access to popular destinations
@@ -435,7 +435,7 @@ trip-history.tsx ❌ MISSING
 ```
 
 **Current State:**
-- Trip history stored in Zustand store (`store/trip-history-store.ts`)
+- Trip history stored in Zustand store (`src/store/trip-history-store.ts`)
 - Data structure exists with full trip details
 - **No UI to view trips**
 - **No persistence** (trips lost on app restart)
@@ -1014,13 +1014,13 @@ Zero test files found
 **Why:** Prevents app crashes and data leakage in production
 
 **Tasks:**
-- Remove all `DEBUG_LOG()` calls from [store/route-store.ts](store/route-store.ts)
+- Remove all `DEBUG_LOG()` calls from [src/store/route-store.ts](src/store/route-store.ts)
 - Remove localhost endpoint from [config.ts](config.ts)
 - Remove all `console.log()` calls or replace with proper logger
 - Add production build check for debug code
 
 **Files to change:**
-- [store/route-store.ts](store/route-store.ts) - Remove DEBUG_LOG calls
+- [src/store/route-store.ts](src/store/route-store.ts) - Remove DEBUG_LOG calls
 - [config.ts](config.ts) - Remove debug logging config
 
 ---
@@ -1035,10 +1035,10 @@ Zero test files found
 - Load from AsyncStorage on app launch
 
 **Files to create:**
-- [services/trip-storage.service.ts](services/trip-storage.service.ts)
+- [src/services/trip-storage.service.ts](src/services/trip-storage.service.ts)
 
 **Files to change:**
-- [store/trip-history-store.ts](store/trip-history-store.ts) - Add persistence
+- [src/store/trip-history-store.ts](src/store/trip-history-store.ts) - Add persistence
 
 ---
 
@@ -1053,7 +1053,7 @@ Zero test files found
 
 **Files to create:**
 - [components/error-boundary.tsx](components/error-boundary.tsx)
-- [services/error-logging.service.ts](services/error-logging.service.ts)
+- [src/services/error-logging.service.ts](src/services/error-logging.service.ts)
 
 **Files to change:**
 - [app/_layout.tsx](app/_layout.tsx) - Wrap with ErrorBoundary
@@ -1147,12 +1147,12 @@ c. **Custom Backend**
 - [app/auth/signup.tsx](app/auth/signup.tsx)
 - [app/auth/login.tsx](app/auth/login.tsx)
 - [app/auth/reset-password.tsx](app/auth/reset-password.tsx)
-- [services/auth.service.ts](services/auth.service.ts)
-- [store/auth-store.ts](store/auth-store.ts)
+- [src/services/auth.service.ts](src/services/auth.service.ts)
+- [src/store/auth-store.ts](src/store/auth-store.ts)
 
 **Files to change:**
 - [app/_layout.tsx](app/_layout.tsx) - Add auth guard
-- [store/trip-history-store.ts](store/trip-history-store.ts) - Save to backend
+- [src/store/trip-history-store.ts](src/store/trip-history-store.ts) - Save to backend
 
 ---
 
@@ -1212,8 +1212,8 @@ c. **Custom Backend**
 
 **Files to create:**
 - [components/offline-banner.tsx](components/offline-banner.tsx)
-- [services/network.service.ts](services/network.service.ts)
-- [store/network-store.ts](store/network-store.ts)
+- [src/services/network.service.ts](src/services/network.service.ts)
+- [src/store/network-store.ts](src/store/network-store.ts)
 
 **Files to change:**
 - [app/_layout.tsx](app/_layout.tsx) - Add OfflineBanner
@@ -1234,8 +1234,8 @@ c. **Custom Backend**
 **Files to create:**
 - [app/saved-locations.tsx](app/saved-locations.tsx)
 - [app/edit-location.tsx](app/edit-location.tsx)
-- [store/saved-locations-store.ts](store/saved-locations-store.ts)
-- [services/saved-locations-storage.service.ts](services/saved-locations-storage.service.ts)
+- [src/store/saved-locations-store.ts](src/store/saved-locations-store.ts)
+- [src/services/saved-locations-storage.service.ts](src/services/saved-locations-storage.service.ts)
 
 **Files to change:**
 - [app/route-input.tsx](app/route-input.tsx) - Show saved locations in autocomplete
@@ -1262,11 +1262,11 @@ c. **Custom Backend**
 **Files to create:**
 - [app/active-ride.tsx](app/active-ride.tsx)
 - [app/trip-complete.tsx](app/trip-complete.tsx)
-- [services/ride-tracking.service.ts](services/ride-tracking.service.ts)
+- [src/services/ride-tracking.service.ts](src/services/ride-tracking.service.ts)
 - [components/driver-location-tracker.tsx](components/driver-location-tracker.tsx)
 
 **Files to change:**
-- [store/trip-history-store.ts](store/trip-history-store.ts) - Add real-time status updates
+- [src/store/trip-history-store.ts](src/store/trip-history-store.ts) - Add real-time status updates
 
 **Technical Requirements:**
 - Real-time location updates (WebSocket recommended)
@@ -1348,7 +1348,7 @@ c. **Custom Backend**
 - Add pull-to-refresh animations
 
 **Files to create:**
-- [utils/haptics.ts](utils/haptics.ts)
+- [src/utils/haptics.ts](src/utils/haptics.ts)
 - [components/success-animation.tsx](components/success-animation.tsx)
 
 **Libraries to consider:**
@@ -1369,7 +1369,7 @@ c. **Custom Backend**
 
 **Files to create:**
 - [app/favorite-drivers.tsx](app/favorite-drivers.tsx)
-- [store/favorite-drivers-store.ts](store/favorite-drivers-store.ts)
+- [src/store/favorite-drivers-store.ts](src/store/favorite-drivers-store.ts)
 
 **Files to change:**
 - [app/driver/[id].tsx](app/driver/[id].tsx) - Add favorite button

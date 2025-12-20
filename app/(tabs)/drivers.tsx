@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DriverCard } from '@/components/driver-card';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/design-tokens';
-import { MOCK_DRIVERS, getOnDutyDrivers, getOffDutyDrivers } from '@/data/drivers';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import type { Driver } from '@/types/driver';
+import { DriverCard } from '@/src/features/drivers/components/driver-card';
+import { ThemedText } from '@/src/ui/components/themed-text';
+import { ThemedView } from '@/src/ui/components/themed-view';
+import { Spacing } from '@/src/constants/design-tokens';
+import { MOCK_DRIVERS, getOnDutyDrivers, getOffDutyDrivers } from '@/src/features/drivers/data/drivers';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
+import type { Driver } from '@/src/types/driver';
 
 type FilterType = 'all' | 'on_duty' | 'off_duty';
 

@@ -14,13 +14,13 @@
 app/(tabs)/index.tsx (Home Screen)
   └── GestureHandlerRootView
       ├── MapView
-      └── DestinationBottomSheet (components/destination-bottom-sheet.tsx)
+      └── DestinationBottomSheet (src/features/home/components/destination-bottom-sheet.tsx)
           └── Sheet (src/ui/components/Sheet.tsx)
               └── @gorhom/bottom-sheet (v5.2.8)
                   └── BottomSheetView
-                      ├── PillSearchBar (components/ui/pill-search-bar.tsx)
+                      ├── PillSearchBar (src/ui/legacy/pill-search-bar.tsx)
                       └── Animated.View
-                          └── HomePopularCarousel (components/home-popular-carousel.tsx)
+                          └── HomePopularCarousel (src/features/home/components/home-popular-carousel.tsx)
                               └── BottomSheetFlatList (horizontal carousel)
                                   └── PopularLocationCard[]
 ```
@@ -325,7 +325,7 @@ console.log('Safe area bottom:', insets.bottom);
 
 ### P1 - Improve Snap Point Calculation Accuracy
 
-**File:** `components/destination-bottom-sheet.tsx`
+**File:** `src/features/home/components/destination-bottom-sheet.tsx`
 
 **Change:** Replace estimated header height with exact calculation
 
@@ -349,7 +349,7 @@ console.log('Safe area bottom:', insets.bottom);
 
 ### P2 - Add Debug Logging (Optional)
 
-**File:** `components/destination-bottom-sheet.tsx`
+**File:** `src/features/home/components/destination-bottom-sheet.tsx`
 
 **Change:** Add console logging for debugging (can be removed later)
 
@@ -479,8 +479,8 @@ The bottom sheet implementation follows best practices and correctly implements 
 
 ### Files Modified (Already Applied)
 
-- ✅ `components/destination-bottom-sheet.tsx` - Added gesture props, over-drag prevention
-- ✅ `components/home-popular-carousel.tsx` - Changed to `BottomSheetFlatList`
+- ✅ `src/features/home/components/destination-bottom-sheet.tsx` - Added gesture props, over-drag prevention
+- ✅ `src/features/home/components/home-popular-carousel.tsx` - Changed to `BottomSheetFlatList`
 - ✅ `src/ui/components/Sheet.tsx` - Added gesture prop passthrough
 
 ---

@@ -17,7 +17,7 @@ Begin using the new design system for **new screens and features**.
 **Before:**
 ```tsx
 import { Colors, Spacing, BorderRadius } from '@/constants/design-tokens';
-import { SearchInput } from '@/components/ui/search-input';
+import { SearchInput } from '@/src/ui/legacy/search-input';
 ```
 
 **After:**
@@ -53,8 +53,8 @@ Pick one screen at a time and refactor it to use the new system.
 **Before ([app/(tabs)/drivers.tsx](../../../app/(tabs)/drivers.tsx)):**
 ```tsx
 import { Colors, Spacing } from '@/constants/design-tokens';
-import { ThemedText } from '@/components/themed-text';
-import { DriverCard } from '@/components/driver-card';
+import { ThemedText } from '@/ui/components/themed-text';
+import { DriverCard } from '@/src/features/drivers/components/driver-card';
 
 export default function DriversScreen() {
   return (
@@ -71,7 +71,7 @@ export default function DriversScreen() {
 **After:**
 ```tsx
 import { Box, Text, space, colors } from '@/src/ui';
-import { DriverCard } from '@/components/driver-card';  // Keep existing for now
+import { DriverCard } from '@/src/features/drivers/components/driver-card';  // Keep existing for now
 
 export default function DriversScreen() {
   return (
@@ -100,7 +100,7 @@ Some components will need more work. Here's how to approach them:
 
 ### Example: DriverCard Migration
 
-Your existing [DriverCard](../../../components/driver-card.tsx) is already well-structured. Here's how to make it use the new system:
+Your existing [DriverCard](../../../src/features/drivers/src/features/drivers/components/driver-card.tsx) is already well-structured. Here's how to make it use the new system:
 
 **Current implementation uses:**
 - `BorderRadius`, `Spacing` from design-tokens
@@ -144,11 +144,11 @@ const styles = StyleSheet.create({
 
 ### Example: SearchInput Migration
 
-Your existing [SearchInput](../../../components/ui/search-input.tsx) can be replaced wholesale:
+Your existing [SearchInput](../../../src/ui/legacy/search-input.tsx) can be replaced wholesale:
 
 **Before:**
 ```tsx
-import { SearchInput } from '@/components/ui/search-input';
+import { SearchInput } from '@/src/ui/legacy/search-input';
 
 <SearchInput
   placeholder="Search destination"
@@ -176,7 +176,7 @@ import { colors } from '@/src/ui';
 Once a screen is fully migrated:
 
 1. Remove unused imports from old design system
-2. Delete unused component files from `/components/ui/`
+2. Delete unused component files from `/src/ui/legacy/`
 3. Update tests if applicable
 
 ## Common Migration Patterns

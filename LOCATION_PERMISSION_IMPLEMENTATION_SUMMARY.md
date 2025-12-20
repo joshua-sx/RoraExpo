@@ -6,18 +6,18 @@ Successfully implemented a custom location permission prompt that appears when u
 ## What Was Implemented
 
 ### 1. Location Store Enhancement
-**File:** `store/location-store.ts`
+**File:** `src/store/location-store.ts`
 - Added `showPermissionModal: boolean` state
 - Added `setShowPermissionModal` action
 - Integrated into reset logic
 
 ### 2. Location Service Enhancement
-**File:** `services/location.service.ts`
+**File:** `src/services/location.service.ts`
 - Added `getPermissionStatus()` method to check current permission state without requesting
 - Returns `Location.PermissionStatus` enum for precise state detection
 
 ### 3. Location Permission Modal Component
-**File:** `components/location-permission-modal.tsx` (NEW)
+**File:** `src/features/home/components/location-permission-modal.tsx` (NEW)
 - Beautiful, modern modal matching the Rora design system
 - Features:
   - Green location icon in circular badge
@@ -84,11 +84,11 @@ Successfully implemented a custom location permission prompt that appears when u
 ## Files Modified
 
 ### New Files (1)
-- `components/location-permission-modal.tsx`
+- `src/features/home/components/location-permission-modal.tsx`
 
 ### Modified Files (3)
-- `store/location-store.ts`
-- `services/location.service.ts`
+- `src/store/location-store.ts`
+- `src/services/location.service.ts`
 - `app/(tabs)/index.tsx`
 
 ### Documentation Files (2)
@@ -155,7 +155,7 @@ See `LOCATION_PERMISSION_TEST_GUIDE.md` for comprehensive testing instructions c
 
 For issues or questions, refer to:
 - `LOCATION_PERMISSION_TEST_GUIDE.md` - Testing procedures
-- `services/location.service.ts` - Location service implementation
-- `store/location-store.ts` - State management
+- `src/services/location.service.ts` - Location service implementation
+- `src/store/location-store.ts` - State management
 - Console logs with `[HomeScreen]` and `[LocationService]` prefixes
 

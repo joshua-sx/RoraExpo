@@ -32,19 +32,19 @@
 **Impact:** Security risk, performance impact, potential crashes
 
 **Findings:**
-- `DEBUG_LOG` calls in `store/route-store.ts` (lines 5-7, 57, 65, 77, 86)
-- `DEBUG_LOG` calls in `constants/config.ts` (lines 22-43, 78-82)
+- `DEBUG_LOG` calls in `src/store/route-store.ts` (lines 5-7, 57, 65, 77, 86)
+- `DEBUG_LOG` calls in `src/constants/config.ts` (lines 22-43, 78-82)
 - Hardcoded localhost endpoint: `http://127.0.0.1:7245/ingest/...`
 - These calls will fail in production and may cause performance issues
 
 **Locations:**
 ```typescript
-// store/route-store.ts
+// src/store/route-store.ts
 const DEBUG_LOG = (location: string, message: string, data: any) => {
   fetch('http://127.0.0.1:7245/ingest/...', {...}).catch(() => {});
 };
 
-// constants/config.ts
+// src/constants/config.ts
 const DEBUG_LOG = (...) => {
   fetch("http://127.0.0.1:7245/ingest/...", {...}).catch(() => {});
 };
@@ -71,8 +71,8 @@ const DEBUG_LOG = (...) => {
 
 **Examples:**
 - `app/route-input.tsx`: `style?: any` in HighlightedText component
-- `services/google-maps.service.ts`: Multiple `any` types
-- `components/home-popular-carousel.tsx`: `venue: any` parameter
+- `src/services/google-maps.service.ts`: Multiple `any` types
+- `src/features/home/components/home-popular-carousel.tsx`: `venue: any` parameter
 
 **Recommendations:**
 - [ ] Replace all `any` types with proper TypeScript interfaces
@@ -98,7 +98,7 @@ const DEBUG_LOG = (...) => {
 - `app/(tabs)/index.tsx`: 21 console calls
 - `app/route-input.tsx`: 3 console calls
 - `app/trip-preview.tsx`: 2 console calls
-- `services/location.service.ts`: Multiple console calls
+- `src/services/location.service.ts`: Multiple console calls
 
 **Recommendations:**
 - [ ] Create a logging utility that respects `__DEV__` flag

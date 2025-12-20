@@ -6,18 +6,18 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { VenueHeader } from '@/components/explore/venue-header';
-import { RideCtaCard } from '@/components/explore/ride-cta-card';
-import { RideCtaSheet } from '@/components/ride-cta-sheet';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { getVenueById } from '@/data/venues';
-import { googleMapsService } from '@/services/google-maps.service';
-import { useRouteStore } from '@/store/route-store';
-import { useLocationStore } from '@/store/location-store';
-import { calculatePrice } from '@/utils/pricing';
-import { extractRouteData } from '@/utils/route-validation';
+import { ThemedText } from '@/src/ui/components/themed-text';
+import { ThemedView } from '@/src/ui/components/themed-view';
+import { VenueHeader } from '@/src/features/explore/components/venue-header';
+import { RideCtaCard } from '@/src/features/explore/components/ride-cta-card';
+import { RideCtaSheet } from '@/src/features/explore/components/ride-cta-sheet';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { getVenueById } from '@/src/features/explore/data/venues';
+import { googleMapsService } from '@/src/services/google-maps.service';
+import { useRouteStore } from '@/src/store/route-store';
+import { useLocationStore } from '@/src/store/location-store';
+import { calculatePrice } from '@/src/utils/pricing';
+import { extractRouteData } from '@/src/utils/route-validation';
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,7 +26,7 @@ export default function VenueDetailScreen() {
 
   const [isSaved, setIsSaved] = useState(false);
   const [showRideSheet, setShowRideSheet] = useState(false);
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
+  const [, setIsLoadingRoute] = useState(false);
 
   const { setOrigin, setDestination, setRouteData, setError } = useRouteStore();
   const { currentLocation, formattedAddress, permissionGranted } = useLocationStore();
@@ -322,4 +322,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

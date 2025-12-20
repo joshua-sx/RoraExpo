@@ -1,9 +1,9 @@
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedText } from '@/src/ui/components/themed-text';
+import { ThemedView } from '@/src/ui/components/themed-view';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 
 export default function NotFoundScreen() {
   const tint = useThemeColor({}, 'tint');

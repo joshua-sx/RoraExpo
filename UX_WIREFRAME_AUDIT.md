@@ -237,7 +237,7 @@ This audit evaluates key screens and user flows against the UX Wireframe Checkli
 
 ### 8. Bottom Sheets & Modals
 
-#### Destination Bottom Sheet (`components/destination-bottom-sheet.tsx`)
+#### Destination Bottom Sheet (`src/features/home/components/destination-bottom-sheet.tsx`)
 ✅ **Strengths:**
 - Proper safe area handling
 - Smooth animations
@@ -247,7 +247,7 @@ This audit evaluates key screens and user flows against the UX Wireframe Checkli
 - Lines 31-32: Starts expanded - may surprise users on first load
 - Lines 136-139: Complex gesture config may conflict with carousel scroll
 
-#### Ride CTA Sheet (`components/ride-cta-sheet.tsx`)
+#### Ride CTA Sheet (`src/features/explore/components/ride-cta-sheet.tsx`)
 ✅ **Strengths:**
 - Clear pickup/destination fields
 - Route preview with distance/time
@@ -258,7 +258,7 @@ This audit evaluates key screens and user flows against the UX Wireframe Checkli
 - Lines 81-95: Destination is locked - no way to change it
 - No error state if location isn't available
 
-#### Location Permission Modal (`components/location-permission-modal.tsx`)
+#### Location Permission Modal (`src/features/home/components/location-permission-modal.tsx`)
 ✅ **Strengths:**
 - Excellent explanation before system prompt
 - Two clear options
@@ -447,9 +447,9 @@ This audit evaluates key screens and user flows against the UX Wireframe Checkli
 - [app/(tabs)/explore/venue/[id].tsx](app/(tabs)/explore/venue/[id].tsx) - Location integration
 
 ### Medium Priority
-- [components/ride-cta-sheet.tsx](components/ride-cta-sheet.tsx) - Editable pickup
-- [components/destination-bottom-sheet.tsx](components/destination-bottom-sheet.tsx) - Initial state
-- [components/location-permission-modal.tsx](components/location-permission-modal.tsx) - Follow-up UI
+- [src/features/explore/components/ride-cta-sheet.tsx](src/features/explore/components/ride-cta-sheet.tsx) - Editable pickup
+- [src/features/home/components/destination-bottom-sheet.tsx](src/features/home/components/destination-bottom-sheet.tsx) - Initial state
+- [src/features/home/components/location-permission-modal.tsx](src/features/home/components/location-permission-modal.tsx) - Follow-up UI
 
 ---
 
