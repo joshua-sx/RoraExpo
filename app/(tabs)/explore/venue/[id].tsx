@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/src/ui/components/themed-text';
@@ -135,6 +135,7 @@ export default function VenueDetailScreen() {
             <ThemedText style={styles.sectionTitle}>LOCATION</ThemedText>
             <View style={styles.mapContainer}>
               <MapView
+                provider={PROVIDER_GOOGLE}
                 style={styles.map}
                 initialRegion={{
                   latitude: venue.latitude,

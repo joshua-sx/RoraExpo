@@ -37,7 +37,7 @@ import {
     useWindowDimensions,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type ViewState = "input" | "loading";
@@ -828,6 +828,7 @@ export default function RouteInputScreen() {
 			<View style={[styles.container, { backgroundColor }]}>
 				{/* Map */}
 				<MapView
+					provider={PROVIDER_GOOGLE}
 					ref={mapRef}
 					style={styles.map}
 					initialRegion={SINT_MAARTEN_REGION}

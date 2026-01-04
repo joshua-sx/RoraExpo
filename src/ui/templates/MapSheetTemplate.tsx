@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import MapView, { type MapViewProps } from 'react-native-maps';
+import MapView, { type MapViewProps, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type MapSheetTemplateProps = {
   /**
@@ -57,6 +57,7 @@ export function MapSheetTemplate({
       <View style={styles.container}>
         {/* Map Layer */}
         <MapView
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           {...mapProps}
         />
