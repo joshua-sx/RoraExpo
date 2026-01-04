@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Animated, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
@@ -281,6 +281,7 @@ export default function TripPreviewScreen() {
 			{/* Fullscreen Map */}
 			<MapErrorBoundary>
 				<MapView
+					provider={PROVIDER_GOOGLE}
 					ref={mapRef}
 					style={styles.map}
 					initialRegion={SINT_MAARTEN_REGION}

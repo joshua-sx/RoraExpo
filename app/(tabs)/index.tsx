@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -233,6 +233,7 @@ export default function HomeScreen() {
 		<GestureHandlerRootView style={styles.container}>
 			<View style={styles.container}>
 				<MapView
+					provider={PROVIDER_GOOGLE}
 					style={styles.map}
 					initialRegion={mapRegion}
 					showsUserLocation
