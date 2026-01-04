@@ -1,167 +1,79 @@
-import React, { useRef, useMemo, ReactNode } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import React, { type ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import MapView, { Region } from 'react-native-maps';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MapView, { type MapViewProps } from 'react-native-maps';
 
-import { MapErrorBoundary } from '../components/MapErrorBoundary';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
-import { getTabBarHeight } from '@/src/utils/safe-area';
-import { space } from '../tokens/spacing';
-
-// Sheet border radius (24px - larger than standard lg for visual prominence)
-const SHEET_RADIUS = 24;
-
-interface MapSheetTemplateProps {
+type MapSheetTemplateProps = {
   /**
-   * Initial map region to display
+   * MapView component props
    */
-  initialRegion: Region;
+  mapProps: MapViewProps;
   /**
-   * Content to render inside the map (markers, polylines, etc.)
+   * Bottom sheet component (should be a Sheet or BottomSheet component)
    */
-  mapContent?: ReactNode;
+  sheet: ReactNode;
   /**
-   * Content to render in the bottom sheet
+   * Optional overlay to dim the map when sheet expands
    */
-  sheetContent: ReactNode;
+  showMapDim?: boolean;
   /**
-   * Snap points for the bottom sheet (percentages or pixel values)
-   * @default ['70%', '12%']
+   * Opacity of map dim overlay (0-1)
+   * @default 0.3
    */
-  snapPoints?: (string | number)[];
-  /**
-   * Initial snap index
-   * @default 0
-   */
-  initialSnapIndex?: number;
-  /**
-   * Whether to show user location on map
-   * @default true
-   */
-  showsUserLocation?: boolean;
-  /**
-   * Callback when map is ready
-   */
-  onMapReady?: () => void;
-  /**
-   * Ref to access MapView imperatively
-   */
-  mapRef?: React.RefObject<MapView>;
-  /**
-   * Additional content to overlay on the map (modals, FABs, etc.)
-   */
-  overlayContent?: ReactNode;
-  /**
-   * Custom style for the sheet content container
-   */
-  sheetContentStyle?: ViewStyle;
-}
+  mapDimOpacity?: number;
+};
 
 /**
- * Template for screens with a fullscreen map and bottom sheet.
+ * MapSheetTemplate - Reusable template for map + bottom sheet screens
  *
- * Common pattern used in:
- * - Home screen (map + destination sheet)
- * - Trip preview (map + trip details sheet)
- * - Driver tracking (map + driver info sheet)
+ * Features:
+ * - Full-screen map with absolute positioning
+ * - Bottom sheet overlay
+ * - Optional map dimming when sheet expands
+ * - GestureHandlerRootView wrapper for gesture support
+ * - Automatic safe area handling
  *
  * @example
  * ```tsx
  * <MapSheetTemplate
- *   initialRegion={SINT_MAARTEN_REGION}
- *   mapContent={
- *     <>
- *       <Marker coordinate={origin} />
- *       <Polyline coordinates={route} />
- *     </>
+ *   mapProps={{
+ *     initialRegion: INITIAL_REGION,
+ *     showsUserLocation: true,
+ *   }}
+ *   sheet={
+ *     <DestinationBottomSheet bottomInset={tabBarHeight} />
  *   }
- *   sheetContent={<TripDetails />}
  * />
  * ```
  */
 export function MapSheetTemplate({
-  initialRegion,
-  mapContent,
-  sheetContent,
-  snapPoints: customSnapPoints,
-  initialSnapIndex = 0,
-  showsUserLocation = true,
-  onMapReady,
-  mapRef: externalMapRef,
-  overlayContent,
-  sheetContentStyle,
+  mapProps,
+  sheet,
+  showMapDim = false,
+  mapDimOpacity = 0.3,
 }: MapSheetTemplateProps) {
-  const internalMapRef = useRef<MapView>(null);
-  const mapRef = externalMapRef || internalMapRef;
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const insets = useSafeAreaInsets();
-
-  const tabBarHeight = getTabBarHeight(insets);
-
-  // Theme colors
-  const surfaceColor = useThemeColor(
-    { light: '#FFFFFF', dark: '#161616' },
-    'surface'
-  );
-  const handleIndicatorColor = useThemeColor(
-    { light: '#E3E6E3', dark: '#2F3237' },
-    'border'
-  );
-
-  const snapPoints = useMemo(
-    () => customSnapPoints || ['70%', '12%'],
-    [customSnapPoints]
-  );
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.container}>
-        {/* Fullscreen Map */}
-        <MapErrorBoundary>
-          <MapView
-            ref={mapRef}
-            style={styles.map}
-            initialRegion={initialRegion}
-            showsUserLocation={showsUserLocation}
-            showsMyLocationButton={false}
-            showsCompass={false}
-            onMapReady={onMapReady}
-          >
-            {mapContent}
-          </MapView>
-        </MapErrorBoundary>
+        {/* Map Layer */}
+        <MapView
+          style={styles.map}
+          {...mapProps}
+        />
 
-        {/* Bottom Sheet */}
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={initialSnapIndex}
-          snapPoints={snapPoints}
-          enablePanDownToClose={false}
-          backgroundStyle={[
-            styles.bottomSheetBackground,
-            { backgroundColor: surfaceColor },
-          ]}
-          handleIndicatorStyle={[
-            styles.handleIndicator,
-            { backgroundColor: handleIndicatorColor },
-          ]}
-        >
-          <BottomSheetScrollView
-            style={styles.bottomSheetContent}
-            contentContainerStyle={[
-              { paddingBottom: tabBarHeight + space[4] },
-              sheetContentStyle,
+        {/* Optional Map Dim Overlay */}
+        {showMapDim && (
+          <View
+            style={[
+              styles.mapDimOverlay,
+              { backgroundColor: `rgba(0, 0, 0, ${mapDimOpacity})` },
             ]}
-            scrollEnabled={true}
-          >
-            {sheetContent}
-          </BottomSheetScrollView>
-        </BottomSheet>
+            pointerEvents="none"
+          />
+        )}
 
-        {/* Overlay content (modals, FABs, etc.) */}
-        {overlayContent}
+        {/* Bottom Sheet Layer */}
+        {sheet}
       </View>
     </GestureHandlerRootView>
   );
@@ -174,22 +86,7 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  bottomSheetBackground: {
-    borderTopLeftRadius: SHEET_RADIUS,
-    borderTopRightRadius: SHEET_RADIUS,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  handleIndicator: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 8,
-  },
-  bottomSheetContent: {
-    flex: 1,
+  mapDimOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
 });

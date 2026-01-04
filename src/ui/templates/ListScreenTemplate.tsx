@@ -1,175 +1,173 @@
-import React, { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import React, { type ReactNode } from 'react';
+import { StyleSheet, View, ScrollView, FlatList, type FlatListProps, type ScrollViewProps } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ThemedText } from '../components/themed-text';
+import { ThemedView } from '../components/themed-view';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { getTabBarHeight } from '@/src/utils/safe-area';
 
-import { IconButton } from '../components/IconButton';
-import { Box } from '../primitives/Box';
-import { Text } from '../primitives/Text';
-import { colors } from '../tokens/colors';
-import { space } from '../tokens/spacing';
-
-interface ListScreenTemplateProps {
+type BaseListScreenProps = {
   /**
-   * Screen title displayed in the header
+   * Large title text displayed at top
    */
   title: string;
   /**
-   * Content to render in the scrollable area
+   * Optional subtitle below title
    */
-  children: ReactNode;
+  subtitle?: string;
   /**
-   * Whether to show back button in header
-   * @default true
-   */
-  showBackButton?: boolean;
-  /**
-   * Custom back button handler (defaults to router.back())
-   */
-  onBack?: () => void;
-  /**
-   * Right side header action (icon button or custom component)
-   */
-  headerRight?: ReactNode;
-  /**
-   * Content to render below header but above scroll view (filters, search, etc.)
+   * Optional header content below title/subtitle
    */
   headerContent?: ReactNode;
   /**
-   * Custom style for the scroll view content container
+   * Content to render
    */
-  contentStyle?: ViewStyle;
+  children: ReactNode;
   /**
-   * Whether to add default padding to content
-   * @default true
+   * Additional bottom padding beyond tab bar
+   * @default 20
    */
-  padded?: boolean;
+  extraBottomPadding?: number;
+};
+
+type ScrollViewListProps = BaseListScreenProps & {
   /**
-   * Which edges to apply safe area insets
-   * @default ['top']
+   * Use ScrollView for content
    */
-  safeAreaEdges?: ('top' | 'bottom' | 'left' | 'right')[];
-}
+  scrollable: true;
+  /**
+   * ScrollView props
+   */
+  scrollViewProps?: Omit<ScrollViewProps, 'children'>;
+};
+
+type FlatListProps_<T> = BaseListScreenProps & {
+  /**
+   * Use FlatList for content
+   */
+  scrollable: false;
+  /**
+   * FlatList component to render
+   */
+  flatList: ReactNode;
+};
+
+type ListScreenTemplateProps<T = any> = ScrollViewListProps | FlatListProps_<T>;
 
 /**
- * Template for list-based screens with header and scrollable content.
+ * ListScreenTemplate - Reusable template for list screens with iOS-style headers
  *
- * Common pattern used in:
- * - Favorite drivers list
- * - Trip history
- * - Settings screens
- * - Saved locations
- *
- * @example
- * ```tsx
- * <ListScreenTemplate title="Favorite Drivers">
- *   {drivers.map(driver => (
- *     <DriverCard key={driver.id} driver={driver} />
- *   ))}
- * </ListScreenTemplate>
- * ```
+ * Features:
+ * - iOS-style large title (32px, bold)
+ * - Optional subtitle
+ * - Optional header content (filters, search, etc.)
+ * - ScrollView or FlatList support
+ * - Automatic safe area handling
+ * - Proper tab bar spacing
  *
  * @example
  * ```tsx
+ * // ScrollView variant
  * <ListScreenTemplate
- *   title="Trip History"
- *   headerRight={<FilterButton />}
- *   headerContent={<SearchInput />}
+ *   title="Explore"
+ *   subtitle="Discover places in Sint Maarten"
+ *   scrollable={true}
+ *   headerContent={<SearchBar />}
  * >
- *   {trips.map(trip => <TripCard key={trip.id} trip={trip} />)}
+ *   <View>{/* Your content *\/}</View>
  * </ListScreenTemplate>
+ *
+ * // FlatList variant
+ * <ListScreenTemplate
+ *   title="Drivers"
+ *   subtitle="Browse available drivers"
+ *   scrollable={false}
+ *   flatList={
+ *     <FlatList
+ *       data={drivers}
+ *       renderItem={({ item }) => <DriverCard driver={item} />}
+ *     />
+ *   }
+ * />
  * ```
  */
-export function ListScreenTemplate({
-  title,
-  children,
-  showBackButton = true,
-  onBack,
-  headerRight,
-  headerContent,
-  contentStyle,
-  padded = true,
-  safeAreaEdges = ['top'],
-}: ListScreenTemplateProps) {
+export function ListScreenTemplate<T = any>(props: ListScreenTemplateProps<T>) {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = getTabBarHeight(insets);
 
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      router.back();
-    }
-  };
+  const backgroundColor = useThemeColor(
+    { light: '#F9F9F9', dark: '#0E0F0F' },
+    'background'
+  );
+  const secondaryTextColor = useThemeColor(
+    { light: '#5C5F62', dark: '#A0A5AA' },
+    'textSecondary'
+  );
+
+  const { title, subtitle, headerContent, extraBottomPadding = 20 } = props;
+
+  const header = (
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <ThemedText style={styles.title}>{title}</ThemedText>
+      {subtitle && (
+        <ThemedText style={[styles.subtitle, { color: secondaryTextColor }]}>
+          {subtitle}
+        </ThemedText>
+      )}
+      {headerContent}
+    </View>
+  );
+
+  if (props.scrollable) {
+    return (
+      <ThemedView style={[styles.container, { backgroundColor }]}>
+        {header}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: tabBarHeight + extraBottomPadding },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          {...props.scrollViewProps}
+        >
+          {props.children}
+        </ScrollView>
+      </ThemedView>
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-      {/* Header */}
-      <Box style={styles.header}>
-        {showBackButton ? (
-          <IconButton
-            accessibilityLabel="Go back"
-            onPress={handleBack}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </IconButton>
-        ) : (
-          <View style={styles.headerSpacer} />
-        )}
-        <Text variant="h2" style={styles.headerTitle}>
-          {title}
-        </Text>
-        {headerRight || <View style={styles.headerSpacer} />}
-      </Box>
-
-      {/* Optional header content (search, filters, etc.) */}
-      {headerContent}
-
-      {/* Scrollable content */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[
-          padded && styles.paddedContent,
-          { paddingBottom: Math.max(insets.bottom, space[4]) },
-          contentStyle,
-        ]}
-      >
-        {children}
-      </ScrollView>
-    </SafeAreaView>
+    <ThemedView style={[styles.container, { backgroundColor }]}>
+      {header}
+      {props.flatList}
+    </ThemedView>
   );
 }
-
-// Alias for backwards compatibility / shorthand
-export const LstScreenTemplate = ListScreenTemplate;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: space[4],
-    paddingVertical: space[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontWeight: '600',
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    lineHeight: 42,
+    marginBottom: 4,
   },
-  headerSpacer: {
-    width: 40,
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 8,
   },
   scrollView: {
     flex: 1,
   },
-  paddedContent: {
-    padding: space[4],
-    gap: space[4],
+  scrollContent: {
+    paddingHorizontal: 20,
   },
 });
