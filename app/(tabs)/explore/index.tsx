@@ -3,8 +3,7 @@ import { FeaturedVenueCard } from "@/src/features/explore/components/featured-ve
 import { SearchBar } from "@/src/features/explore/components/search-bar";
 import { SearchResults } from "@/src/features/explore/components/search-results";
 import { VenueListItem } from "@/src/features/explore/components/venue-list-item";
-import { ThemedText } from "@/src/ui/components/themed-text";
-import { ThemedView } from "@/src/ui/components/themed-view";
+import { Text, Box } from "@/src/ui";
 import { CATEGORIES, getFeaturedVenues, getNearbyVenues } from "@/src/features/explore/data/venues";
 import { useThemeColor } from "@/src/hooks/use-theme-color";
 import { useDebouncedValue } from "@/src/hooks/use-debounced-value";
@@ -75,11 +74,11 @@ export default function ExploreScreen() {
 	}, []);
 
 	return (
-		<ThemedView style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
+		<Box style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
 			{/* Header */}
 			<View style={[styles.header, { paddingTop: 16 }]}>
 				{!isSearchActive && (
-					<ThemedText style={styles.title}>Explore</ThemedText>
+					<Text style={styles.title}>Explore</Text>
 				)}
 				<SearchBar
 					value={inputValue}
@@ -124,14 +123,14 @@ export default function ExploreScreen() {
 						{/* Featured Section */}
 						<View style={styles.section}>
 							<View style={styles.sectionHeader}>
-								<ThemedText style={styles.sectionTitle}>FEATURED</ThemedText>
+								<Text style={styles.sectionTitle}>FEATURED</Text>
 								{!isLoading && (
-									<ThemedText
+									<Text
 										style={[styles.seeAll, { color: primaryColor }]}
 										onPress={handleSeeAllPress}
 									>
 										See all →
-									</ThemedText>
+									</Text>
 								)}
 							</View>
 							<View style={styles.sectionContent}>
@@ -156,7 +155,7 @@ export default function ExploreScreen() {
 						{/* Near You Section */}
 						<View style={styles.section}>
 							<View style={styles.sectionHeader}>
-								<ThemedText style={styles.sectionTitle}>NEAR YOU</ThemedText>
+								<Text style={styles.sectionTitle}>NEAR YOU</Text>
 							</View>
 							<View style={styles.sectionContent}>
 								{isLoading ? (
@@ -189,7 +188,7 @@ export default function ExploreScreen() {
 					</View>
 				</ScrollView>
 			)}
-		</ThemedView>
+		</Box>
 	);
 }
 

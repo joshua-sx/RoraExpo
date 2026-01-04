@@ -6,8 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/src/ui/components/themed-text';
-import { ThemedView } from '@/src/ui/components/themed-view';
+import { Text, Box } from '@/src/ui';
 import { VenueHeader } from '@/src/features/explore/components/venue-header';
 import { RideCtaCard } from '@/src/features/explore/components/ride-cta-card';
 import { RideCtaSheet } from '@/src/features/explore/components/ride-cta-sheet';
@@ -132,26 +131,26 @@ export default function VenueDetailScreen() {
 
   if (!venue) {
     return (
-      <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      <Box style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={48} color={subtextColor} />
-          <ThemedText style={styles.errorText}>Venue not found</ThemedText>
+          <Text style={styles.errorText}>Venue not found</Text>
           <Pressable
             style={[styles.backButton, { borderColor: primaryColor }]}
             onPress={() => router.back()}
           >
-            <ThemedText style={[styles.backButtonText, { color: primaryColor }]}>
+            <Text style={[styles.backButtonText, { color: primaryColor }]}>
               Go back
-            </ThemedText>
+            </Text>
           </Pressable>
         </View>
-      </ThemedView>
+      </Box>
     );
   }
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <ThemedView style={[styles.container, { backgroundColor }]}>
+      <Box style={[styles.container, { backgroundColor }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -166,8 +165,8 @@ export default function VenueDetailScreen() {
 
           {/* About Section */}
           <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
-            <ThemedText style={styles.sectionTitle}>ABOUT</ThemedText>
-            <ThemedText style={styles.description}>{venue.description}</ThemedText>
+            <Text style={styles.sectionTitle}>ABOUT</Text>
+            <Text style={styles.description}>{venue.description}</Text>
           </View>
 
           {/* Hours & Info Section */}
@@ -176,7 +175,7 @@ export default function VenueDetailScreen() {
               {venue.hours && (
                 <View style={styles.infoRow}>
                   <Ionicons name="time-outline" size={20} color={subtextColor} />
-                  <ThemedText style={styles.infoText}>{venue.hours}</ThemedText>
+                  <Text style={styles.infoText}>{venue.hours}</Text>
                 </View>
               )}
               {venue.amenities && venue.amenities.length > 0 && (
@@ -188,7 +187,7 @@ export default function VenueDetailScreen() {
                         size={18}
                         color={primaryColor}
                       />
-                      <ThemedText style={styles.amenityText}>{amenity}</ThemedText>
+                      <Text style={styles.amenityText}>{amenity}</Text>
                     </View>
                   ))}
                 </View>
@@ -198,7 +197,7 @@ export default function VenueDetailScreen() {
 
           {/* Map Preview */}
           <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
-            <ThemedText style={styles.sectionTitle}>LOCATION</ThemedText>
+            <Text style={styles.sectionTitle}>LOCATION</Text>
             <View style={styles.mapContainer}>
               <MapView
                 style={styles.map}
@@ -222,9 +221,9 @@ export default function VenueDetailScreen() {
             </View>
             <View style={styles.distanceRow}>
               <Ionicons name="navigate-outline" size={18} color={subtextColor} />
-              <ThemedText style={[styles.distanceText, { color: subtextColor }]}>
+              <Text style={[styles.distanceText, { color: subtextColor }]}>
                 {venue.distance} km away · {venue.estimatedDuration || 12} min drive
-              </ThemedText>
+              </Text>
             </View>
           </View>
 
@@ -242,7 +241,7 @@ export default function VenueDetailScreen() {
           onClose={handleCloseSheet}
           onGetQuote={handleGetQuote}
         />
-      </ThemedView>
+      </Box>
     </GestureHandlerRootView>
   );
 }
