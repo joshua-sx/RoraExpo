@@ -9,21 +9,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/src/ui/components/themed-text';
 import { ThemedView } from '@/src/ui/components/themed-view';
 import { VenueHeader } from '@/src/features/explore/components/venue-header';
-import { RideCtaCard } from '@/src/features/explore/components/ride-cta-card';
+import { RideCtaCard, RIDE_CTA_CARD_HEIGHT } from '@/src/features/explore/components/ride-cta-card';
 import { RideCtaSheet } from '@/src/features/explore/components/ride-cta-sheet';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { useStickyCta } from '@/src/hooks/use-sticky-cta';
 import { getVenueById } from '@/src/features/explore/data/venues';
 import { googleMapsService } from '@/src/services/google-maps.service';
 import { useRouteStore } from '@/src/store/route-store';
 import { useLocationStore } from '@/src/store/location-store';
 import { calculatePrice } from '@/src/utils/pricing';
 import { extractRouteData } from '@/src/utils/route-validation';
-import { getTabBarHeight } from '@/src/utils/safe-area';
 
 export default function VenueDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollViewPadding } = useStickyCta(RIDE_CTA_CARD_HEIGHT);
 
   const [isSaved, setIsSaved] = useState(false);
   const [showRideSheet, setShowRideSheet] = useState(false);
@@ -229,7 +230,7 @@ export default function VenueDetailScreen() {
           </View>
 
           {/* Bottom Padding for CTA */}
-          <View style={{ height: getTabBarHeight(insets) + 160 }} />
+          <View style={{ height: scrollViewPadding }} />
         </ScrollView>
 
         {/* Sticky Bottom CTA */}
