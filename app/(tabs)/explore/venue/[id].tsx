@@ -24,7 +24,7 @@ export default function VenueDetailScreen() {
 
   const [isSaved, setIsSaved] = useState(false);
 
-  const { setDestination } = useRouteStore();
+  const { setDestination, setOrigin } = useRouteStore();
 
   const backgroundColor = useThemeColor(
     { light: '#F9F9F9', dark: '#0E0F0F' },
@@ -49,6 +49,9 @@ export default function VenueDetailScreen() {
   const handleRidePress = useCallback(() => {
     if (!venue) return;
 
+    // Clear any stale origin to ensure we use current location
+    setOrigin(null);
+
     // Set venue as destination in route store
     setDestination({
       placeId: venue.id,
@@ -59,7 +62,7 @@ export default function VenueDetailScreen() {
 
     // Navigate directly to route input (will auto-calculate when origin is set)
     router.push('/route-input');
-  }, [venue, router, setDestination]);
+  }, [venue, router, setDestination, setOrigin]);
 
   if (!venue) {
     return (
