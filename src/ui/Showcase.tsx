@@ -125,7 +125,7 @@ export function Showcase() {
           placeholder="Search..."
           value={searchValue}
           onChangeText={setSearchValue}
-          icon={<Ionicons name="search" size={20} color={colors.textMuted} />}
+          leftIcon={<Ionicons name="search" size={20} color={colors.textMuted} />}
         />
       </Section>
 
@@ -156,14 +156,14 @@ export function Showcase() {
           <ListItem
             title="With Avatar"
             subtitle="Leading element"
-            leading={<Avatar initials="JD" size="sm" />}
+            leading={<Avatar name="John Doe" size={32} />}
             onPress={() => {}}
           />
           <ListItem
             title="With Badge"
             subtitle="Trailing element"
-            leading={<Avatar initials="AB" size="sm" />}
-            trailing={<Badge label="New" variant="success" />}
+            leading={<Avatar name="Alice Brown" size={32} />}
+            trailing={<Badge label="New" tone="success" />}
             onPress={() => {}}
           />
           <ListItem
@@ -181,19 +181,19 @@ export function Showcase() {
       <Section title="Avatars">
         <Box style={{ flexDirection: "row", alignItems: "center", gap: space[4] }}>
           <Box style={{ alignItems: "center", gap: space[1] }}>
-            <Avatar initials="SM" size="sm" />
+            <Avatar name="Small" size={32} />
             <Text variant="cap" muted>
               Small
             </Text>
           </Box>
           <Box style={{ alignItems: "center", gap: space[1] }}>
-            <Avatar initials="MD" size="md" />
+            <Avatar name="Medium" size={40} />
             <Text variant="cap" muted>
               Medium
             </Text>
           </Box>
           <Box style={{ alignItems: "center", gap: space[1] }}>
-            <Avatar initials="LG" size="lg" />
+            <Avatar name="Large" size={48} />
             <Text variant="cap" muted>
               Large
             </Text>
@@ -204,10 +204,10 @@ export function Showcase() {
       {/* Badges */}
       <Section title="Badges">
         <Box style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>
-          <Badge label="Default" variant="default" />
-          <Badge label="Success" variant="success" />
-          <Badge label="Danger" variant="danger" />
-          <Badge label="Warning" variant="warning" />
+          <Badge label="Default" tone="neutral" />
+          <Badge label="Success" tone="success" />
+          <Badge label="Danger" tone="danger" />
+          <Badge label="Warning" tone="warning" />
         </Box>
       </Section>
 

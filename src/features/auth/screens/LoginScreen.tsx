@@ -1,73 +1,75 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { supabase } from '../../../lib/supabase';
-import { useAuth } from '../../../hooks/useAuth';
-import { trackEvent, AnalyticsEvents } from '../../../lib/posthog';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+import { Box } from '@/src/ui/primitives/Box';
+import { Text } from '@/src/ui/primitives/Text';
+import { Pressable } from '@/src/ui/primitives/Pressable';
+import { Button } from '@/src/ui/components/Button';
+import { colors } from '@/src/ui/tokens/colors';
+import { space } from '@/src/ui/tokens/spacing';
+import { radius } from '@/src/ui/tokens/radius';
+import { type } from '@/src/ui/tokens/typography';
+import { useToast } from '@/src/ui/providers/ToastProvider';
+
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/hooks/useAuth';
+import { trackEvent, AnalyticsEvents } from '@/src/lib/posthog';
 
 type AuthMethod = 'phone' | 'email';
 
 export const LoginScreen = () => {
+  const insets = useSafeAreaInsets();
+  const { showToast } = useToast();
+
   const [authMethod, setAuthMethod] = useState<AuthMethod>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { setAuthenticatedUser } = useAuth();
 
-  /**
-   * Send OTP via phone or email
-   */
   const handleSendOtp = async () => {
     setIsLoading(true);
-    setError(null);
 
     try {
       if (authMethod === 'phone') {
-        // Send phone OTP
         const { error } = await supabase.auth.signInWithOtp({
           phone: phoneNumber,
         });
-
         if (error) throw error;
       } else {
-        // Send email magic link
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
             shouldCreateUser: true,
           },
         });
-
         if (error) throw error;
       }
 
       setIsOtpSent(true);
-      trackEvent(AnalyticsEvents.APP_LAUNCHED); // Track auth attempt
+      trackEvent(AnalyticsEvents.APP_LAUNCHED);
     } catch (err) {
       console.error('Failed to send OTP:', err);
-      setError(err instanceof Error ? err.message : 'Failed to send code');
+      showToast(err instanceof Error ? err.message : 'Failed to send code');
     } finally {
       setIsLoading(false);
     }
   };
 
-  /**
-   * Verify OTP code
-   */
   const handleVerifyOtp = async () => {
     setIsLoading(true);
-    setError(null);
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: authMethod === 'phone' ? phoneNumber : undefined,
-        email: authMethod === 'email' ? email : undefined,
-        token: otp,
-        type: authMethod === 'phone' ? 'sms' : 'email',
-      });
+      const verifyOptions = authMethod === 'phone'
+        ? { phone: phoneNumber, token: otp, type: 'sms' as const }
+        : { email: email, token: otp, type: 'email' as const };
+
+      const { data, error } = await supabase.auth.verifyOtp(verifyOptions);
 
       if (error) throw error;
 
@@ -76,219 +78,213 @@ export const LoginScreen = () => {
       }
     } catch (err) {
       console.error('Failed to verify OTP:', err);
-      setError(err instanceof Error ? err.message : 'Invalid code');
+      showToast(err instanceof Error ? err.message : 'Invalid code');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleBack = () => {
+    setIsOtpSent(false);
+    setOtp('');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign In to Rora Ride</Text>
-
-      {!isOtpSent ? (
-        <>
-          {/* Auth method toggle */}
-          <View style={styles.toggleContainer}>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                authMethod === 'phone' && styles.toggleButtonActive,
-              ]}
-              onPress={() => setAuthMethod('phone')}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  authMethod === 'phone' && styles.toggleTextActive,
-                ]}
-              >
-                Phone
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                authMethod === 'email' && styles.toggleButtonActive,
-              ]}
-              onPress={() => setAuthMethod('email')}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  authMethod === 'email' && styles.toggleTextActive,
-                ]}
-              >
-                Email
-              </Text>
-            </TouchableOpacity>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: insets.top + space[8],
+            paddingBottom: insets.bottom + space[4],
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Logo */}
+        <Box style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Ionicons name="car" size={32} color={colors.primary} />
           </View>
+        </Box>
 
-          {/* Phone input */}
-          {authMethod === 'phone' && (
-            <TextInput
-              style={styles.input}
-              placeholder="Phone number"
-              keyboardType="phone-pad"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              autoCapitalize="none"
-              autoComplete="tel"
-            />
-          )}
+        {/* Title */}
+        <Text style={styles.title}>
+          {isOtpSent ? 'Enter code' : 'Welcome to Rora'}
+        </Text>
+        <Text style={styles.subtitle}>
+          {isOtpSent
+            ? `We sent a code to ${authMethod === 'phone' ? phoneNumber : email}`
+            : 'Enter your phone number to get started'}
+        </Text>
 
-          {/* Email input */}
-          {authMethod === 'email' && (
-            <TextInput
-              style={styles.input}
-              placeholder="Email address"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          )}
+        {!isOtpSent ? (
+          <>
+            {/* Phone Input (Primary) */}
+            {authMethod === 'phone' && (
+              <TextInput
+                style={styles.input}
+                placeholder="Phone number"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="phone-pad"
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                autoCapitalize="none"
+                autoComplete="tel"
+              />
+            )}
 
-          {error && <Text style={styles.error}>{error}</Text>}
+            {/* Email Input (Secondary) */}
+            {authMethod === 'email' && (
+              <TextInput
+                style={styles.input}
+                placeholder="Email address"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            )}
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSendOtp}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>
-                {authMethod === 'phone' ? 'Send Code' : 'Send Link'}
+            {/* Switch Auth Method - Text Link */}
+            <Pressable
+              onPress={() => setAuthMethod(authMethod === 'phone' ? 'email' : 'phone')}
+              style={styles.switchMethod}
+            >
+              <Text variant="bodySmall" style={styles.switchMethodText}>
+                {authMethod === 'phone' ? 'Use email instead' : 'Use phone instead'}
               </Text>
-            )}
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          {/* OTP input */}
-          <Text style={styles.subtitle}>
-            Enter the 6-digit code sent to{' '}
-            {authMethod === 'phone' ? phoneNumber : email}
+            </Pressable>
+
+            {/* Submit Button */}
+            <Button
+              label={authMethod === 'phone' ? 'Continue' : 'Send link'}
+              onPress={handleSendOtp}
+              loading={isLoading}
+              disabled={authMethod === 'phone' ? !phoneNumber : !email}
+            />
+          </>
+        ) : (
+          <>
+            {/* OTP Input */}
+            <TextInput
+              style={[styles.input, styles.otpInput]}
+              placeholder="000000"
+              placeholderTextColor={colors.textMuted}
+              keyboardType="number-pad"
+              value={otp}
+              onChangeText={setOtp}
+              maxLength={6}
+              autoComplete="sms-otp"
+              textContentType="oneTimeCode"
+            />
+
+            {/* Verify Button */}
+            <Button
+              label="Verify code"
+              onPress={handleVerifyOtp}
+              loading={isLoading}
+              disabled={otp.length !== 6}
+            />
+
+            {/* Back Link */}
+            <Pressable onPress={handleBack} style={styles.backButton}>
+              <Text variant="bodySmall" style={styles.backButtonText}>
+                Use a different {authMethod === 'phone' ? 'number' : 'email'}
+              </Text>
+            </Pressable>
+          </>
+        )}
+
+        {/* Footer */}
+        <Box style={styles.footer}>
+          <Text variant="caption" muted style={styles.footerText}>
+            By continuing, you agree to our Terms of Service and Privacy Policy
           </Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="000000"
-            keyboardType="number-pad"
-            value={otp}
-            onChangeText={setOtp}
-            maxLength={6}
-            autoComplete="sms-otp"
-          />
-
-          {error && <Text style={styles.error}>{error}</Text>}
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleVerifyOtp}
-            disabled={isLoading || otp.length !== 6}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Verify Code</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => {
-              setIsOtpSent(false);
-              setOtp('');
-              setError(null);
-            }}
-          >
-            <Text style={styles.linkText}>← Back</Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </View>
+        </Box>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: colors.bg,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: space[4],
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: space[6],
+  },
+  logoCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    ...type.title1,
+    color: colors.text,
     textAlign: 'center',
+    marginBottom: space[2],
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 24,
+    ...type.body,
+    color: colors.textMuted,
     textAlign: 'center',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    marginBottom: 24,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'hidden',
-  },
-  toggleButton: {
-    flex: 1,
-    padding: 12,
-    alignItems: 'center',
-  },
-  toggleButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  toggleText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  toggleTextActive: {
-    color: '#fff',
-    fontWeight: '600',
+    marginBottom: space[6],
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 16,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: space[4],
     fontSize: 16,
-    marginBottom: 16,
+    color: colors.text,
+    backgroundColor: colors.bg,
+    marginBottom: space[4],
+    minHeight: 52,
   },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  otpInput: {
+    textAlign: 'center',
+    fontSize: 24,
+    letterSpacing: 8,
     fontWeight: '600',
   },
-  linkButton: {
-    marginTop: 16,
+  switchMethod: {
+    marginBottom: space[4],
     alignItems: 'center',
+    minHeight: 44, // Touch target
+    justifyContent: 'center',
   },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 16,
+  switchMethodText: {
+    color: colors.primary,
   },
-  error: {
-    color: '#FF3B30',
-    fontSize: 14,
-    marginBottom: 12,
+  backButton: {
+    marginTop: space[4],
+    alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  backButtonText: {
+    color: colors.primary,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: space[8],
+  },
+  footerText: {
     textAlign: 'center',
   },
 });

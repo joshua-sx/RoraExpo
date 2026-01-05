@@ -31,7 +31,7 @@ export const initializePostHog = async (): Promise<PostHog | null> => {
   try {
     posthogClient = new PostHog(posthogApiKey, {
       host: posthogHost,
-      captureApplicationLifecycleEvents: true,
+      captureAppLifecycleEvents: true,
       captureDeepLinks: true,
     });
 
@@ -158,7 +158,8 @@ export const setUserProperties = (properties: Record<string, any>): void => {
   if (!posthogClient) return;
 
   try {
-    posthogClient.setPersonProperties(properties);
+    // PostHog React Native uses identify() to set person properties
+    posthogClient.identify(undefined, properties);
   } catch (error) {
     console.error('Failed to set user properties:', error);
   }

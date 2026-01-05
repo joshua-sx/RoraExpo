@@ -63,9 +63,11 @@ export default function TripSelectorScreen() {
       {/* Header */}
       <Box style={styles.header}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          accessibilityLabel="Go back"
           onPress={handleBack}
-        />
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </IconButton>
         <Text variant="h2" style={styles.headerTitle}>
           Select Saved Trip
         </Text>

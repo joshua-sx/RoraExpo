@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, ViewStyle, DimensionValue } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,7 +11,7 @@ import { colors } from "../tokens/colors";
 import { radius } from "../tokens/radius";
 
 type Props = {
-  width?: number | string;
+  width?: DimensionValue;
   height?: number;
   borderRadius?: number;
   style?: ViewStyle;
@@ -57,6 +57,6 @@ export function Skeleton({ width = "100%", height = 20, borderRadius = radius.sm
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.skeleton,
   },
 });

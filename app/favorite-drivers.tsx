@@ -46,9 +46,11 @@ export default function FavoriteDriversScreen() {
       {/* Header */}
       <Box style={styles.header}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-        />
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </IconButton>
         <Text variant="h2" style={styles.headerTitle}>
           Favorite Drivers
         </Text>
@@ -88,15 +90,15 @@ export default function FavoriteDriversScreen() {
                           {driver.name}
                         </Text>
                         <IconButton
-                          icon={
-                            <Ionicons
-                              name="star"
-                              size={20}
-                              color={colors.warning}
-                            />
-                          }
+                          accessibilityLabel="Remove from favorites"
                           onPress={() => handleRemoveFavorite(driver.id, driver.name)}
-                        />
+                        >
+                          <Ionicons
+                            name="star"
+                            size={20}
+                            color={colors.warning}
+                          />
+                        </IconButton>
                       </Box>
                       <Box style={styles.ratingRow}>
                         <Ionicons name="star" size={14} color={colors.warning} />

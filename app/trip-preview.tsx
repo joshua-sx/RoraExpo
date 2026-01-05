@@ -473,7 +473,7 @@ export default function TripPreviewScreen() {
 											disabled={isFindingDrivers}
 											accessible
 											accessibilityRole="button"
-											accessibilityLabel="Find available drivers"
+											accessibilityLabel="Browse available drivers"
 										>
 											{isFindingDrivers ? (
 												<>
@@ -486,7 +486,7 @@ export default function TripPreviewScreen() {
 												<>
 													<Ionicons name="search-outline" size={20} color={tintColor} />
 													<ThemedText style={[styles.findDriversButtonText, { color: tintColor }]}>
-														Find drivers
+														Browse drivers
 													</ThemedText>
 												</>
 											)}

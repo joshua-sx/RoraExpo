@@ -11,6 +11,32 @@ import { calculateHaversineDistance } from '../utils/geo';
 import { HAVERSINE_MULTIPLIER, DEFAULT_BASE_FARE, DEFAULT_PER_KM_RATE } from '../utils/constants';
 
 /**
+ * Get the default Sint Maarten region ID
+ * Caches the result to avoid repeated queries
+ */
+let cachedRegionId: string | null = null;
+
+export const getDefaultRegionId = async (): Promise<string> => {
+  if (cachedRegionId) {
+    return cachedRegionId;
+  }
+
+  const { data, error } = await supabase
+    .from('regions')
+    .select('id')
+    .eq('country_code', 'SX')
+    .eq('is_active', true)
+    .single();
+
+  if (error || !data) {
+    throw new Error('Failed to fetch default region. Please ensure the database is properly configured.');
+  }
+
+  cachedRegionId = data.id;
+  return data.id;
+};
+
+/**
  * Calculate fare for a route using the Edge Function
  */
 export const calculateFare = async (

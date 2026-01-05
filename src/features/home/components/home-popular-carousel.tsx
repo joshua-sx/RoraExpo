@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
@@ -20,7 +20,7 @@ const POPULAR_VENUE_IDS = [
 ];
 
 export function HomePopularCarousel() {
-	const flatListRef = useRef<BottomSheetFlatList<any>>(null);
+	const flatListRef = useRef<React.ElementRef<typeof BottomSheetFlatList>>(null);
 	const router = useRouter();
 	const { setOrigin, setDestination } = useRouteStore();
 	const { currentLocation, formattedAddress } = useLocationStore();
@@ -100,7 +100,7 @@ export function HomePopularCarousel() {
 					paddingHorizontal: space[5], // 20px on sides
 					gap: CARD_GAP, // 16px gap between cards
 				}}
-				renderItem={({ item }) => (
+				renderItem={({ item }: { item: NonNullable<typeof venues[number]> }) => (
 					<PopularLocationCard
 						location={{
 							id: item.id,
@@ -114,7 +114,7 @@ export function HomePopularCarousel() {
 						onPress={() => handleVenuePress(item)}
 					/>
 				)}
-				keyExtractor={(item) => item.id}
+				keyExtractor={(item: NonNullable<typeof venues[number]>) => item.id}
 			/>
 		</View>
 	);

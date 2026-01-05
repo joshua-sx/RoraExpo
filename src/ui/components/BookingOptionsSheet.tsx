@@ -58,7 +58,7 @@ export function BookingOptionsSheet({
     >
       {/* Driver Info Header */}
       <Box style={styles.header}>
-        <Text variant="h3" style={styles.headerTitle}>
+        <Text variant="h2" style={styles.headerTitle}>
           Booking with {driver.name}
         </Text>
         <Box style={styles.driverMeta}>

@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
-import type { EdgePadding, MapView } from "react-native-maps";
+import type { EdgePadding } from "react-native-maps";
+import MapView from "react-native-maps";
 
 type LatLng = { latitude: number; longitude: number };
 
@@ -10,7 +11,7 @@ type FitMapOptions = {
 };
 
 export function fitMapToRoute(
-	mapRef: RefObject<MapView>,
+	mapRef: RefObject<MapView | null>,
 	coords: LatLng[],
 	{
 		edgePadding,

@@ -123,9 +123,11 @@ export default function SavedLocationsScreen() {
             </Text>
           </Box>
           <IconButton
-            icon={<Ionicons name="add-circle" size={28} color={colors.primary} />}
+            accessibilityLabel={`Add ${type} location`}
             onPress={() => handleAddLocation(type)}
-          />
+          >
+            <Ionicons name="add-circle" size={28} color={colors.primary} />
+          </IconButton>
         </Box>
       </Card>
     );
@@ -136,16 +138,20 @@ export default function SavedLocationsScreen() {
       {/* Header */}
       <Box style={styles.header}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-        />
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </IconButton>
         <Text variant="h2" style={styles.headerTitle}>
           Saved Locations
         </Text>
         <IconButton
-          icon={<Ionicons name="add" size={24} color={colors.text} />}
+          accessibilityLabel="Add custom location"
           onPress={() => handleAddLocation('custom')}
-        />
+        >
+          <Ionicons name="add" size={24} color={colors.text} />
+        </IconButton>
       </Box>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>

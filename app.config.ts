@@ -21,6 +21,10 @@ export default ({ config }: { config: ExpoConfig }): ExpoConfig => {
 
 	return {
 		...config,
+		plugins: [
+			...(config.plugins ?? []),
+			'@sentry/react-native',
+		],
 		extra: {
 			...(config.extra ?? {}),
 			EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: mapsKey,

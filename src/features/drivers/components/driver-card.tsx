@@ -39,7 +39,7 @@ export function DriverCard({ driver }: DriverCardProps) {
   );
   const pressedBackgroundColor = useThemeColor(
     { light: '#F5F5F5', dark: '#1F1F1F' },
-    'surfacePressed'
+    'surface'
   );
   const avatarBackgroundColor = useThemeColor(
     { light: '#EEF0F2', dark: '#1D1F24' },

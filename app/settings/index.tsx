@@ -40,9 +40,11 @@ export default function SettingsScreen() {
       {/* Header */}
       <Box style={styles.header}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-        />
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </IconButton>
         <Text variant="h2" style={styles.headerTitle}>
           Settings
         </Text>
