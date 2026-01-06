@@ -32,16 +32,16 @@ export const ThemeColors = {
     textSecondary: '#A0A5AA', // Muted neutral
     background: '#0E0F0F', // Deep charcoal
     surface: '#161616', // Card surfaces
-    tint: Colors.primary,
+    tint: '#FFFFFF', // White for visibility on dark background
     icon: '#A0A5AA',
     border: '#2F3237',
     success: Colors.success,
     error: Colors.error,
     warning: Colors.warning,
     info: Colors.info,
-    link: Colors.primary,
+    link: '#FFFFFF', // White for visibility on dark background
     tabIconDefault: '#7C8086',
-    tabIconSelected: Colors.primary,
+    tabIconSelected: '#FFFFFF', // White for visibility on dark background
   },
 };
 

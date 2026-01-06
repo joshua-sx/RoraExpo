@@ -2,7 +2,7 @@
  * Color System
  * Rora Mobile Design System
  *
- * Primary: Rora Green #00BE3C
+ * Primary: Rora Black #000000
  * Neutrals do the heavy lifting. One strong accent.
  */
 
@@ -10,9 +10,9 @@ export const colors = {
   // ============================================================================
   // BRAND COLORS
   // ============================================================================
-  primary: "#00BE3C", // Rora Green - CTAs, highlights
-  primaryLight: "#D1FAE5", // Light green backgrounds
-  primaryDark: "#059669", // Pressed states
+  primary: "#000000", // Rora Black - CTAs, highlights
+  primaryLight: "#E5E5E5", // Light gray backgrounds
+  primaryDark: "#333333", // Pressed states
 
   // ============================================================================
   // NEUTRAL PALETTE
@@ -47,7 +47,7 @@ export const colors = {
   // ============================================================================
   // BADGES
   // ============================================================================
-  proBg: "#00BE3C",
+  proBg: "#000000",
   proText: "#FFFFFF",
   verifiedBg: "#DBEAFE",
   verifiedText: "#1D4ED8",

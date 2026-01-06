@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   Dimensions,
+  FlatList,
   Image,
   Linking,
   Pressable,
@@ -108,18 +109,21 @@ export default function DriverProfileScreen() {
     );
   }
 
-  // Mock photos for the grid (placeholder images)
+  // Mock photos for the grid (placeholder images) - max 6 photos
   const photos = [1, 2, 3, 4, 5, 6];
 
-  // Calculate photo width for 2-column grid
-  // Card has marginHorizontal: Spacing.lg (16px) and padding: Spacing.lg (16px)
-  // Total horizontal padding: 16*2 (margin) + 16*2 (padding) = 64px
-  // Gap between photos: Spacing.sm (8px)
+  // Calculate photo tile size for 2-column grid
+  // Card margin: 16px each side, card padding: 16px each side
+  // Gap between tiles: 12px
   const screenWidth = Dimensions.get('window').width;
-  const cardHorizontalPadding = Spacing.lg * 4; // margin + padding on both sides
-  const photoGap = Spacing.sm;
-  const availableWidth = screenWidth - cardHorizontalPadding;
-  const photoWidth = (availableWidth - photoGap) / 2;
+  const cardMargin = Spacing.lg; // 16px
+  const cardPadding = Spacing.lg; // 16px
+  const photoGap = Spacing.md; // 12px
+  const availableWidth = screenWidth - (cardMargin * 2) - (cardPadding * 2);
+  const photoTileSize = (availableWidth - photoGap) / 2;
+
+  // Footer height for content padding calculation
+  const footerHeight = 56 + Spacing.lg * 2; // button height + vertical padding
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
@@ -127,7 +131,7 @@ export default function DriverProfileScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
+          { paddingBottom: footerHeight + insets.bottom + Spacing.xxl },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -227,19 +231,24 @@ export default function DriverProfileScreen() {
         {/* Vehicle & Ride Photos */}
         <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor }]}>
           <ThemedText style={styles.cardTitle}>Vehicle & Ride Photos</ThemedText>
-          <View style={styles.photoGrid}>
-            {photos.map((photoId) => (
+          <FlatList
+            data={photos}
+            numColumns={2}
+            scrollEnabled={false}
+            keyExtractor={(item) => `photo-${item}`}
+            columnWrapperStyle={styles.photoRow}
+            contentContainerStyle={styles.photoGridContent}
+            renderItem={({ item }) => (
               <View
-                key={`photo-${photoId}`}
                 style={[
                   styles.photoPlaceholder,
-                  { backgroundColor: borderColor, width: photoWidth },
+                  { backgroundColor: borderColor, width: photoTileSize, height: photoTileSize },
                 ]}
               >
                 <Ionicons name="image-outline" size={32} color={secondaryTextColor} />
               </View>
-            ))}
-          </View>
+            )}
+          />
         </View>
       </ScrollView>
 
@@ -438,15 +447,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  photoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
+  photoGridContent: {
+    gap: Spacing.md,
     marginTop: Spacing.sm,
   },
+  photoRow: {
+    justifyContent: 'space-between',
+  },
   photoPlaceholder: {
-    aspectRatio: 1,
-    borderRadius: BorderRadius.sm,
+    borderRadius: BorderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

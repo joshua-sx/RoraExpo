@@ -1,19 +1,19 @@
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-import { TripCard } from "@/src/ui/components/TripCard";
-import { TripSkeleton } from "@/src/ui/components/TripSkeleton";
+import { useTripHistoryStore } from "@/src/store/trip-history-store";
+import type { Trip } from "@/src/types/trip";
 import { EmptyState } from "@/src/ui/components/EmptyState";
+import { SegmentedControl } from "@/src/ui/components/SegmentedControl";
+import { TripCard } from "@/src/ui/components/TripCard";
 import { Box } from "@/src/ui/primitives/Box";
 import { Text } from "@/src/ui/primitives/Text";
 import { colors } from "@/src/ui/tokens/colors";
 import { space } from "@/src/ui/tokens/spacing";
-import { useTripHistoryStore } from "@/src/store/trip-history-store";
 import { getTabBarHeight } from "@/src/utils/safe-area";
-import type { Trip } from "@/src/types/trip";
 
 type TimeGroup = {
   title: string;
@@ -25,9 +25,20 @@ export default function ActivityScreen() {
   const tabBarHeight = getTabBarHeight(insets);
   const { trips } = useTripHistoryStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"past" | "upcoming">("past");
+
+  // Filter trips by active tab
+  const filteredTrips = useMemo(() => {
+    return trips.filter((trip) => {
+      if (activeTab === "past") {
+        return trip.status === "completed" || trip.status === "cancelled";
+      }
+      return ["not_taken", "pending", "in_progress"].includes(trip.status);
+    });
+  }, [trips, activeTab]);
 
   // Group trips by time periods
-  const groupedTrips = useCallback((): TimeGroup[] => {
+  const groupedTrips = useMemo((): TimeGroup[] => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today);
@@ -42,7 +53,7 @@ export default function ActivityScreen() {
       Earlier: [],
     };
 
-    trips.forEach((trip) => {
+    filteredTrips.forEach((trip) => {
       const tripDate = new Date(trip.quote.createdAt || trip.timestamp);
       const tripDay = new Date(
         tripDate.getFullYear(),
@@ -63,9 +74,9 @@ export default function ActivityScreen() {
 
     // Return only non-empty groups
     return Object.entries(groups)
-      .filter(([_, trips]) => trips.length > 0)
-      .map(([title, trips]) => ({ title, trips }));
-  }, [trips]);
+      .filter(([_, groupTrips]) => groupTrips.length > 0)
+      .map(([title, groupTrips]) => ({ title, trips: groupTrips }));
+  }, [filteredTrips]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -83,8 +94,18 @@ export default function ActivityScreen() {
 
   const renderEmpty = () => (
     <EmptyState
-      icon={<Ionicons name="time-outline" size={64} color={colors.textMuted} />}
-      message="No trips yet"
+      icon={
+        <Ionicons
+          name={activeTab === "past" ? "checkmark-circle-outline" : "calendar-outline"}
+          size={64}
+          color={colors.textMuted}
+        />
+      }
+      message={
+        activeTab === "past"
+          ? "No completed rides yet"
+          : "No upcoming rides. Plan a trip to get started!"
+      }
       actionLabel="Plan a trip"
       onAction={() => router.push("/")}
       style={styles.emptyState}
@@ -103,7 +124,7 @@ export default function ActivityScreen() {
     <TripCard trip={item} onPress={() => handleTripPress(item)} showQuoteAge />
   );
 
-  const data = groupedTrips();
+  const data = groupedTrips;
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -113,8 +134,17 @@ export default function ActivityScreen() {
           Activity
         </Text>
         <Text variant="body" muted style={styles.headerSubtitle}>
-          Your trip history and saved rides
+          {activeTab === "past" ? "Your completed rides" : "Rides you've planned"}
         </Text>
+      </Box>
+
+      {/* Tab Switcher */}
+      <Box style={styles.tabContainer}>
+        <SegmentedControl
+          segments={["Past", "Upcoming"]}
+          selectedIndex={activeTab === "past" ? 0 : 1}
+          onChange={(index) => setActiveTab(index === 0 ? "past" : "upcoming")}
+        />
       </Box>
 
       {/* Trip List */}
@@ -169,6 +199,12 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
+  },
+  tabContainer: {
+    paddingHorizontal: space[4],
+    paddingVertical: space[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   listContent: {
     paddingHorizontal: space[4],

@@ -73,7 +73,7 @@ export default function CategoryListingScreen() {
 
   const handleVenuePress = useCallback(
     (venue: Venue) => {
-      router.push(`/explore/venue/${venue.id}`);
+      router.push(`/venue/${venue.id}`);
     },
     [router]
   );

@@ -18,7 +18,6 @@ export default function ExploreLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="category/[slug]" />
-      <Stack.Screen name="venue/[id]" />
     </Stack>
   );
 }

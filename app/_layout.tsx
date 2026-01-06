@@ -11,11 +11,10 @@ import { ToastProvider } from '@/src/ui/providers/ToastProvider';
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
-  dsn: 'https://b925027d98fbf92560eec479f4569425@o4510654734729216.ingest.de.sentry.io/4510654741020752',
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-  sendDefaultPii: true,
+  // Disable sending PII (IP address, cookies, user data) to Sentry
+  sendDefaultPii: false,
 
   // Enable Logs
   enableLogs: true,

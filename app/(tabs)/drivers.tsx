@@ -265,6 +265,7 @@ export default function DriversScreen() {
         onApplyFilters={handleApplyFilters}
         onClearAll={handleClearFilters}
         matchingDriversCount={filteredDrivers.length}
+        bottomInset={tabBarHeight}
       />
     </ThemedView>
   );

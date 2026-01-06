@@ -8,11 +8,11 @@
 // ============================================================================
 
 export const Colors = {
-  // Primary Brand (Rora Green)
-  primary: '#00BE3C', // Rora Green
-  primaryLight: '#86EFAC', // Green-300
-  primaryDark: '#059669', // Green-600
-  accent: '#059669', // Green-600
+  // Primary Brand (Rora Black)
+  primary: '#000000', // Rora Black
+  primaryLight: '#E5E5E5', // Gray-200
+  primaryDark: '#333333', // Gray-800
+  accent: '#333333', // Gray-800
 
   // Backgrounds
   canvasMist: '#F9F9F9', // App background
@@ -30,7 +30,7 @@ export const Colors = {
 
   // Dividers & Borders
   dividerMist: '#E3E6E3',
-  link: '#00BE3C', // Rora Green
+  link: '#000000', // Rora Black
 
   // Aliases for semantic use
   background: '#F9F9F9',
@@ -38,7 +38,7 @@ export const Colors = {
   text: '#262626',
   textSecondary: '#5C5F62',
   border: '#E3E6E3',
-  tint: '#00BE3C', // Rora Green
+  tint: '#000000', // Rora Black
 };
 
 // ============================================================================

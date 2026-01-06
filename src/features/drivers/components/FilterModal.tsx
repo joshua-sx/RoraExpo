@@ -24,6 +24,8 @@ interface FilterModalProps {
   onApplyFilters: (filters: DriverFilters) => void;
   onClearAll: () => void;
   matchingDriversCount: number;
+  /** Bottom inset to account for tab bar */
+  bottomInset?: number;
 }
 
 const VEHICLE_TYPES: Array<{ type: VehicleType; label: string; icon: string }> = [
@@ -40,6 +42,7 @@ export function FilterModal({
   onApplyFilters,
   onClearAll,
   matchingDriversCount,
+  bottomInset = 0,
 }: FilterModalProps) {
   const sheetRef = useRef<BottomSheet>(null);
   const [localFilters, setLocalFilters] = React.useState<DriverFilters>(filters);
@@ -355,7 +358,7 @@ export function FilterModal({
       </BottomSheetScrollView>
 
       {/* Footer with buttons */}
-      <View style={[styles.footer, { backgroundColor, borderTopColor: borderColor }]}>
+      <View style={[styles.footer, { backgroundColor, borderTopColor: borderColor, paddingBottom: 16 + bottomInset }]}>
         <Pressable onPress={handleClearAll} style={styles.clearButton}>
           <ThemedText style={[styles.clearButtonText, { color: textColor }]}>
             Clear all
@@ -555,8 +558,7 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 16,
-    paddingBottom: 32,
+    paddingTop: 16,
     gap: 12,
     borderTopWidth: 1,
   },

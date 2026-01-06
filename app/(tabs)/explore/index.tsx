@@ -57,7 +57,7 @@ export default function ExploreScreen() {
 			setIsSearchActive(false);
 			setInputValue("");
 			Keyboard.dismiss();
-			router.push(`/explore/venue/${venue.id}`);
+			router.push(`/venue/${venue.id}`);
 		},
 		[router],
 	);

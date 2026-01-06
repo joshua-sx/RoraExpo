@@ -55,10 +55,17 @@ export function RideSheet({ bottomInset }: Props) {
     switch (state) {
       case 'IDLE': {
         // Collapsed: pill only, Expanded: pill + carousel
-        // Add extra spacing (space[4] = 16px) above tab bar for visual breathing room
-        const tabBarSpacing = space[4];
-        const collapsedHeight = HANDLE_HEIGHT + CONTENT_PADDING + 60 + bottomSpace + tabBarSpacing;
-        const expandedHeight = HANDLE_HEIGHT + CONTENT_PADDING + 60 + CONTENT_GAP + 240 + bottomSpace + tabBarSpacing;
+        //
+        // Layout from bottom to top:
+        // - bottomInset: space below tab bar to screen edge
+        // - We want the SAME space (bottomInset) between content and tab bar top
+        // - So total bottom spacing = bottomInset * 2 (symmetric above/below tab bar)
+        //
+        // Sheet extends to screen bottom (bottomInset=0 on Sheet component)
+        // Content padding handles the spacing via contentContainerStyle.paddingBottom
+        const symmetricBottomSpace = bottomInset * 2;
+        const collapsedHeight = HANDLE_HEIGHT + CONTENT_PADDING + 60 + CONTENT_GAP + symmetricBottomSpace;
+        const expandedHeight = HANDLE_HEIGHT + CONTENT_PADDING + 60 + CONTENT_GAP + 240 + CONTENT_GAP + symmetricBottomSpace;
         return [collapsedHeight, expandedHeight];
       }
 
@@ -119,29 +126,41 @@ export function RideSheet({ bottomInset }: Props) {
   }, [state, screenHeight, bottomInset]);
 
   // Default snap point index per state
+  // Clamped to valid range to prevent race conditions during state transitions
   const defaultIndex = useMemo(() => {
+    const maxIndex = snapPoints.length - 1;
+    let targetIndex: number;
+
     switch (state) {
       case 'IDLE':
-        return 1; // Expanded (show carousel)
+        targetIndex = 1; // Expanded (show carousel)
+        break;
       case 'ROUTE_SET':
-        return 2; // Expanded (show CTA)
+        targetIndex = 2; // Expanded (show CTA)
+        break;
       case 'QR_READY':
-        return 0; // Peek (show QR)
+        targetIndex = 0; // Peek (show QR)
+        break;
       case 'DISCOVERING':
-        return 1; // Peek (show status)
+        targetIndex = 1; // Peek (show status)
+        break;
       case 'OFFERS_RECEIVED':
-        return 1; // Peek (show top offers)
+        targetIndex = 1; // Peek (show top offers)
+        break;
       default:
-        return 0;
+        targetIndex = 0;
     }
-  }, [state]);
+
+    // Clamp to valid range
+    return Math.min(targetIndex, maxIndex);
+  }, [state, snapPoints.length]);
 
   // Snap to default index when state changes
   useEffect(() => {
-    if (bottomSheetRef.current) {
+    if (bottomSheetRef.current && defaultIndex >= 0 && defaultIndex < snapPoints.length) {
       bottomSheetRef.current.snapToIndex(defaultIndex);
     }
-  }, [state, defaultIndex]);
+  }, [state, defaultIndex, snapPoints.length]);
 
   const handleSheetChange = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -227,7 +246,8 @@ export function RideSheet({ bottomInset }: Props) {
         contentContainerStyle={{
           paddingTop: CONTENT_PADDING,
           paddingHorizontal: CONTENT_PADDING,
-          paddingBottom: CONTENT_GAP + bottomInset,
+          // Symmetric spacing: same distance above tab bar as below it
+          paddingBottom: bottomInset * 2,
         }}
       >
         {renderContent()}
