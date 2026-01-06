@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. The home map with ride sheet is now
+ * handled by app/(tabs)/index.tsx with the RideSheet component.
+ * See: src/features/ride/components/RideSheet.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -27,6 +35,7 @@ export const HomeMapScreen = () => {
   const handleZoneChipPress = (zone: typeof ZONE_CHIPS[0]) => {
     // Navigate to route estimate screen with destination pre-filled
     router.push({
+      // @ts-ignore - Route is deprecated and will be removed
       pathname: '/ride/route-estimate',
       params: {
         destinationLat: zone.lat,
@@ -37,6 +46,7 @@ export const HomeMapScreen = () => {
   };
 
   const handleWhereToPress = () => {
+    // @ts-ignore - Route is deprecated and will be removed
     router.push('/ride/route-estimate');
   };
 

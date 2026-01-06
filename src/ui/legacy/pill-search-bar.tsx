@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		paddingLeft: space[2], // 8px - tighter on left for icon
 		paddingRight: space[2], // 8px - tighter on right for later button
-		backgroundColor: colors.surface,
+		backgroundColor: colors.background, // Light gray fill
 	},
 	pressed: {
 		opacity: 0.95,

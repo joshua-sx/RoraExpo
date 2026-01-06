@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, Pressable } from 'react-native';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Venue } from '@/src/types/venue';
 import { Sheet, Button } from '@/src/ui';
@@ -10,6 +11,7 @@ import { Box } from '@/src/ui/primitives/Box';
 import { colors } from '@/src/ui/tokens/colors';
 import { space } from '@/src/ui/tokens/spacing';
 import { radius } from '@/src/ui/tokens/radius';
+import { getTabBarHeight } from '@/src/utils/safe-area';
 
 type RideCtaSheetProps = {
   venue: Venue;
@@ -27,6 +29,8 @@ export function RideCtaSheet({
   onEditPickup,
 }: RideCtaSheetProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = getTabBarHeight(insets);
 
   const snapPoints = useMemo(() => ['55%'], []);
 
@@ -53,6 +57,7 @@ export function RideCtaSheet({
       backgroundStyle={styles.background}
       handleIndicatorStyle={styles.handleIndicator}
       contentContainerStyle={styles.contentContainer}
+      bottomInset={tabBarHeight}
     >
       {/* Header */}
       <Box style={styles.header}>

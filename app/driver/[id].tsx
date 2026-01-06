@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   },
   photoPlaceholder: {
     aspectRatio: 1,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

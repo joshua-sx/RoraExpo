@@ -1,0 +1,37 @@
+Here’s how I’d break everything from this chat into  **Cursor-friendly files**  so it becomes a reusable “Rora UX system” (rules, flows, components, and constraints). Just filenames + a quick hint of what each contains.
+Core docs (the brain)
+1. **`docs/ux/`**[**`00-overview.md`**]({{http://00-overview.md}})
+2. **`docs/ux/`**[**`01-foundational-principles.md`**]({{http://01-foundational-principles.md}})
+3. **`docs/ux/`**[**`02-patterns-to-avoid.md`**]({{http://02-patterns-to-avoid.md}})
+4. **`docs/ux/`**[**`03-rora-ux-constitution.md`**]({{http://03-rora-ux-constitution.md}})
+Flow rules
+1. **`docs/ux/rider/`**[**`10-rider-flow-rules.md`**]({{http://10-rider-flow-rules.md}})
+2. **`docs/ux/driver/`**[**`10-driver-flow-rules.md`**]({{http://10-driver-flow-rules.md}})
+3. **`docs/ux/flows/`**[**`20-state-machine-and-commitment.md`**]({{http://20-state-machine-and-commitment.md}})
+4. **`docs/ux/flows/`**[**`21-negotiation-and-offers-model.md`**]({{http://21-negotiation-and-offers-model.md}})
+Bottom sheet + map model
+1. **`docs/ux/patterns/`**[**`30-bottom-sheet-standard.md`**]({{http://30-bottom-sheet-standard.md}})
+2. **`docs/ux/patterns/`**[**`31-map-as-context-standard.md`**]({{http://31-map-as-context-standard.md}})
+Decision hierarchy + UI behavior policy
+1. **`docs/ux/rules/`**[**`40-decision-hierarchy.md`**]({{http://40-decision-hierarchy.md}})
+2. **`docs/ux/rules/`**[**`41-allowed-vs-forbidden-ui.md`**]({{http://41-allowed-vs-forbidden-ui.md}})
+3. **`docs/ux/rules/`**[**`42-cta-policy.md`**]({{http://42-cta-policy.md}})
+4. **`docs/ux/rules/`**[**`43-progressive-disclosure-policy.md`**]({{http://43-progressive-disclosure-policy.md}})
+Screen structures (blueprints)
+1. **`docs/ux/rider/`**[**`50-rider-screen-blueprints.md`**]({{http://50-rider-screen-blueprints.md}})
+2. **`docs/ux/driver/`**[**`50-driver-screen-blueprints.md`**]({{http://50-driver-screen-blueprints.md}})
+3. **`docs/ux/rider/`**[**`51-rider-critical-states-layout.md`**]({{http://51-rider-critical-states-layout.md}})
+4. **`docs/ux/driver/`**[**`51-driver-critical-states-layout.md`**]({{http://51-driver-critical-states-layout.md}})
+Component rules (implementation-friendly)
+1. **`docs/ux/components/`**[**`60-card-system.md`**]({{http://60-card-system.md}})
+2. **`docs/ux/components/`**[**`61-offer-card-spec.md`**]({{http://61-offer-card-spec.md}})
+3. **`docs/ux/components/`**[**`62-driver-card-spec.md`**]({{http://62-driver-card-spec.md}})
+4. **`docs/ux/components/`**[**`63-badge-and-trust-signals.md`**]({{http://63-badge-and-trust-signals.md}})
+5. **`docs/ux/components/`**[**`64-status-and-feedback-system.md`**]({{http://64-status-and-feedback-system.md}})
+Content + terminology
+1. **`docs/ux/content/`**[**`70-terminology-and-naming.md`**]({{http://70-terminology-and-naming.md}})
+2. **`docs/ux/content/`**[**`71-microcopy-guidelines.md`**]({{http://71-microcopy-guidelines.md}})
+QA / consistency checks (super useful in Cursor)
+1. **`docs/ux/qa/`**[**`80-ux-review-checklist.md`**]({{http://80-ux-review-checklist.md}})
+2. **`docs/ux/qa/`**[**`81-high-stakes-flow-test-cases.md`**]({{http://81-high-stakes-flow-test-cases.md}})
+

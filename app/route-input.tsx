@@ -6,6 +6,7 @@ import {
     Typography,
 } from "@/src/constants/design-tokens";
 import { getDriverById } from "@/src/features/drivers/data/drivers";
+import { useRideSheetStore } from "@/src/features/ride/store/ride-sheet-store";
 import { useThemeColor } from "@/src/hooks/use-theme-color";
 import {
     googleMapsService,
@@ -111,6 +112,10 @@ export default function RouteInputScreen() {
 		clearDriver,
 	} = useRouteStore();
 
+	// RideSheet store for updating sheet state
+	const setRideSheetRoute = useRideSheetStore((s) => s.setRoute);
+	const setRideSheetFare = useRideSheetStore((s) => s.setFare);
+
 	const { setCurrentLocation, setFormattedAddress, currentLocation: userLocation, formattedAddress: userFormattedAddress, permissionGranted: userPermissionGranted } = useLocationStore();
 
 	// Driver context
@@ -185,18 +190,17 @@ export default function RouteInputScreen() {
 		};
 	}, [routeData, clearDriver]);
 
-	// Pre-fill origin with current location on mount (if available and not already set)
+	// Pre-fill origin with current location on mount
+	// Always prefill with current location when screen opens (unless in manual entry mode)
 	const hasPrefilledOriginRef = useRef(false);
 	useEffect(() => {
-		console.log('[RouteInput] Prefill check:', {
-			hasPrefilled: hasPrefilledOriginRef.current,
-			hasOrigin: !!origin,
-			hasUserLocation: !!userLocation,
-			userPermissionGranted,
-			userFormattedAddress
-		});
-		if (!hasPrefilledOriginRef.current && !origin && userLocation && userPermissionGranted) {
-			console.log('[RouteInput] Pre-filling origin with current location');
+		// Skip if already prefilled this session
+		if (hasPrefilledOriginRef.current) return;
+		// Skip if in manual entry mode
+		if (manualEntry === "true") return;
+
+		// If we have user location and permission, prefill with current location
+		if (userLocation && userPermissionGranted) {
 			hasPrefilledOriginRef.current = true;
 			setOrigin({
 				placeId: 'current-location',
@@ -206,7 +210,7 @@ export default function RouteInputScreen() {
 			});
 			setOriginInput('Current Location');
 		}
-	}, [origin, userLocation, userPermissionGranted, userFormattedAddress, setOrigin]);
+	}, [userLocation, userPermissionGranted, userFormattedAddress, setOrigin, manualEntry]);
 
 	const handleSwap = useCallback(() => {
 		swapLocations();
@@ -348,7 +352,7 @@ export default function RouteInputScreen() {
 
 			const { price, version } = calculatePrice(distanceKm, durationMin);
 
-			setRouteData({
+			const newRouteData = {
 				distance: distanceKm,
 				duration: durationMin,
 				price,
@@ -359,10 +363,22 @@ export default function RouteInputScreen() {
 					pricingVersion: version,
 					createdAt: new Date().toISOString(),
 				},
+			};
+
+			setRouteData(newRouteData);
+
+			// Update RideSheet store so home screen shows fare summary
+			setRideSheetRoute(origin, destination, newRouteData);
+			setRideSheetFare(price, {
+				method: 'distance_fallback',
+				distance_km: newRouteData.distance,
+				total: price,
+				calculated_at: new Date().toISOString(),
+				pricing_rule_version_id: 'local_v1',
 			});
 
-			// Navigate directly to trip-preview after route is calculated
-			router.push("/trip-preview");
+			// Navigate back to home - RideSheet will show fare summary state
+			router.back();
 		} catch (e: unknown) {
 			const message =
 				e instanceof Error ? e.message : "Failed to fetch directions";
@@ -377,7 +393,7 @@ export default function RouteInputScreen() {
 			);
 			setViewState("input");
 		}
-	}, [origin, destination, setError, setRouteData, router]);
+	}, [origin, destination, setError, setRouteData, router, setRideSheetRoute, setRideSheetFare]);
 
 	// Auto-set origin from current location if destination is pre-filled (e.g., from venue flow)
 	// Track if we've already triggered auto-calculation to avoid loops
@@ -588,11 +604,13 @@ export default function RouteInputScreen() {
 												hitSlop={8}
 												style={styles.clearButton}
 											>
-												<Ionicons
-													name="close-circle"
-													size={20}
-													color={iconColor}
-												/>
+												<View style={styles.clearButtonCircle}>
+													<Ionicons
+														name="close"
+														size={12}
+														color="#262626"
+													/>
+												</View>
 											</Pressable>
 										)}
 									</View>
@@ -689,11 +707,13 @@ export default function RouteInputScreen() {
 												hitSlop={8}
 												style={styles.clearButton}
 											>
-												<Ionicons
-													name="close-circle"
-													size={20}
-													color={iconColor}
-												/>
+												<View style={styles.clearButtonCircle}>
+													<Ionicons
+														name="close"
+														size={12}
+														color="#262626"
+													/>
+												</View>
 											</Pressable>
 										)}
 									</View>
@@ -1039,6 +1059,14 @@ const styles = StyleSheet.create({
 	clearButton: {
 		marginLeft: Spacing.sm,
 		padding: 2,
+	},
+	clearButtonCircle: {
+		width: 20,
+		height: 20,
+		borderRadius: 10,
+		backgroundColor: '#E5E5E5',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	sideIconButton: {
 		width: 48,

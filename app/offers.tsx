@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. Offers list is now handled by
+ * RideSheetOffers component within the RideSheet on the home screen.
+ * See: src/features/ride/components/sheets/RideSheetOffers.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,

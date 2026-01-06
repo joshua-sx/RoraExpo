@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. Offers list is now handled by
+ * RideSheetOffers component within the RideSheet on the home screen.
+ * See: src/features/ride/components/sheets/RideSheetOffers.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -15,7 +23,7 @@ import { formatFare } from '../../../services/pricing.service';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 /**
- * Offers List Screen
+ * Offers List Screen (DEPRECATED)
  *
  * Phase E implementation placeholder
  *

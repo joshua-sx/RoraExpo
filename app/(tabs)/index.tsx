@@ -1,18 +1,20 @@
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { DestinationBottomSheet } from "@/src/features/home/components/destination-bottom-sheet";
+import { RideSheet } from "@/src/features/ride/components/RideSheet";
+import { useRideSheetStore } from "@/src/features/ride/store/ride-sheet-store";
 import { LocationPermissionModal } from "@/src/features/home/components/location-permission-modal";
 import { MapErrorBoundary } from "@/src/ui/components/MapErrorBoundary";
 import { locationService } from "@/src/services/location.service";
 import { locationStorageService } from "@/src/services/location-storage.service";
 import { useLocationStore } from "@/src/store/location-store";
 import { getTabBarHeight } from "@/src/utils/safe-area";
+import { colors } from "@/src/ui/tokens/colors";
 
 // Default location: St. Maarten (matching the reference images)
 const INITIAL_REGION = {
@@ -26,6 +28,11 @@ export default function HomeScreen() {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
 	const tabBarHeight = getTabBarHeight(insets);
+	const mapRef = useRef<MapView>(null);
+
+	// RideSheet state for map overlays
+	const rideState = useRideSheetStore((s) => s.state);
+	const rideData = useRideSheetStore((s) => s.data);
 
 	const {
 		setCurrentLocation,
@@ -197,6 +204,40 @@ export default function HomeScreen() {
 		};
 	}, [locationSubscription, setLocationSubscription]);
 
+	// Fit map to route when route data changes
+	useEffect(() => {
+		if (rideData.routeData?.coordinates && rideData.routeData.coordinates.length > 0) {
+			// Fit map to show entire route with padding for the sheet
+			mapRef.current?.fitToCoordinates(rideData.routeData.coordinates, {
+				edgePadding: {
+					top: 100,
+					right: 60,
+					bottom: 350, // Account for bottom sheet
+					left: 60,
+				},
+				animated: true,
+			});
+		}
+	}, [rideData.routeData?.coordinates]);
+
+	// Show route on map when we have origin/destination but no polyline yet
+	const showOriginDestinationMarkers = useMemo(() => {
+		return rideState !== 'IDLE' && rideData.origin && rideData.destination;
+	}, [rideState, rideData.origin, rideData.destination]);
+
+	// Show route polyline when route data is available
+	const showRoutePolyline = useMemo(() => {
+		return rideData.routeData?.coordinates && rideData.routeData.coordinates.length > 0;
+	}, [rideData.routeData?.coordinates]);
+
+	// Show driver markers during discovery/offers
+	const showDriverMarkers = useMemo(() => {
+		return (
+			(rideState === 'DISCOVERING' || rideState === 'OFFERS_RECEIVED') &&
+			rideData.offers.length > 0
+		);
+	}, [rideState, rideData.offers]);
+
 	const handleAllowAccess = async () => {
 		try {
 			console.log("[HomeScreen] User tapped 'Allow Location Access'");
@@ -235,15 +276,71 @@ export default function HomeScreen() {
 			<View style={styles.container}>
 				<MapErrorBoundary>
 					<MapView
+						ref={mapRef}
 						provider={PROVIDER_GOOGLE}
 						style={styles.map}
 						initialRegion={mapRegion}
 						showsUserLocation
 						showsMyLocationButton={false}
 						showsCompass={false}
-					/>
+					>
+						{/* Route polyline */}
+						{showRoutePolyline && rideData.routeData?.coordinates && (
+							<Polyline
+								coordinates={rideData.routeData.coordinates}
+								strokeWidth={4}
+								strokeColor={colors.text}
+							/>
+						)}
+
+						{/* Origin marker */}
+						{showOriginDestinationMarkers && rideData.origin && (
+							<Marker
+								coordinate={rideData.origin.coordinates}
+								anchor={{ x: 0.5, y: 0.5 }}
+							>
+								<View style={styles.originMarker}>
+									<View style={styles.originDot} />
+								</View>
+							</Marker>
+						)}
+
+						{/* Destination marker */}
+						{showOriginDestinationMarkers && rideData.destination && (
+							<Marker
+								coordinate={rideData.destination.coordinates}
+								anchor={{ x: 0.5, y: 1 }}
+								pinColor={colors.danger}
+							/>
+						)}
+
+						{/* Driver markers during discovery */}
+						{showDriverMarkers &&
+							rideData.offers.map((offer, index) =>
+								offer.driverLocation ? (
+									<Marker
+										key={offer.id}
+										coordinate={offer.driverLocation}
+										anchor={{ x: 0.5, y: 0.5 }}
+										title={offer.driver_profile?.display_name}
+									>
+										<View style={styles.driverMarker}>
+											<View style={styles.driverMarkerInner}>
+												<View style={styles.driverMarkerText}>
+													<View style={styles.driverNumberBadge}>
+														<View style={styles.driverNumber} />
+													</View>
+												</View>
+											</View>
+										</View>
+									</Marker>
+								) : null
+							)}
+					</MapView>
 				</MapErrorBoundary>
-				<DestinationBottomSheet bottomInset={tabBarHeight} />
+
+				{/* State-driven bottom sheet */}
+				<RideSheet bottomInset={tabBarHeight} />
 
 				{/* Custom Location Permission Modal */}
 				<LocationPermissionModal
@@ -262,5 +359,58 @@ const styles = StyleSheet.create({
 	},
 	map: {
 		...StyleSheet.absoluteFillObject,
+	},
+	// Origin marker (green dot)
+	originMarker: {
+		width: 24,
+		height: 24,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	originDot: {
+		width: 12,
+		height: 12,
+		borderRadius: 6,
+		backgroundColor: colors.primary,
+		borderWidth: 2,
+		borderColor: colors.surface,
+	},
+	// Driver marker (car icon placeholder)
+	driverMarker: {
+		width: 36,
+		height: 36,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	driverMarkerInner: {
+		width: 32,
+		height: 32,
+		borderRadius: 16,
+		backgroundColor: colors.surface,
+		alignItems: "center",
+		justifyContent: "center",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.2,
+		shadowRadius: 3,
+		elevation: 3,
+	},
+	driverMarkerText: {
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	driverNumberBadge: {
+		width: 20,
+		height: 20,
+		borderRadius: 10,
+		backgroundColor: colors.primary,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	driverNumber: {
+		width: 8,
+		height: 8,
+		backgroundColor: colors.surface,
+		borderRadius: 4,
 	},
 });

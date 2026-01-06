@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. Fare summary is now handled by
+ * RideSheetFareSummary component within the RideSheet on the home screen.
+ * See: src/features/ride/components/sheets/RideSheetFareSummary.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -89,6 +97,7 @@ export const RouteEstimateScreen = () => {
     if (!origin || !destination || !fare) return;
 
     router.push({
+      // @ts-ignore - Route is deprecated and will be removed
       pathname: '/ride/qr-session',
       params: {
         originLat: origin.lat,

@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. QR display is now handled by
+ * RideSheetQR component within the RideSheet on the home screen.
+ * See: src/features/ride/components/sheets/RideSheetQR.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -111,6 +119,7 @@ export const QRSessionScreen = () => {
 
     // Navigate to discovery screen
     router.push({
+      // @ts-ignore - Route is deprecated and will be removed
       pathname: '/ride/discovery',
       params: {
         rideSessionId: rideSession.id,

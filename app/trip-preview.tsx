@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. Trip preview (fare summary + QR) is now
+ * handled by RideSheetFareSummary and RideSheetQR components within the RideSheet
+ * on the home screen. See: src/features/ride/components/RideSheet.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";

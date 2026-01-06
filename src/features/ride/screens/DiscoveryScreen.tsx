@@ -1,3 +1,11 @@
+/**
+ * @deprecated This screen is deprecated. Discovery UI is now handled by
+ * RideSheetDiscovery component within the RideSheet on the home screen.
+ * See: src/features/ride/components/sheets/RideSheetDiscovery.tsx
+ *
+ * This file will be removed in a future cleanup.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -172,6 +180,7 @@ export const DiscoveryScreen = () => {
 
       // Navigate to offers list
       router.replace({
+        // @ts-ignore - Route is deprecated and will be removed
         pathname: '/ride/offers-list',
         params: {
           rideSessionId: rideSessionId,
