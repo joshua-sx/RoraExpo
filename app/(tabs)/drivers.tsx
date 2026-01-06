@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
-  Image,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -24,6 +24,11 @@ import type { Driver } from '@/src/types/driver';
 import { ThemedText } from '@/src/ui/components/themed-text';
 import { ThemedView } from '@/src/ui/components/themed-view';
 import { getTabBarHeight } from '@/src/utils/safe-area';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CARD_GAP = Spacing.md;
+const HORIZONTAL_PADDING = Spacing.lg;
+const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 
 const DEFAULT_FILTERS: DriverFilters = {
   dutyStatus: false,
@@ -201,7 +206,13 @@ export default function DriversScreen() {
       <FlatList
         data={filteredDrivers}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DriverCard driver={item} />}
+        numColumns={2}
+        renderItem={({ item }) => (
+          <View style={styles.cardWrapper}>
+            <DriverCard driver={item} />
+          </View>
+        )}
+        columnWrapperStyle={styles.gridRow}
         contentContainerStyle={[
           styles.listContent,
           { paddingBottom: tabBarHeight + Spacing.lg },
@@ -272,8 +283,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listContent: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: Spacing.md,
+  },
+  gridRow: {
+    justifyContent: 'space-between',
+    marginBottom: CARD_GAP,
+  },
+  cardWrapper: {
+    width: CARD_WIDTH,
   },
   stickyHeader: {
     paddingHorizontal: Spacing.lg,
