@@ -10,6 +10,7 @@ import { Text } from '@/src/ui/primitives/Text';
 import { colors } from '@/src/ui/tokens/colors';
 import { space } from '@/src/ui/tokens/spacing';
 import { Ionicons } from '@expo/vector-icons';
+import { Sentry } from '@/src/lib/sentry';
 
 type Language = 'en' | 'es' | 'fr';
 type Theme = 'light' | 'dark' | 'auto';
@@ -242,6 +243,18 @@ export default function SettingsScreen() {
               Alert.alert('Privacy Policy', 'Privacy policy coming soon');
             }}
             leading={<Ionicons name="lock-closed-outline" size={24} color={colors.textMuted} />}
+            trailing={<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />}
+          />
+          <Divider />
+
+          <ListItem
+            title="Test Sentry"
+            subtitle="Send a test error to Sentry"
+            onPress={() => {
+              Sentry.captureException(new Error('First error'));
+              Alert.alert('Test Error Sent', 'Check your Sentry dashboard to verify the error was captured.');
+            }}
+            leading={<Ionicons name="bug-outline" size={24} color={colors.textMuted} />}
             trailing={<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />}
           />
           <Divider />

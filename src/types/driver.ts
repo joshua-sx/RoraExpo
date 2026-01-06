@@ -13,5 +13,9 @@ export interface Driver {
   bio: string;
   yearsExperience: number;
   languages: string[];
+  // Extended fields from database
+  isRoraPro?: boolean;
+  serviceAreaTags?: string[];
+  seats?: number;
 }
 

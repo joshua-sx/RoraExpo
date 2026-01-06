@@ -1,52 +1,69 @@
 /**
- * Color System - Dieter Rams Approved
+ * Color System
+ * Rora Mobile Design System
+ *
+ * Primary: Rora Green #00BE3C
  * Neutrals do the heavy lifting. One strong accent.
  */
 
 export const colors = {
-  // Base
-  bg: "#FFFFFF",
-  surface: "#F9F9F9",
-  text: "#262626",
-  textMuted: "#5C5F62",
-  border: "#E3E6E3",
+  // ============================================================================
+  // BRAND COLORS
+  // ============================================================================
+  primary: "#00BE3C", // Rora Green - CTAs, highlights
+  primaryLight: "#D1FAE5", // Light green backgrounds
+  primaryDark: "#059669", // Pressed states
 
-  // Accent (Rora Brand)
-  primary: "#00BE3C",
-  primaryLight: "#E6F9EC", // 10% opacity equivalent
-  primaryText: "#FFFFFF",
+  // ============================================================================
+  // NEUTRAL PALETTE
+  // ============================================================================
+  background: "#F9F9F9", // Screen background
+  surface: "#FFFFFF", // Cards, sheets
+  text: "#262626", // Primary text
+  textSecondary: "#5C5F62", // Secondary text, captions
+  textMuted: "#8C9390", // Placeholders, disabled
+  border: "#E3E6E3", // Dividers, card borders
 
-  // Functional (use sparingly)
-  danger: "#D14343",
-  dangerLight: "#FEE2E2",
-  warning: "#E9A63A",
-  warningLight: "#FEF3C7",
-  success: "#00BE3C",
+  // ============================================================================
+  // FUNCTIONAL COLORS
+  // ============================================================================
+  success: "#22C55E", // Confirmations (distinct from primary)
   successLight: "#DCFCE7",
-  info: "#3B82F6",
+  danger: "#D14343", // Destructive actions, errors
+  dangerLight: "#FEE2E2",
+  warning: "#E9A63A", // Cautions
+  warningLight: "#FEF3C7",
+  info: "#3B82F6", // Informational
   infoLight: "#DBEAFE",
 
-  // Price Labels (per spec)
+  // ============================================================================
+  // PRICE LABELS
+  // ============================================================================
   goodDeal: "#22C55E",
   goodDealBg: "#DCFCE7",
   pricier: "#F59E0B",
   pricierBg: "#FEF3C7",
 
-  // Pro Badge
+  // ============================================================================
+  // BADGES
+  // ============================================================================
   proBg: "#00BE3C",
   proText: "#FFFFFF",
-
-  // Verified Badge
   verifiedBg: "#DBEAFE",
   verifiedText: "#1D4ED8",
 
-  // System
+  // ============================================================================
+  // SYSTEM
+  // ============================================================================
   overlay: "rgba(0,0,0,0.4)",
   overlayLight: "rgba(0,0,0,0.3)",
   skeleton: "#E5E7EB",
 
-  // Aliases for compatibility
-  muted: "#5C5F62", // Alias for textMuted
-  card: "#FFFFFF", // Alias for bg
-  background: "#F9F9F9", // Alias for surface
+  // ============================================================================
+  // LEGACY ALIASES (for backward compatibility - deprecate over time)
+  // ============================================================================
+  bg: "#FFFFFF", // Use surface instead
+  muted: "#5C5F62", // Use textSecondary instead
+  card: "#FFFFFF", // Use surface instead
+  primaryText: "#FFFFFF", // Use white directly
 } as const;

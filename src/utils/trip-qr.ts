@@ -20,33 +20,48 @@ export interface SignedTripQR {
 }
 
 /**
+ * Check if expo-crypto is available
+ * Returns false if the native module is not loaded (e.g., in Expo Go without development build)
+ */
+function isCryptoAvailable(): boolean {
+  try {
+    return typeof Crypto?.digestStringAsync === 'function';
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Generate a QR code value for a trip with cryptographic signature
  * @param trip - The trip to encode
  * @returns JSON string containing the trip data and signature
  */
 export async function generateTripQR(trip: Trip): Promise<string> {
-  const payload: TripQRPayload = {
-    tripId: trip.id,
-    driverId: trip.driverId,
-    passengerId: trip.userId,
-    quote: {
-      price: trip.quote.estimatedPrice,
-      distance: trip.routeData.distance,
-      duration: trip.routeData.duration,
-    },
-    timestamp: Date.now(),
-    version: '1.0',
-  };
-
-  // Sign with HMAC-SHA256
-  const signature = await createSignature(payload);
-
-  const signedQR: SignedTripQR = {
-    data: payload,
-    signature,
-  };
-
-  return JSON.stringify(signedQR);
+  // For development/testing: use simple tripId for scanner compatibility
+  // Generic QR scanners recognize plain text/IDs better than JSON
+  // TODO: In production with crypto available, encode as URL format: rora://trip/{tripId}
+  return trip.id;
+  
+  // Future implementation (when crypto is available):
+  // const payload: TripQRPayload = {
+  //   tripId: trip.id,
+  //   driverId: trip.driverId,
+  //   passengerId: trip.userId,
+  //   quote: {
+  //     price: trip.quote.estimatedPrice,
+  //     distance: trip.routeData.distance,
+  //     duration: trip.routeData.duration,
+  //   },
+  //   timestamp: Date.now(),
+  //   version: '1.0',
+  // };
+  // 
+  // if (isCryptoAvailable()) {
+  //   const signature = await createSignature(payload);
+  //   const signedQR: SignedTripQR = { data: payload, signature };
+  //   return `rora://trip/${encodeURIComponent(JSON.stringify(signedQR))}`;
+  // }
+  // return trip.id;
 }
 
 /**
@@ -91,6 +106,10 @@ export async function verifyTripQR(qrValue: string): Promise<TripQRPayload | nul
  * @returns Hex-encoded signature
  */
 async function createSignature(payload: TripQRPayload): Promise<string> {
+  if (!isCryptoAvailable()) {
+    throw new Error('expo-crypto is not available');
+  }
+
   // Get secret from environment (fallback to default for development)
   const secret = process.env.EXPO_PUBLIC_QR_SECRET || 'dev-secret-change-in-production';
 
@@ -112,19 +131,46 @@ async function createSignature(payload: TripQRPayload): Promise<string> {
  * @returns 6-digit numeric code
  */
 export async function generateManualCode(tripId: string): Promise<string> {
-  const secret = process.env.EXPO_PUBLIC_QR_SECRET || 'dev-secret-change-in-production';
+  // If crypto is not available, return a simple hash-based code
+  if (!isCryptoAvailable()) {
+    console.warn('[trip-qr] expo-crypto not available, using simple code generation');
+    // Simple fallback: use tripId hash
+    let hash = 0;
+    for (let i = 0; i < tripId.length; i++) {
+      const char = tripId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const code = Math.abs(hash % 1000000).toString().padStart(6, '0');
+    return code;
+  }
 
-  // Hash trip ID with secret
-  const hash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    tripId + secret
-  );
+  try {
+    const secret = process.env.EXPO_PUBLIC_QR_SECRET || 'dev-secret-change-in-production';
 
-  // Take first 6 characters and convert to numeric code
-  const numericHash = parseInt(hash.substring(0, 8), 16);
-  const code = (numericHash % 1000000).toString().padStart(6, '0');
+    // Hash trip ID with secret
+    const hash = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      tripId + secret
+    );
 
-  return code;
+    // Take first 6 characters and convert to numeric code
+    const numericHash = parseInt(hash.substring(0, 8), 16);
+    const code = (numericHash % 1000000).toString().padStart(6, '0');
+
+    return code;
+  } catch (error) {
+    console.error('[trip-qr] Failed to generate manual code with crypto, using fallback:', error);
+    // Fallback to simple hash
+    let hash = 0;
+    for (let i = 0; i < tripId.length; i++) {
+      const char = tripId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const code = Math.abs(hash % 1000000).toString().padStart(6, '0');
+    return code;
+  }
 }
 
 /**

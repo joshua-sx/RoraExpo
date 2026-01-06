@@ -2,15 +2,12 @@
 -- Created: 2026-01-04
 -- Description: Core tables for regions, users (extending auth.users), and guest tokens
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- =============================================================================
 -- REGIONS TABLE
 -- =============================================================================
 -- Stores region-specific configuration (Sint Maarten for MVP)
 CREATE TABLE public.regions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   country_code TEXT NOT NULL,
   island_name TEXT NOT NULL,
   currency_code TEXT NOT NULL DEFAULT 'USD',
@@ -78,7 +75,7 @@ CREATE TRIGGER update_regions_updated_at
 -- =============================================================================
 -- Server-generated tokens for guest users (30-day TTL)
 CREATE TABLE public.guest_tokens (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- The actual token string (UUID)
   token TEXT NOT NULL UNIQUE,

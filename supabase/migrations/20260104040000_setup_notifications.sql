@@ -6,7 +6,7 @@
 -- DEVICES TABLE (Push Tokens)
 -- =============================================================================
 CREATE TABLE public.devices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 
   -- Push token
@@ -38,7 +38,7 @@ CREATE INDEX idx_devices_push_token ON public.devices(push_token);
 -- =============================================================================
 -- In-app notification fallback and history
 CREATE TABLE public.notifications_inbox (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 
   -- Notification content

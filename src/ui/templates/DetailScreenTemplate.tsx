@@ -59,13 +59,22 @@ type DetailScreenTemplateProps = {
  * </DetailScreenTemplate>
  * ```
  */
+// Approximate height for sticky buttons when using this template
+// Default button height: padding(16) + button(52) + padding(16) = 84px
+const DEFAULT_STICKY_BUTTON_HEIGHT = 84;
+
 export function DetailScreenTemplate({
   header,
   children,
   stickyButton,
   scrollViewProps,
 }: DetailScreenTemplateProps) {
-  const { paddingBottom } = useStickyCta();
+  // Calculate padding if sticky button is present
+  // Note: If stickyButton is a StickyCtaButton, it handles its own positioning
+  // This padding is for ScrollView content spacing
+  const { scrollViewPadding } = useStickyCta(
+    stickyButton ? DEFAULT_STICKY_BUTTON_HEIGHT : 0
+  );
 
   const backgroundColor = useThemeColor(
     { light: '#F9F9F9', dark: '#0E0F0F' },
@@ -79,8 +88,8 @@ export function DetailScreenTemplate({
         contentContainerStyle={[
           styles.scrollContent,
           // Only add padding if there's a sticky button
-          stickyButton && { paddingBottom },
-        ]}
+          stickyButton ? { paddingBottom: scrollViewPadding } : undefined,
+        ].filter(Boolean)}
         showsVerticalScrollIndicator={false}
         {...scrollViewProps}
       >

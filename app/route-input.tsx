@@ -14,6 +14,7 @@ import {
 import { useLocationStore } from "@/src/store/location-store";
 import { useRouteStore } from "@/src/store/route-store";
 import { ThemedText } from "@/src/ui/components/themed-text";
+import { MapErrorBoundary } from "@/src/ui/components/MapErrorBoundary";
 import { useToast } from "@/src/ui/providers/ToastProvider";
 import { calculatePrice } from "@/src/utils/pricing";
 import { extractRouteData } from "@/src/utils/route-validation";
@@ -183,6 +184,29 @@ export default function RouteInputScreen() {
 			}
 		};
 	}, [routeData, clearDriver]);
+
+	// Pre-fill origin with current location on mount (if available and not already set)
+	const hasPrefilledOriginRef = useRef(false);
+	useEffect(() => {
+		console.log('[RouteInput] Prefill check:', {
+			hasPrefilled: hasPrefilledOriginRef.current,
+			hasOrigin: !!origin,
+			hasUserLocation: !!userLocation,
+			userPermissionGranted,
+			userFormattedAddress
+		});
+		if (!hasPrefilledOriginRef.current && !origin && userLocation && userPermissionGranted) {
+			console.log('[RouteInput] Pre-filling origin with current location');
+			hasPrefilledOriginRef.current = true;
+			setOrigin({
+				placeId: 'current-location',
+				name: 'Current Location',
+				description: userFormattedAddress || 'Your current location',
+				coordinates: userLocation,
+			});
+			setOriginInput('Current Location');
+		}
+	}, [origin, userLocation, userPermissionGranted, userFormattedAddress, setOrigin]);
 
 	const handleSwap = useCallback(() => {
 		swapLocations();
@@ -594,6 +618,26 @@ export default function RouteInputScreen() {
 									<Ionicons name="time-outline" size={20} color={iconColor} />
 								</Pressable>
 							</View>
+							{/* Use Current Location Button - show when origin is empty and location is available */}
+							{!origin && userLocation && (
+								<Pressable
+									style={styles.useCurrentLocationButton}
+									onPress={() => {
+										setOrigin({
+											placeId: 'current-location',
+											name: 'Current Location',
+											description: userFormattedAddress || 'Your current location',
+											coordinates: userLocation,
+										});
+										setOriginInput('Current Location');
+									}}
+								>
+									<Ionicons name="locate" size={18} color={tintColor} />
+									<ThemedText style={[styles.useCurrentLocationText, { color: tintColor }]}>
+										Use current location
+									</ThemedText>
+								</Pressable>
+							)}
 						</View>
 
 						{/* Destination Input */}
@@ -827,42 +871,44 @@ export default function RouteInputScreen() {
 		<GestureHandlerRootView style={styles.container}>
 			<View style={[styles.container, { backgroundColor }]}>
 				{/* Map */}
-				<MapView
-					provider={PROVIDER_GOOGLE}
-					ref={mapRef}
-					style={styles.map}
-					initialRegion={SINT_MAARTEN_REGION}
-					showsUserLocation
-					showsMyLocationButton={false}
-					showsCompass={false}
-				>
-					{/* Origin Marker */}
-					{origin && (
-						<Marker
-							coordinate={origin.coordinates}
-							title={origin.name}
-							pinColor={tintColor}
-						/>
-					)}
+				<MapErrorBoundary>
+					<MapView
+						provider={PROVIDER_GOOGLE}
+						ref={mapRef}
+						style={styles.map}
+						initialRegion={SINT_MAARTEN_REGION}
+						showsUserLocation
+						showsMyLocationButton={false}
+						showsCompass={false}
+					>
+						{/* Origin Marker */}
+						{origin && (
+							<Marker
+								coordinate={origin.coordinates}
+								title={origin.name}
+								pinColor={tintColor}
+							/>
+						)}
 
-					{/* Destination Marker */}
-					{destination && (
-						<Marker
-							coordinate={destination.coordinates}
-							title={destination.name}
-							pinColor={tintColor}
-						/>
-					)}
+						{/* Destination Marker */}
+						{destination && (
+							<Marker
+								coordinate={destination.coordinates}
+								title={destination.name}
+								pinColor={tintColor}
+							/>
+						)}
 
-					{/* Route Polyline (from proxied Directions API) */}
-					{routeData?.coordinates?.length ? (
-						<Polyline
-							coordinates={routeData.coordinates}
-							strokeWidth={4}
-							strokeColor={tintColor}
-						/>
-					) : null}
-				</MapView>
+						{/* Route Polyline (from proxied Directions API) */}
+						{routeData?.coordinates?.length ? (
+							<Polyline
+								coordinates={routeData.coordinates}
+								strokeWidth={4}
+								strokeColor="#000000"
+							/>
+						) : null}
+					</MapView>
+				</MapErrorBoundary>
 
 				{/* Close Button */}
 				<View style={[styles.closeButtonContainer, { top: insets.top + 12 }]}>
@@ -1002,6 +1048,18 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 		flexShrink: 0,
+	},
+	useCurrentLocationButton: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: Spacing.sm,
+		paddingVertical: Spacing.sm,
+		paddingHorizontal: Spacing.md,
+		marginTop: Spacing.xs,
+	},
+	useCurrentLocationText: {
+		fontSize: Typography.sizes.bodySmall,
+		fontWeight: Typography.weights.medium,
 	},
 	suggestionsContainer: {
 		position: "absolute",

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Trip } from '@/src/types/trip';
+import { formatPrice, formatDistance, formatDuration } from '@/src/utils/pricing';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { Pressable } from '../primitives/Pressable';
@@ -9,6 +10,7 @@ import { Text } from '../primitives/Text';
 import { Box } from '../primitives/Box';
 import { colors } from '../tokens/colors';
 import { space } from '../tokens/spacing';
+import { radius } from '../tokens/radius';
 
 interface TripCardProps {
   trip: Trip;
@@ -38,10 +40,6 @@ export function TripCard({ trip, onPress, showQuoteAge, warnIfStale }: TripCardP
     const created = new Date(createdAt).getTime();
     const ageInDays = (now - created) / (1000 * 60 * 60 * 24);
     return ageInDays > 7;
-  };
-
-  const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`;
   };
 
   const getStatusBadge = () => {
@@ -109,13 +107,13 @@ export function TripCard({ trip, onPress, showQuoteAge, warnIfStale }: TripCardP
             <Box style={styles.statItem}>
               <Ionicons name="speedometer-outline" size={16} color={colors.muted} />
               <Text variant="sub" muted>
-                {trip.routeData.distance?.toFixed(1) || '0.0'} km
+                {formatDistance(trip.routeData.distance ?? 0)}
               </Text>
             </Box>
             <Box style={styles.statItem}>
               <Ionicons name="time-outline" size={16} color={colors.muted} />
               <Text variant="sub" muted>
-                {trip.routeData.duration} min
+                {formatDuration(trip.routeData.duration)}
               </Text>
             </Box>
           </Box>
@@ -198,8 +196,10 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   stats: {
+    flex: 1,
     flexDirection: 'row',
-    gap: space[4],
+    gap: space[3],
+    minWidth: 0,
   },
   statItem: {
     flexDirection: 'row',
@@ -209,6 +209,8 @@ const styles = StyleSheet.create({
   price: {
     fontWeight: '700',
     color: colors.primary,
+    flexShrink: 0,
+    marginLeft: space[3],
   },
   driverInfo: {
     flexDirection: 'row',
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[2],
     paddingVertical: space[2],
     backgroundColor: `${colors.warning}15`,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   warningText: {
     flex: 1,

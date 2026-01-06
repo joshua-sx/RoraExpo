@@ -85,7 +85,7 @@ CREATE INDEX idx_driver_profiles_service_area_tags ON public.driver_profiles USI
 -- DRIVER VERIFICATIONS TABLE
 -- =============================================================================
 CREATE TABLE public.driver_verifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   driver_user_id UUID NOT NULL REFERENCES public.driver_profiles(id) ON DELETE CASCADE,
 
   -- Verification details
@@ -112,7 +112,7 @@ CREATE INDEX idx_driver_verifications_verification_type ON public.driver_verific
 -- RATINGS TABLE
 -- =============================================================================
 CREATE TABLE public.ratings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   ride_session_id UUID NOT NULL REFERENCES public.ride_sessions(id) ON DELETE CASCADE,
   rider_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   driver_user_id UUID NOT NULL REFERENCES public.driver_profiles(id) ON DELETE CASCADE,
@@ -155,7 +155,7 @@ CREATE INDEX idx_favorites_driver_user_id ON public.favorites(driver_user_id);
 -- RIDE REPORTS TABLE
 -- =============================================================================
 CREATE TABLE public.ride_reports (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   ride_session_id UUID NOT NULL REFERENCES public.ride_sessions(id) ON DELETE CASCADE,
   reporter_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 

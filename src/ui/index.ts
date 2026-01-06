@@ -33,7 +33,8 @@ export { ListItem } from "./components/ListItem";
 export { Divider } from "./components/Divider";
 export { Badge } from "./components/Badge";
 export { Avatar } from "./components/Avatar";
-export { Toast, ToastProvider, useToast } from "./components/Toast";
+export { Toast } from "./components/Toast";
+export { ToastProvider, useToast } from "./providers/ToastProvider";
 export { Sheet } from "./components/Sheet";
 export { Skeleton } from "./components/Skeleton";
 export { EmptyState } from "./components/EmptyState";
@@ -42,6 +43,8 @@ export { PriceLabel } from "./components/PriceLabel";
 export { ProBadge } from "./components/ProBadge";
 export { VerifiedBadge } from "./components/VerifiedBadge";
 export { OfferCard } from "./components/OfferCard";
+export { QRCard } from "./components/QRCard";
+export { StatusIndicator } from "./components/StatusIndicator";
 export { CollapsingHeader, useCollapsingHeaderOffset } from "./components/CollapsingHeader";
 
 // Screen Templates

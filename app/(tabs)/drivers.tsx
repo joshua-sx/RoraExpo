@@ -1,131 +1,259 @@
-import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BorderRadius, Spacing } from '@/src/constants/design-tokens';
 import { DriverCard } from '@/src/features/drivers/components/driver-card';
+import {
+  FilterModal,
+  type DriverFilters,
+} from '@/src/features/drivers/components/FilterModal';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { fetchDrivers } from '@/src/services/drivers.service';
+import type { Driver } from '@/src/types/driver';
 import { ThemedText } from '@/src/ui/components/themed-text';
 import { ThemedView } from '@/src/ui/components/themed-view';
-import { Spacing } from '@/src/constants/design-tokens';
-import { MOCK_DRIVERS, getOnDutyDrivers, getOffDutyDrivers } from '@/src/features/drivers/data/drivers';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
-import type { Driver } from '@/src/types/driver';
 import { getTabBarHeight } from '@/src/utils/safe-area';
 
-type FilterType = 'all' | 'on_duty' | 'off_duty';
+const DEFAULT_FILTERS: DriverFilters = {
+  dutyStatus: false,
+  seats: 'Any',
+  vehicleType: 'Any',
+  rating: 'Any',
+  vipOnly: false,
+};
+
+// Map vehicle types to seat counts
+const VEHICLE_SEATS: Record<string, number> = {
+  Sedan: 4,
+  SUV: 6,
+  Van: 8,
+};
 
 export default function DriversScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = getTabBarHeight(insets);
-  const [filter, setFilter] = useState<FilterType>('all');
-  // ...
+  const [allDrivers, setAllDrivers] = useState<Driver[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<DriverFilters>(DEFAULT_FILTERS);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
+  const loadDrivers = useCallback(async () => {
+    try {
+      const data = await fetchDrivers();
+      setAllDrivers(data);
+    } catch (error) {
+      console.error('Failed to load drivers:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDrivers();
+  }, [loadDrivers]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadDrivers();
+  }, [loadDrivers]);
 
   const backgroundColor = useThemeColor(
     { light: '#F9F9F9', dark: '#0E0F0F' },
     'background'
   );
+  const surfaceColor = useThemeColor(
+    { light: '#FFFFFF', dark: '#161616' },
+    'surface'
+  );
+  const textColor = useThemeColor({ light: '#262626', dark: '#E5E7EA' }, 'text');
   const secondaryTextColor = useThemeColor(
     { light: '#5C5F62', dark: '#A0A5AA' },
     'textSecondary'
   );
+  const borderColor = useThemeColor(
+    { light: '#E3E6E3', dark: '#2F3237' },
+    'border'
+  );
   const tintColor = useThemeColor({}, 'tint');
 
-  const getFilteredDrivers = (): Driver[] => {
-    switch (filter) {
-      case 'on_duty':
-        return getOnDutyDrivers();
-      case 'off_duty':
-        return getOffDutyDrivers();
-      default:
-        return MOCK_DRIVERS;
-    }
-  };
+  // Apply filters and search
+  const filteredDrivers = useMemo(() => {
+    let result = allDrivers;
 
-  const drivers = getFilteredDrivers();
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((d) =>
+        d.name.toLowerCase().includes(query)
+      );
+    }
+
+    // Duty status filter
+    if (filters.dutyStatus) {
+      result = result.filter((d) => d.onDuty);
+    }
+
+    // Seats filter
+    if (filters.seats !== 'Any') {
+      result = result.filter((d) => {
+        const driverSeats = VEHICLE_SEATS[d.vehicleType] || 4;
+        return driverSeats >= (filters.seats as number);
+      });
+    }
+
+    // Vehicle type filter
+    if (filters.vehicleType !== 'Any') {
+      result = result.filter((d) => d.vehicleType === filters.vehicleType);
+    }
+
+    // Rating filter
+    if (filters.rating !== 'Any') {
+      result = result.filter((d) => d.rating >= (filters.rating as number));
+    }
+
+    // VIP filter (assuming all drivers are VIP for now, can add vip field to Driver type later)
+    if (filters.vipOnly) {
+      // For now, treat drivers with 5.0 rating as VIP
+      result = result.filter((d) => d.rating === 5.0);
+    }
+
+    return result;
+  }, [allDrivers, searchQuery, filters]);
+
+  const handleApplyFilters = useCallback((newFilters: DriverFilters) => {
+    setFilters(newFilters);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setFilters(DEFAULT_FILTERS);
+    setSearchQuery('');
+  }, []);
+
+  if (loading) {
+    return (
+      <ThemedView
+        style={[
+          styles.container,
+          styles.loadingContainer,
+          { backgroundColor, paddingTop: insets.top },
+        ]}
+      >
+        <ActivityIndicator size="large" color={tintColor} />
+        <ThemedText style={[styles.loadingText, { color: secondaryTextColor }]}>
+          Loading drivers...
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
+  const hasActiveFilters =
+    filters.dutyStatus ||
+    filters.seats !== 'Any' ||
+    filters.vehicleType !== 'Any' ||
+    filters.rating !== 'Any' ||
+    filters.vipOnly ||
+    searchQuery.trim() !== '';
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
+    <ThemedView
+      style={[styles.container, { backgroundColor, paddingTop: insets.top }]}
+    >
       <View style={styles.stickyHeader}>
         <ThemedText style={styles.title}>Available Drivers</ThemedText>
-        <ThemedText style={[styles.subtitle, { color: secondaryTextColor }]}>
-          Browse and contact drivers
-        </ThemedText>
 
-        {/* Filter Pills */}
-        <View style={styles.filterContainer}>
-          <Pressable
-            style={[
-              styles.filterPill,
-              filter === 'all' && {
-                backgroundColor: tintColor,
-              },
-            ]}
-            onPress={() => setFilter('all')}
-          >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === 'all' && styles.filterTextActive,
-              ]}
-            >
-              All ({MOCK_DRIVERS.length})
-            </ThemedText>
-          </Pressable>
+        {/* Search Bar and Filters */}
+        <View style={styles.searchContainer}>
+          <View style={[styles.searchBar, { backgroundColor: surfaceColor, borderColor }]}>
+            <Ionicons name="search" size={20} color={secondaryTextColor} />
+            <TextInput
+              style={[styles.searchInput, { color: textColor }]}
+              placeholder="Search drivers"
+              placeholderTextColor={secondaryTextColor}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
 
           <Pressable
-            style={[
-              styles.filterPill,
-              filter === 'on_duty' && {
-                backgroundColor: tintColor,
-              },
-            ]}
-            onPress={() => setFilter('on_duty')}
+            style={[styles.filterButton, { backgroundColor: surfaceColor, borderColor }]}
+            onPress={() => setShowFilterModal(true)}
           >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === 'on_duty' && styles.filterTextActive,
-              ]}
-            >
-              On Duty ({getOnDutyDrivers().length})
-            </ThemedText>
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.filterPill,
-              filter === 'off_duty' && {
-                backgroundColor: tintColor,
-              },
-            ]}
-            onPress={() => setFilter('off_duty')}
-          >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === 'off_duty' && styles.filterTextActive,
-              ]}
-            >
-              Off Duty ({getOffDutyDrivers().length})
-            </ThemedText>
+            <Ionicons name="options-outline" size={20} color={textColor} />
+            {hasActiveFilters && <View style={[styles.filterBadge, { backgroundColor: tintColor }]} />}
           </Pressable>
         </View>
       </View>
 
       <FlatList
-        data={drivers}
+        data={filteredDrivers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DriverCard driver={item} />}
         contentContainerStyle={[
           styles.listContent,
           { paddingBottom: tabBarHeight + Spacing.lg },
         ]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={tintColor}
+          />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
+            {/* Empty state illustration */}
+            <View style={styles.emptyIllustration}>
+              <View style={styles.emptyCard}>
+                <View style={styles.emptyPalmTree}>
+                  <Ionicons name="navigate" size={40} color="#8C9390" />
+                </View>
+                <View style={styles.emptyCar}>
+                  <Ionicons name="car" size={48} color="#D0D3D7" />
+                </View>
+              </View>
+            </View>
+
+            <ThemedText style={styles.emptyTitle}>No drivers available</ThemedText>
             <ThemedText style={[styles.emptyText, { color: secondaryTextColor }]}>
-              No drivers found
+              No drivers are currently available based on your filters. You can adjust the filters above to see more drivers.
             </ThemedText>
+
+            {hasActiveFilters && (
+              <Pressable
+                style={[styles.clearFiltersButton, { borderColor }]}
+                onPress={handleClearFilters}
+              >
+                <ThemedText style={[styles.clearFiltersText, { color: tintColor }]}>
+                  Clear filters
+                </ThemedText>
+              </Pressable>
+            )}
           </View>
         }
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isVisible={showFilterModal}
+        onDismiss={() => setShowFilterModal(false)}
+        filters={filters}
+        onApplyFilters={handleApplyFilters}
+        onClearAll={handleClearFilters}
+        matchingDriversCount={filteredDrivers.length}
       />
     </ThemedView>
   );
@@ -134,6 +262,14 @@ export default function DriversScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: Spacing.md,
+    fontSize: 16,
   },
   listContent: {
     paddingHorizontal: Spacing.lg,
@@ -150,36 +286,92 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     lineHeight: 42,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.md,
   },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: Spacing.lg,
-  },
-  filterContainer: {
+  searchContainer: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
   },
-  filterPill: {
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    borderRadius: 20,
-    backgroundColor: 'rgba(140, 147, 144, 0.2)',
+    borderRadius: BorderRadius.card,
+    borderWidth: 1,
   },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '500',
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: Spacing.xs,
   },
-  filterTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '600',
+  filterButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: BorderRadius.card,
+    borderWidth: 1,
+    position: 'relative',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   emptyContainer: {
     paddingVertical: Spacing.xxl,
+    paddingHorizontal: Spacing.lg,
     alignItems: 'center',
   },
+  emptyIllustration: {
+    marginBottom: Spacing.xl,
+  },
+  emptyCard: {
+    width: 200,
+    height: 150,
+    backgroundColor: '#F5F5F5',
+    borderRadius: BorderRadius.card,
+    position: 'relative',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyPalmTree: {
+    position: 'absolute',
+    top: 20,
+    right: 30,
+  },
+  emptyCar: {
+    position: 'absolute',
+    bottom: 30,
+    left: 40,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
+  },
   emptyText: {
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: Spacing.lg,
+  },
+  clearFiltersButton: {
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.button,
+    borderWidth: 1,
+  },
+  clearFiltersText: {
     fontSize: 16,
+    fontWeight: '600',
   },
 });

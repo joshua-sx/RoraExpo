@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useCallback, useContext, useRef, useState } from "react";
+
 import { Toast } from "../components/Toast";
 
 type ToastContextType = {
@@ -15,11 +16,11 @@ type ToastData = {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
 	const [toasts, setToasts] = useState<ToastData[]>([]);
-	const [nextId, setNextId] = useState(0);
+	const nextIdRef = useRef(0);
 
 	const showToast = useCallback((message: string, duration = 3000) => {
-		const id = nextId;
-		setNextId((prev) => prev + 1);
+		const id = nextIdRef.current;
+		nextIdRef.current += 1;
 
 		// Add new toast to queue
 		setToasts((prev) => [...prev, { id, message, duration }]);
@@ -28,7 +29,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 		setTimeout(() => {
 			setToasts((prev) => prev.filter((toast) => toast.id !== id));
 		}, duration + 400); // 400ms for enter/exit animations
-	}, [nextId]);
+	}, []);
 
 	const handleDismiss = useCallback((id: number) => {
 		setToasts((prev) => prev.filter((toast) => toast.id !== id));

@@ -8,11 +8,11 @@
 // ============================================================================
 
 export const Colors = {
-  // Primary Brand
-  primary: '#00BE3C', // Evergreen
-  primaryLight: '#1FD455',
-  primaryDark: '#008F2F',
-  accent: '#008F2F',
+  // Primary Brand (Rora Green)
+  primary: '#00BE3C', // Rora Green
+  primaryLight: '#86EFAC', // Green-300
+  primaryDark: '#059669', // Green-600
+  accent: '#059669', // Green-600
 
   // Backgrounds
   canvasMist: '#F9F9F9', // App background
@@ -23,14 +23,14 @@ export const Colors = {
   neutralStone: '#5C5F62', // Secondary text, placeholders, disabled
 
   // Functional
-  success: '#00BE3C', // Success, confirmation
+  success: '#22C55E', // Green-500 (distinct from primary)
   error: '#D14343', // Errors, blocking states
   warning: '#E9A63A', // Warnings, inline alerts
-  info: '#2F89FC', // Informational
+  info: '#3B82F6', // Blue-500
 
   // Dividers & Borders
   dividerMist: '#E3E6E3',
-  link: '#00BE3C',
+  link: '#00BE3C', // Rora Green
 
   // Aliases for semantic use
   background: '#F9F9F9',
@@ -38,7 +38,7 @@ export const Colors = {
   text: '#262626',
   textSecondary: '#5C5F62',
   border: '#E3E6E3',
-  tint: '#00BE3C',
+  tint: '#00BE3C', // Rora Green
 };
 
 // ============================================================================

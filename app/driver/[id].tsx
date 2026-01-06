@@ -1,13 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/src/ui/components/themed-text';
 import { ThemedView } from '@/src/ui/components/themed-view';
 import { BookingOptionsSheet } from '@/src/ui/components/BookingOptionsSheet';
-import { BorderRadius, Spacing } from '@/src/constants/design-tokens';
+import { BorderRadius, Colors, Spacing } from '@/src/constants/design-tokens';
 import { getDriverById } from '@/src/features/drivers/data/drivers';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { useToast } from '@/src/ui/providers/ToastProvider';
@@ -22,10 +30,12 @@ export default function DriverProfileScreen() {
   const [showBookingOptions, setShowBookingOptions] = useState(false);
 
   const driver = getDriverById(id);
-  const savedTripsCount = useTripHistoryStore((state) => state.getSavedTrips().length);
+  const savedTripsCount = useTripHistoryStore(
+    (state) => state.getSavedTrips().length
+  );
 
   const backgroundColor = useThemeColor(
-    { light: '#F9F9F9', dark: '#0E0F0F' },
+    { light: '#FFFFFF', dark: '#0E0F0F' },
     'background'
   );
   const cardBackgroundColor = useThemeColor(
@@ -41,9 +51,7 @@ export default function DriverProfileScreen() {
     { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
-  const tintColor = useThemeColor({}, 'tint');
-  const onDutyColor = '#00BE3C';
-  const offDutyColor = '#8C9390';
+  const roraGreen = Colors.primary; // Rora Green #00BE3C
 
   const handleBack = () => {
     router.back();
@@ -56,10 +64,10 @@ export default function DriverProfileScreen() {
     }
   };
 
-  const handleEmail = () => {
-    if (driver?.email) {
-      showToast('Opening email...');
-      Linking.openURL(`mailto:${driver.email}`);
+  const handleMessage = () => {
+    if (driver?.phone) {
+      showToast('Opening messages...');
+      Linking.openURL(`sms:${driver.phone}`);
     }
   };
 
@@ -70,7 +78,6 @@ export default function DriverProfileScreen() {
   const handleBookNow = () => {
     setShowBookingOptions(false);
     if (driver) {
-      // Set driver in route store
       useRouteStore.getState().setSelectedDriver(driver.id);
       router.push('/route-input');
     }
@@ -79,7 +86,6 @@ export default function DriverProfileScreen() {
   const handleUseSaved = () => {
     setShowBookingOptions(false);
     if (driver) {
-      // Set driver in route store
       useRouteStore.getState().setSelectedDriver(driver.id);
       router.push(`/trip-selector?driverId=${driver.id}`);
     }
@@ -88,10 +94,12 @@ export default function DriverProfileScreen() {
   if (!driver) {
     return (
       <ThemedView style={[styles.container, { backgroundColor }]}>
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <Pressable onPress={handleBack} hitSlop={8}>
+        <View style={[styles.header, { paddingTop: insets.top }]}>
+          <Pressable onPress={handleBack} style={styles.backButton} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={textColor} />
           </Pressable>
+          <ThemedText style={styles.headerTitle}>Driver</ThemedText>
+          <View style={styles.headerSpacer} />
         </View>
         <View style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>Driver not found</ThemedText>
@@ -99,6 +107,19 @@ export default function DriverProfileScreen() {
       </ThemedView>
     );
   }
+
+  // Mock photos for the grid (placeholder images)
+  const photos = [1, 2, 3, 4, 5, 6];
+
+  // Calculate photo width for 2-column grid
+  // Card has marginHorizontal: Spacing.lg (16px) and padding: Spacing.lg (16px)
+  // Total horizontal padding: 16*2 (margin) + 16*2 (padding) = 64px
+  // Gap between photos: Spacing.sm (8px)
+  const screenWidth = Dimensions.get('window').width;
+  const cardHorizontalPadding = Spacing.lg * 4; // margin + padding on both sides
+  const photoGap = Spacing.sm;
+  const availableWidth = screenWidth - cardHorizontalPadding;
+  const photoWidth = (availableWidth - photoGap) / 2;
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
@@ -111,121 +132,114 @@ export default function DriverProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <Pressable onPress={handleBack} hitSlop={8}>
+        <View style={[styles.header, { paddingTop: insets.top }]}>
+          <Pressable onPress={handleBack} style={styles.backButton} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={textColor} />
           </Pressable>
+          <ThemedText style={styles.headerTitle}>Driver</ThemedText>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        {/* Map Banner */}
+        <View style={styles.mapBanner}>
+          {/* Gray map-like pattern */}
+          <View style={styles.mapPattern}>
+            <View style={[styles.mapLine, styles.mapLine1]} />
+            <View style={[styles.mapLine, styles.mapLine2]} />
+            <View style={[styles.mapLine, styles.mapLine3]} />
+            <View style={[styles.mapLine, styles.mapLine4]} />
+          </View>
         </View>
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <View style={[styles.profileImage, { backgroundColor: borderColor }]}>
-            <Ionicons name="person" size={64} color={secondaryTextColor} />
+          {/* Avatar with verified badge */}
+          <View style={styles.avatarContainer}>
+            <View style={[styles.avatarCircle, { borderColor }]}>
+              {driver.profileImage ? (
+                <Image
+                  source={{ uri: driver.profileImage }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <Ionicons name="person" size={56} color={secondaryTextColor} />
+              )}
+            </View>
+            {/* Verified checkmark badge */}
+            <View style={[styles.verifiedBadge, { backgroundColor: roraGreen }]}>
+              <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+            </View>
           </View>
 
+          {/* Name */}
           <ThemedText style={styles.name}>{driver.name}</ThemedText>
 
-          <View style={styles.ratingRow}>
-            <Ionicons name="star" size={20} color="#FFB800" />
-            <ThemedText style={styles.rating}>
-              {driver.rating.toFixed(1)}
-            </ThemedText>
-            <ThemedText style={[styles.reviewCount, { color: secondaryTextColor }]}>
-              ({driver.reviewCount} reviews)
-            </ThemedText>
-          </View>
-
-          <View
-            style={[
-              styles.statusBadge,
-              {
-                backgroundColor: driver.onDuty
-                  ? `${onDutyColor}20`
-                  : `${offDutyColor}20`,
-              },
-            ]}
-          >
+          {/* Status */}
+          <View style={styles.statusRow}>
             <View
               style={[
                 styles.statusDot,
-                {
-                  backgroundColor: driver.onDuty ? onDutyColor : offDutyColor,
-                },
+                { backgroundColor: driver.onDuty ? roraGreen : '#8C9390' },
               ]}
             />
             <ThemedText
               style={[
                 styles.statusText,
-                { color: driver.onDuty ? onDutyColor : offDutyColor },
+                { color: driver.onDuty ? roraGreen : '#8C9390' },
               ]}
             >
-              {driver.onDuty ? 'On Duty' : 'Off Duty'}
+              {driver.onDuty ? 'On duty' : 'Off duty'}
             </ThemedText>
+          </View>
+
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+            <Pressable
+              style={[styles.actionButton, { borderColor }]}
+              onPress={handleCall}
+            >
+              <Ionicons name="call-outline" size={24} color={roraGreen} />
+              <ThemedText style={[styles.actionButtonText, { color: roraGreen }]}>
+                Call
+              </ThemedText>
+            </Pressable>
+
+            <Pressable
+              style={[styles.actionButton, { borderColor }]}
+              onPress={handleMessage}
+            >
+              <Ionicons name="chatbubble-outline" size={24} color={roraGreen} />
+              <ThemedText style={[styles.actionButtonText, { color: roraGreen }]}>
+                Message
+              </ThemedText>
+            </Pressable>
           </View>
         </View>
 
-        {/* Contact Section */}
-        <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
-          <ThemedText style={styles.sectionTitle}>CONTACT</ThemedText>
-
-          <Pressable style={styles.contactRow} onPress={handleCall}>
-            <Ionicons name="call-outline" size={20} color={tintColor} />
-            <ThemedText style={styles.contactText}>{driver.phone}</ThemedText>
-            <Ionicons name="chevron-forward" size={16} color={secondaryTextColor} />
-          </Pressable>
-
-          <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-          <Pressable style={styles.contactRow} onPress={handleEmail}>
-            <Ionicons name="mail-outline" size={20} color={tintColor} />
-            <ThemedText style={styles.contactText}>{driver.email}</ThemedText>
-            <Ionicons name="chevron-forward" size={16} color={secondaryTextColor} />
-          </Pressable>
-
-          <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-          <View style={styles.infoRow}>
-            <Ionicons name="language-outline" size={20} color={secondaryTextColor} />
-            <ThemedText style={[styles.infoText, { color: secondaryTextColor }]}>
-              {driver.languages.join(', ')}
-            </ThemedText>
-          </View>
-        </View>
-
-        {/* Details Section */}
-        <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
-          <ThemedText style={styles.sectionTitle}>VEHICLE</ThemedText>
-
-          <View style={styles.infoRow}>
-            <Ionicons name="car-sport-outline" size={20} color={secondaryTextColor} />
-            <ThemedText style={styles.infoText}>
-              {driver.vehicleType} • {driver.vehicleModel}
-            </ThemedText>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-          <View style={styles.infoRow}>
-            <Ionicons name="card-outline" size={20} color={secondaryTextColor} />
-            <ThemedText style={styles.infoText}>{driver.licensePlate}</ThemedText>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-          <View style={styles.infoRow}>
-            <Ionicons name="time-outline" size={20} color={secondaryTextColor} />
-            <ThemedText style={styles.infoText}>
-              {driver.yearsExperience} years experience
-            </ThemedText>
-          </View>
-        </View>
-
-        {/* Bio Section */}
-        <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
-          <ThemedText style={styles.sectionTitle}>ABOUT</ThemedText>
-          <ThemedText style={[styles.bio, { color: secondaryTextColor }]}>
+        {/* About the driver */}
+        <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor }]}>
+          <ThemedText style={styles.cardTitle}>About the driver</ThemedText>
+          <ThemedText style={[styles.cardText, { color: secondaryTextColor }]}>
             {driver.bio}
           </ThemedText>
+        </View>
+
+        {/* Vehicle & Ride Photos */}
+        <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor }]}>
+          <ThemedText style={styles.cardTitle}>Vehicle & Ride Photos</ThemedText>
+          <View style={styles.photoGrid}>
+            {photos.map((photoId) => (
+              <View
+                key={`photo-${photoId}`}
+                style={[
+                  styles.photoPlaceholder,
+                  { backgroundColor: borderColor, width: photoWidth },
+                ]}
+              >
+                <Ionicons name="image-outline" size={32} color={secondaryTextColor} />
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
 
@@ -235,7 +249,7 @@ export default function DriverProfileScreen() {
           styles.footer,
           {
             paddingBottom: Math.max(insets.bottom, Spacing.lg),
-            borderTopColor: borderColor,
+            backgroundColor,
           },
         ]}
       >
@@ -243,7 +257,7 @@ export default function DriverProfileScreen() {
           style={({ pressed }) => [
             styles.bookButton,
             {
-              backgroundColor: driver.onDuty ? onDutyColor : offDutyColor,
+              backgroundColor: driver.onDuty ? roraGreen : '#8C9390',
               opacity: pressed ? 0.8 : driver.onDuty ? 1 : 0.6,
             },
           ]}
@@ -280,46 +294,107 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
   },
+  backButton: {
+    width: 40,
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  mapBanner: {
+    height: 100,
+    backgroundColor: '#E8E8E8',
+    overflow: 'hidden',
+  },
+  mapPattern: {
+    flex: 1,
+    position: 'relative',
+  },
+  mapLine: {
+    position: 'absolute',
+    backgroundColor: '#D0D0D0',
+    height: 1,
+  },
+  mapLine1: {
+    top: '30%',
+    left: 0,
+    right: 0,
+    transform: [{ rotate: '-15deg' }],
+  },
+  mapLine2: {
+    top: '50%',
+    left: 0,
+    right: 0,
+    transform: [{ rotate: '10deg' }],
+  },
+  mapLine3: {
+    top: '40%',
+    left: '20%',
+    width: '60%',
+    transform: [{ rotate: '-30deg' }],
+  },
+  mapLine4: {
+    top: '60%',
+    left: '10%',
+    width: '80%',
+    transform: [{ rotate: '5deg' }],
+  },
   profileSection: {
     alignItems: 'center',
-    paddingVertical: Spacing.xl,
+    marginTop: -50,
+    paddingBottom: Spacing.xl,
   },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  avatarContainer: {
+    position: 'relative',
     marginBottom: Spacing.md,
   },
-  rating: {
-    fontSize: 16,
-    fontWeight: '600',
+  avatarCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F0F0F0',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  reviewCount: {
-    fontSize: 14,
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
-  statusBadge: {
+  verifiedBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
+  },
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: 16,
+    marginBottom: Spacing.lg,
   },
   statusDot: {
     width: 8,
@@ -327,48 +402,54 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   statusText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
   },
-  section: {
+  actionButtons: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  actionButton: {
+    width: 100,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.card,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  card: {
     marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
     padding: Spacing.lg,
     borderRadius: BorderRadius.card,
+    borderWidth: 1,
   },
-  sectionTitle: {
-    fontSize: 12,
+  cardTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    letterSpacing: 0.5,
-    opacity: 0.6,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
-  contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  contactText: {
-    flex: 1,
-    fontSize: 15,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  infoText: {
-    fontSize: 15,
-  },
-  divider: {
-    height: 1,
-    marginVertical: Spacing.xs,
-  },
-  bio: {
+  cardText: {
     fontSize: 15,
     lineHeight: 22,
+  },
+  photoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  photoPlaceholder: {
+    aspectRatio: 1,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   errorContainer: {
     flex: 1,
@@ -386,8 +467,6 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   bookButton: {
     paddingVertical: Spacing.lg,

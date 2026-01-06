@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/src/ui/components/themed-text';
+import { DEFAULT_BLURHASH, IMAGE_TRANSITION_DURATION } from '@/src/ui/tokens/images';
 import { BorderRadius, Spacing } from '@/src/constants/design-tokens';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 import type { Driver } from '@/src/types/driver';
@@ -45,7 +47,7 @@ export function DriverCard({ driver }: DriverCardProps) {
     { light: '#EEF0F2', dark: '#1D1F24' },
     'surface'
   );
-  const onDutyColor = '#00BE3C';
+  const onDutyColor = '#14B8A6';
 
   const handlePress = () => {
     router.push(`/driver/${driver.id}`);
@@ -97,7 +99,9 @@ export function DriverCard({ driver }: DriverCardProps) {
               <Image
                 source={avatarSource}
                 style={styles.avatarImage}
-                resizeMode="cover"
+                contentFit="cover"
+                placeholder={{ blurhash: DEFAULT_BLURHASH }}
+                transition={IMAGE_TRANSITION_DURATION}
               />
             ) : (
               <ThemedText style={[styles.avatarInitials, { color: secondaryTextColor }]}>

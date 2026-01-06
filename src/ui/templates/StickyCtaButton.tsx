@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
-import { StyleSheet, View, Pressable, type ViewStyle } from 'react-native';
+import { StyleSheet, View, Pressable, Platform, type ViewStyle } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { ThemedText } from '../components/themed-text';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { useStickyCta } from '@/src/hooks/use-sticky-cta';
@@ -68,6 +69,11 @@ type StickyCtaButtonProps = {
  * />
  * ```
  */
+// Approximate card height: paddingTop(16) + content(~14 if present) + gap(14) + button(52) + paddingBottom(16)
+// For button-only: 16 + 0 + 0 + 52 + 16 = 84px
+// For with content: 16 + 14 + 14 + 52 + 16 = 112px (approximate)
+const BUTTON_CARD_HEIGHT = 84; // Minimum height (button only)
+
 export function StickyCtaButton({
   label,
   onPress,
@@ -78,7 +84,9 @@ export function StickyCtaButton({
   containerStyle,
   buttonStyle,
 }: StickyCtaButtonProps) {
-  const { bottom } = useStickyCta();
+  // Calculate height based on whether content is present
+  const cardHeight = content ? BUTTON_CARD_HEIGHT + 28 : BUTTON_CARD_HEIGHT;
+  const { cardBottomPosition } = useStickyCta(cardHeight);
 
   const backgroundColor = useThemeColor(
     { light: '#FFFFFF', dark: '#161616' },
@@ -93,14 +101,8 @@ export function StickyCtaButton({
   const buttonBackgroundColor = variant === 'primary' ? primaryColor : secondaryColor;
   const buttonTextColor = variant === 'primary' ? '#FFFFFF' : useThemeColor({ light: '#262626', dark: '#E5E7EA' }, 'text');
 
-  return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor, bottom },
-        containerStyle,
-      ]}
-    >
+  const containerContent = (
+    <>
       {/* Optional Content Area */}
       {content && (
         <View style={styles.contentArea}>
@@ -124,6 +126,37 @@ export function StickyCtaButton({
           {loading ? 'Loading...' : label}
         </ThemedText>
       </Pressable>
+    </>
+  );
+
+  // Use BlurView on iOS for frosted glass effect, solid background on Android
+  if (Platform.OS === 'ios') {
+    return (
+      <BlurView
+        intensity={80}
+        tint="light"
+        style={[
+          styles.container,
+          styles.blurContainer,
+          { bottom: cardBottomPosition },
+          containerStyle,
+        ]}
+      >
+        {containerContent}
+      </BlurView>
+    );
+  }
+
+  // Android fallback: solid background with slight transparency
+  return (
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: `${backgroundColor}F5`, bottom: cardBottomPosition },
+        containerStyle,
+      ]}
+    >
+      {containerContent}
     </View>
   );
 }
@@ -144,6 +177,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 10,
+  },
+  blurContainer: {
+    overflow: 'hidden', // Required for BlurView with border radius
   },
   contentArea: {
     marginBottom: 14,

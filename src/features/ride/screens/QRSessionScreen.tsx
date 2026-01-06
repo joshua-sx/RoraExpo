@@ -124,7 +124,7 @@ export const QRSessionScreen = () => {
   if (isCreating) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#14B8A6" />
         <Text style={styles.loadingText}>Creating your ride session...</Text>
       </View>
     );
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   fareValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#14B8A6',
   },
   qrContainer: {
     alignItems: 'center',
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   startButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#14B8A6',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',

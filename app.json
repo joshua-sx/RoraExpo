@@ -9,20 +9,26 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.joshuabowers.roraride",
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places and calculate accurate routes."
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places and calculate accurate routes.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "config": {}
     },
     "android": {
+      "package": "com.joshuabowers.roraride",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
       "config": {},
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -44,11 +50,25 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "joshua-r46"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a4016872-0c34-4232-b6de-adc933cdc597"
+      }
     }
   }
 }

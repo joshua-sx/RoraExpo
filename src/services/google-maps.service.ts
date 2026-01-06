@@ -14,6 +14,7 @@ import {
 } from "@/src/constants/config";
 
 import { decodePolyline as decodePolylineUtil } from "@/src/utils/route-validation";
+import { isOnline } from "@/src/utils/network";
 
 // Type definitions for Google Maps API responses
 export interface LatLng {
@@ -86,6 +87,15 @@ class GoogleMapsService {
    * Make a request to the Maps proxy with retry logic
    */
   private async makeRequest<T>(url: string, retryCount = 0): Promise<T> {
+    // Check network connectivity before making request
+    const online = await isOnline();
+    if (!online) {
+      throw new GoogleMapsError(
+        "No internet connection. Please check your network and try again.",
+        "NETWORK_ERROR"
+      );
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(

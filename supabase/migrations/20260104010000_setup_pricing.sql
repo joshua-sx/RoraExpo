@@ -7,7 +7,7 @@
 -- =============================================================================
 -- Zones are defined as radius circles (center point + radius)
 CREATE TABLE public.pricing_zones (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   region_id UUID NOT NULL REFERENCES public.regions(id) ON DELETE CASCADE,
 
   -- Zone identification
@@ -37,7 +37,7 @@ CREATE INDEX idx_pricing_zones_is_active ON public.pricing_zones(is_active);
 -- =============================================================================
 -- Versioned pricing rules (distance-based fallback)
 CREATE TABLE public.pricing_rule_versions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   region_id UUID NOT NULL REFERENCES public.regions(id) ON DELETE CASCADE,
 
   -- Version info
@@ -68,7 +68,7 @@ CREATE INDEX idx_pricing_rule_versions_is_active ON public.pricing_rule_versions
 -- =============================================================================
 -- Zone-to-zone or zone-to-any fixed fares
 CREATE TABLE public.pricing_fixed_fares (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   region_id UUID NOT NULL REFERENCES public.regions(id) ON DELETE CASCADE,
 
   -- Origin and destination zones
@@ -103,7 +103,7 @@ CREATE INDEX idx_pricing_fixed_fares_is_active ON public.pricing_fixed_fares(is_
 -- =============================================================================
 -- Dynamic pricing modifiers (night, peak, event)
 CREATE TABLE public.pricing_modifiers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   region_id UUID NOT NULL REFERENCES public.regions(id) ON DELETE CASCADE,
 
   -- Modifier type

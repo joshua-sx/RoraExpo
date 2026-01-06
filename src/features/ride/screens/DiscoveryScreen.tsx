@@ -268,7 +268,7 @@ export const DiscoveryScreen = () => {
 
       {/* Animated Status Message */}
       <View style={styles.statusContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#14B8A6" />
         <Animated.View style={{ opacity: fadeAnim, marginTop: 20 }}>
           <Text style={styles.statusText}>
             {DISCOVERY_MESSAGES[currentMessageIndex]}
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   fare: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#14B8A6',
     textAlign: 'center',
   },
   statusContainer: {
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
   offersCountText: {
     fontSize: 14,
-    color: '#007AFF',
+    color: '#14B8A6',
     marginTop: 20,
     fontWeight: '600',
     textAlign: 'center',
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   },
   expandButton: {
     flex: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#14B8A6',
     borderRadius: 8,
     padding: 14,
     alignItems: 'center',

@@ -1,334 +1,526 @@
-# Rora Design System - Implementation Complete
+# Rora Mobile Design System Spec
 
-A production-ready, Dieter Rams-inspired UI component library for React Native and Expo.
+## Overview
 
-## What Was Built
+This document defines the design system for Rora Ride's mobile app. It is the single source of truth for layout, spacing, typography, components, and screen patterns. All screens must conform to these rules.
 
-A complete, mobile-first design system following the Dieter Rams philosophy outlined in your style guide. All components are production-ready and follow strict accessibility and UX standards.
-
-## File Structure
-
-```
-src/ui/
-├── tokens/              # Design tokens (source of truth)
-│   ├── colors.ts       # Color palette (neutrals + one accent)
-│   ├── spacing.ts      # 8-point grid system
-│   ├── radius.ts       # Border radius scale
-│   ├── typography.ts   # Type system (4 variants)
-│   ├── shadow.ts       # Elevation system
-│   └── theme.ts        # Exports all tokens
-├── primitives/         # Building blocks
-│   ├── Box.tsx         # View wrapper
-│   ├── Text.tsx        # Typography component
-│   └── Pressable.tsx   # Interaction wrapper
-├── components/         # UI components
-│   ├── Button.tsx      # 4 variants (primary, secondary, tertiary, danger)
-│   ├── Input.tsx       # Text input with states
-│   ├── SearchInput.tsx # Search field with icon support
-│   ├── Card.tsx        # Content grouping
-│   ├── ListItem.tsx    # List rows with leading/trailing
-│   ├── Avatar.tsx      # Circle avatars (3 sizes)
-│   ├── Badge.tsx       # Status indicators
-│   ├── Divider.tsx     # Horizontal separator
-│   ├── Skeleton.tsx    # Loading placeholders
-│   ├── EmptyState.tsx  # Empty state feedback
-│   ├── ErrorState.tsx  # Error feedback
-│   ├── Toast.tsx       # Temporary notifications
-│   └── Sheet.tsx       # Bottom sheet wrapper
-├── index.ts            # Public API
-├── Showcase.tsx        # Component showcase (for development)
-├── README.md           # Complete documentation
-├── EXAMPLES.md         # Real-world usage patterns
-├── MIGRATION.md        # Migration guide from existing code
-└── QUICK_REFERENCE.md  # One-page cheatsheet
-```
-
-**Total:** 28 files, 4 directories
-
-## Component Inventory
-
-### Design Tokens (6)
-- ✅ Colors (neutrals + one accent)
-- ✅ Spacing (8-point grid)
-- ✅ Typography (4 variants)
-- ✅ Border radius (4 sizes)
-- ✅ Shadows (3 elevations)
-- ✅ Theme (unified exports)
-
-### Primitives (3)
-- ✅ Box - Layout wrapper
-- ✅ Text - Typography with variants
-- ✅ Pressable - Standard press feedback
-
-### UI Components (13)
-- ✅ Button - 4 variants, loading state, disabled state
-- ✅ Input - Label, placeholder, error, focus states
-- ✅ SearchInput - Icon support, clear button pattern
-- ✅ Card - Consistent grouping
-- ✅ ListItem - Leading/trailing/subtitle support
-- ✅ Avatar - 3 sizes, initials fallback
-- ✅ Badge - 4 variants
-- ✅ Divider - Simple separator
-- ✅ Skeleton - Loading placeholders (animated)
-- ✅ EmptyState - Clear messaging + action
-- ✅ ErrorState - Error handling + recovery
-- ✅ Toast - Auto-dismiss notifications
-- ✅ Sheet - Bottom sheet wrapper
-
-### Documentation (5)
-- ✅ README.md - Complete API reference
-- ✅ EXAMPLES.md - Real-world patterns (5 examples)
-- ✅ MIGRATION.md - Step-by-step migration guide
-- ✅ QUICK_REFERENCE.md - One-page cheatsheet
-- ✅ Showcase.tsx - Visual component gallery
-
-## Design Philosophy Applied
-
-Every component follows the 10 Principles of Good Design by Dieter Rams:
-
-1. **Useful** - Every component solves a real problem (no decorative components)
-2. **Understandable** - Clear APIs, no configuration complexity
-3. **Unobtrusive** - UI supports content, never competes with it
-4. **Honest** - Buttons look clickable, cards look tappable
-5. **Long-lasting** - No trend-driven gimmicks (no gradients, no animations for show)
-6. **Thorough** - All states handled (default, focus, error, disabled, loading)
-7. **Minimal** - As little design as possible, then less
-8. **Environmentally friendly** - Efficient code, no unnecessary re-renders
-9. **Consistent** - 8-point grid, single accent color, predictable patterns
-10. **Unbiased** - Accessible to all (AA+ contrast, 52px touch targets, screen reader support)
-
-## Key Features
-
-### Accessibility First
-- 52px minimum touch targets (exceeds Apple's 44px)
-- AA+ color contrast on all text
-- Screen reader labels on all interactive elements
-- Semantic components with proper roles
-
-### Performance Optimized
-- No unnecessary re-renders
-- Efficient animation with Reanimated
-- Skeletons over spinners (better perceived performance)
-
-### Developer Experience
-- Single import: `import { Button, colors, space } from '@/src/ui'`
-- TypeScript throughout
-- Clear prop names
-- Comprehensive examples
-
-### Production Ready
-- All states handled (loading, error, empty, disabled)
-- Proper error boundaries
-- Safe area support
-- Keyboard handling
-
-## Integration with Existing Code
-
-The new design system **coexists** with your existing components in `/components/`. This allows for gradual migration without breaking changes.
-
-### Token Mapping
-
-Your existing tokens map 1:1 to the new system:
-
-| Old (src/constants/design-tokens.ts) | New (src/ui/tokens) |
-|----------------------------------|---------------------|
-| `Colors.primary` | `colors.primary` |
-| `Colors.textSlate` | `colors.text` |
-| `Spacing.lg` | `space[4]` |
-| `BorderRadius.card` | `radius.lg` |
-
-### Component Migration
-
-Replace gradually:
-
-| Old Component | New Component |
-|---------------|---------------|
-| `<ThemedText>` | `<Text variant="...">` |
-| `<ThemedView>` | `<Box>` |
-| Custom buttons | `<Button variant="...">` |
-| `/src/ui/legacy/search-input` | `<SearchInput>` from `@/src/ui` |
-
-See [MIGRATION.md](src/ui/MIGRATION.md) for detailed steps.
-
-## Quick Start
-
-### 1. Import Components
-
-```tsx
-import {
-  Button,
-  Input,
-  Card,
-  Text,
-  space,
-  colors,
-} from '@/src/ui';
-```
-
-### 2. Use in Your Screen
-
-```tsx
-export default function BookingScreen() {
-  return (
-    <ScrollView contentContainerStyle={{ padding: space[4], gap: space[4] }}>
-      <Card>
-        <Text variant="title">Book a Ride</Text>
-        <Box style={{ marginTop: space[4], gap: space[4] }}>
-          <Input
-            label="Pickup Location"
-            placeholder="Enter address"
-            value={pickup}
-            onChangeText={setPickup}
-          />
-          <Button
-            label="Find Drivers"
-            onPress={handleSearch}
-            loading={isLoading}
-          />
-        </Box>
-      </Card>
-    </ScrollView>
-  );
-}
-```
-
-### 3. See All Components
-
-Create a showcase screen to see all components:
-
-```tsx
-// app/showcase.tsx
-import { Showcase } from '@/src/ui/Showcase';
-
-export default function ShowcaseScreen() {
-  return <Showcase />;
-}
-```
-
-Then navigate to `/showcase` in your app to see the component gallery.
-
-## Documentation
-
-All documentation is self-contained in `/src/ui/`:
-
-1. **[README.md](src/ui/README.md)** - Complete API reference for every component
-2. **[QUICK_REFERENCE.md](src/ui/QUICK_REFERENCE.md)** - One-page cheatsheet for quick lookup
-3. **[EXAMPLES.md](src/ui/EXAMPLES.md)** - 5 real-world examples:
-   - Driver list screen (with states)
-   - Booking form (validation)
-   - Map + bottom sheet (taxi flow)
-   - Tab navigation
-   - Screen headers
-4. **[MIGRATION.md](src/ui/MIGRATION.md)** - Step-by-step guide to migrate existing code
-
-## Rules to Follow
-
-### The Golden Rules
-
-1. **One primary button per screen** - If everything is primary, nothing is
-2. **Use the 8-point grid** - If spacing feels off, you skipped the system
-3. **Skeletons over spinners** - Match the layout of final content
-4. **Bottom sheets > modals** - For mobile, period
-5. **52px touch targets** - Accessibility is not optional
-6. **Handle all states** - Loading, empty, error must be explicit
-
-### The Anti-Patterns
-
-❌ Don't hardcode colors - Use `colors.*`
-❌ Don't hardcode spacing - Use `space[*]`
-❌ Don't set fontSize manually - Use `<Text variant="...">`
-❌ Don't create tiny buttons - 52px minimum height
-❌ Don't use spinners alone - Show skeleton screens
-❌ Don't center-align body text - Left-align for readability
-
-## Next Steps
-
-### Phase 1: Adopt for New Features (Week 1)
-Use the design system for any new screens or features you build. This establishes the pattern without disrupting existing code.
-
-### Phase 2: Migrate High-Traffic Screens (Week 2-3)
-Start with your most-used screens (home, booking, driver list). These have the highest impact.
-
-### Phase 3: Refactor Components (Week 4)
-Update [DriverCard](src/features/drivers/src/features/drivers/components/driver-card.tsx) and other reusable components to use the new tokens.
-
-### Phase 4: Clean Up (Week 5)
-Remove old components from `/src/ui/legacy/` that have been replaced.
-
-## Support
-
-### Need Help?
-- Check [README.md](src/ui/README.md) for component APIs
-- See [EXAMPLES.md](src/ui/EXAMPLES.md) for patterns
-- Review [QUICK_REFERENCE.md](src/ui/QUICK_REFERENCE.md) for quick lookup
-- Run `<Showcase />` to see all components visually
-
-### Found a Bug?
-The components are production-ready but if you find issues:
-1. Check if you're using tokens correctly
-2. Verify touch targets are 52px minimum
-3. Test with VoiceOver/TalkBack for accessibility
-
-## Success Metrics
-
-After full migration, you should see:
-
-✅ **Consistency** - All screens look and feel unified
-✅ **Faster development** - New features ship 30-50% faster
-✅ **Fewer bugs** - Standardized patterns reduce edge cases
-✅ **Better accessibility** - All components AA+ compliant
-✅ **Less code** - Reusable components reduce boilerplate by ~40%
-✅ **Easier onboarding** - New developers productive in days, not weeks
-
-## Technical Details
-
-### Dependencies Used
-- `react-native-reanimated` - Already in your package.json
-- `@gorhom/bottom-sheet` - Already in your package.json
-- `react-native-safe-area-context` - Already in your package.json
-
-**No new dependencies required.** The design system uses what you already have.
-
-### TypeScript Support
-All components are fully typed with clear prop interfaces. IntelliSense will guide you.
-
-### Performance
-- All components are memoized where appropriate
-- Animations use native driver
-- No unnecessary re-renders
-
-## File Size
-
-Total addition to your codebase:
-- **Components:** ~2.5KB (minified + gzipped)
-- **Tokens:** ~0.5KB (minified + gzipped)
-- **Documentation:** ~45KB (not shipped to production)
-
-**Impact:** Minimal. The design system will actually *reduce* your bundle size over time as you remove duplicate styling code.
-
-## Maintenance
-
-The design system is **low maintenance**:
-- Change tokens in one place, affect all components
-- No breaking changes needed for visual updates
-- Components are simple (average 50 lines of code)
-
-## Credits
-
-Based on:
-- Dieter Rams' 10 Principles of Good Design
-- iOS Human Interface Guidelines
-- Your existing [design-tokens.ts](src/constants/design-tokens.ts)
-- Material Design (selectively)
-
-## License
-
-MIT - Use freely in your Rora application.
+**Design Philosophy:**
+- Eager anticipation — the app should feel inviting and forward-moving
+- Balanced density — comfortable spacing, clear grouping, not cramped or wasteful
+- Price-first hierarchy — on offer comparisons, price dominates
+- Grounded CTAs — primary actions feel stable, anchored to bottom
+- Simple, readable, easy to delete — no over-engineering
 
 ---
 
-**Status:** ✅ Implementation Complete
-**Date:** December 2024
-**Version:** 1.0.0
+## 1. Layout Grid & Spacing
 
-Start using today with: `import { Button, space, colors } from '@/src/ui'`
+### Base Unit
+**8pt grid** — all spacing derives from multiples of 8. Exception: 4pt for micro-adjustments.
+
+### Spacing Scale
+```
+space[0]: 0px
+space[1]: 4px   (micro gaps, icon padding)
+space[2]: 8px   (tight gaps between related items)
+space[3]: 12px  (standard gap within components)
+space[4]: 16px  (standard padding, section gaps)
+space[5]: 20px  (screen horizontal padding)
+space[6]: 24px  (larger section breaks)
+space[7]: 32px  (major section separators)
+space[8]: 40px  (hero spacing)
+space[9]: 48px  (large vertical rhythm)
+```
+
+### Standard Paddings
+
+| Context | Value | Token |
+|---------|-------|-------|
+| Screen horizontal | 20px | `space[5]` |
+| Card internal | 16px | `space[4]` |
+| List item vertical | 12px | `space[3]` |
+| List item horizontal | 16px | `space[4]` |
+| Section gap (same type) | 16px | `space[4]` |
+| Section gap (different type) | 24px | `space[6]` |
+| Between cards in list | 12px | `space[3]` |
+
+### Vertical Rhythm Rules
+1. Content sections within a screen use `space[4]` (16px) gaps
+2. Major section breaks use `space[6]` (24px)
+3. Hero to content transition uses `space[5]` (20px)
+4. List items use consistent `space[3]` (12px) vertical padding
+
+---
+
+## 2. Typography Scale
+
+### Minimal Type Scale (4 sizes + 1 utility)
+
+| Name | Size | Line Height | Weight | Use Case |
+|------|------|-------------|--------|----------|
+| **Title** | 22px | 28px | 700 (Bold) | Screen titles, section headers |
+| **Headline** | 16px | 22px | 600 (SemiBold) | Card titles, button labels, emphasis |
+| **Body** | 16px | 24px | 400 (Regular) | Default text, descriptions |
+| **Caption** | 14px | 20px | 400 (Regular) | Secondary info, metadata, timestamps |
+| **Overline** | 11px | 14px | 600 (SemiBold) | Labels, badges, category tags |
+
+### Price Typography (Special)
+- **Price Display:** 32px, Bold (2x body text)
+- **Price in Cards:** 24px, Bold (1.5x body, still prominent)
+- **Price in Lists:** 18px, SemiBold
+
+### Typography Rules
+1. Never use more than 2 font weights on a single screen
+2. Title is reserved for screen headers only
+3. Headline for card titles and emphasis
+4. Body for everything else
+5. Caption for secondary/supporting info
+6. Overline only for badges and category labels
+
+---
+
+## 3. Color System
+
+### Brand Colors
+```
+primary:        #00BE3C  (Rora Green — CTAs, highlights)
+primaryLight:   #D1FAE5  (Light green backgrounds)
+primaryDark:    #059669  (Pressed states)
+```
+
+### Neutral Palette
+```
+background:     #F9F9F9  (Screen background)
+surface:        #FFFFFF  (Cards, sheets)
+text:           #262626  (Primary text)
+textSecondary:  #5C5F62  (Secondary text, captions)
+textMuted:      #8C9390  (Placeholders, disabled)
+border:         #E3E6E3  (Dividers, card borders)
+```
+
+### Functional Colors
+```
+success:        #22C55E  (Confirmations)
+danger:         #D14343  (Destructive actions, errors)
+warning:        #E9A63A  (Cautions)
+info:           #3B82F6  (Informational)
+```
+
+### Price Label Colors
+```
+goodDeal:       background: #DCFCE7, text: #22C55E
+pricier:        background: #FEF3C7, text: #F59E0B
+```
+
+### Overlay
+```
+overlay:        rgba(0,0,0,0.4)
+overlayLight:   rgba(0,0,0,0.3)
+```
+
+---
+
+## 4. Component Specifications
+
+### Buttons
+
+| Variant | Background | Text | Border | Height |
+|---------|------------|------|--------|--------|
+| Primary | `primary` | white | none | 52px |
+| Secondary | transparent | `primary` | 1px `primary` | 52px |
+| Tertiary | transparent | `primary` | none | 52px |
+| Danger | transparent | `danger` | none | 52px |
+
+- Horizontal padding: 20px
+- Border radius: 12px
+- Touch target: minimum 48px (satisfied by 52px height)
+- Disabled: 50% opacity
+
+### List Items
+- Minimum height: 56px
+- Padding: 12px vertical, 16px horizontal
+- Structure: `[Leading] [Content] [Trailing]`
+- Leading: avatar/icon (40px)
+- Content: title + subtitle, flex: 1
+- Trailing: chevron icon (required for tappable items)
+- Gap between leading and content: 12px
+
+### Cards
+- Background: `surface` (#FFFFFF)
+- Border radius: 16px
+- Shadow: `shadow.md` (y:2, blur:4, opacity:0.08)
+- Padding: 16px
+- No nested cards
+
+### Avatars
+- Small: 40px (default in lists, offer cards)
+- Large: 80px (driver profile hero only)
+- Shape: Circle
+- Fallback: Initials on colored background
+
+### Badges
+- Height: 24px
+- Padding: 4px horizontal, 2px vertical
+- Border radius: pill (999px)
+- Font: Overline (11px, SemiBold)
+- Variants: neutral, primary, success, warning, danger
+
+### Inputs
+- Height: 52px
+- Border radius: 12px
+- Border: 1px `border`, focus: `primary`
+- Padding: 16px horizontal
+- Label above: Caption size, 4px gap
+
+---
+
+## 5. Screen Templates
+
+### Template A: Map + Bottom Sheet
+**Use for:** Home, QR Session, Discovery, Active Ride
+
+```
++-------------------------+
+| [Status Bar]            | <- respects safe area
++-------------------------+
+|                         |
+|    MapView              | <- full screen, extends under notch
+|    (edge-to-edge)       |
+|                         |
++-------------------------+
+| +---------------------+ |
+| | Sheet Handle        | | <- drag handle
+| +---------------------+ |
+| | Sheet Content       | | <- scrollable
+| | ...                 | |
+| +---------------------+ |
++-------------------------+
+| [Tab Bar]               | <- hidden during flows
++-------------------------+
+```
+
+**Sheet Behavior:**
+- 2 snap points: Peek (collapsed) and Full (expanded)
+- `bottomInset` = tab bar height (when tabs visible)
+- Pan down to minimize, pan up to expand
+
+### Template B: List Screen
+**Use for:** Drivers Directory, Ride History, Favorites, Offers List
+
+```
++-------------------------+
+| [Status Bar]            |
++-------------------------+
+| Title (22px Bold)       | <- safe area + 16px top
+| Subtitle (optional)     |
+| [Filter Button]         | <- opens filter sheet
++-------------------------+
+| +---------------------+ |
+| | List Item           | |
+| | List Item           | |
+| | List Item           | |
+| | ...                 | |
+| +---------------------+ |
++-------------------------+
+| [Tab Bar]               |
++-------------------------+
+```
+
+**Rules:**
+- List takes natural height (dynamic by content)
+- Pagination: load 10 items, then "Load more"
+- Empty state: centered, encouraging action
+
+### Template C: Detail Screen
+**Use for:** Driver Profile, Ride Detail, Venue Detail
+
+```
++-------------------------+
+| [Status Bar]            |
++-------------------------+
+| <- Back         [Actions]| <- header with back button
++-------------------------+
+| +---------------------+ |
+| | Hero Image/Header   | | <- full-width, 200-240px
+| +---------------------+ |
+| | Content Section     | |
+| | Content Section     | | <- scrollable
+| | ...                 | |
+| +---------------------+ |
++-------------------------+
+| +=====================+ |
+| | [Secondary Button]  | | <- stacked buttons
+| | [Primary Button]    | | <- primary on bottom
+| +=====================+ |
++-------------------------+
+```
+
+**Multi-Action Rule:**
+- When 2 actions: stack vertically (secondary above primary)
+- Primary button always at bottom (closest to thumb)
+- Gap between buttons: 12px
+
+### Template D: Form/Input Screen
+**Use for:** Route & Estimate, Authentication
+
+```
++-------------------------+
+| [Status Bar]            |
++-------------------------+
+| <- Back                 |
++-------------------------+
+| Title                   |
+| Subtitle/Description    |
++-------------------------+
+| [Input Field]           |
+| [Input Field]           |
+| ...                     |
++-------------------------+
+| +=====================+ |
+| | [Primary Button]    | | <- sticky CTA
+| +=====================+ |
++-------------------------+
+```
+
+**Keyboard Behavior:**
+- Push content up when keyboard appears
+- CTA remains visible above keyboard
+
+### Template E: Status/Progress Screen
+**Use for:** Discovery (looking for drivers), Hold, Active Ride
+
+```
++-------------------------+
+| [Status Bar]            |
++-------------------------+
+|                         |
+|    Status Indicator     | <- centered
+|    Status Text          | <- rotating messages
+|                         |
+| +---------------------+ |
+| | Context Card        | | <- rich context about what's happening
+| | (QR, route info)    | |
+| +---------------------+ |
+|                         |
++-------------------------+
+| +=====================+ |
+| | [Cancel / Action]   | |
+| +=====================+ |
++-------------------------+
+```
+
+**Wait State Rules:**
+- Show rich context: what's happening, how many drivers notified
+- No countdown or timer visible to user
+- Subtle animation (not playful, not distracting)
+
+---
+
+## 6. Navigation & Behavior Rules
+
+### Tab Bar
+- **Visible:** Home, browsing screens (Directory, History, Favorites)
+- **Hidden:** During active flows (Discovery -> Offers -> Hold -> Active -> Complete)
+- Style: Blur with system material effect (current)
+- Active color: Rora Green (#00BE3C)
+- Inactive color: #8C9390
+
+### Back Behavior
+- Always go back one step (standard navigation)
+- No confirmation dialogs for back during flows
+- Discovery continues in background if user backs out
+
+### Bottom Sheet Behavior
+- 2 snap points: Peek and Full
+- Swipe down to minimize
+- Swipe up to expand
+- Handle indicator always visible (4px x 36px, border radius 2px)
+
+### Modal Dismissal
+- Swipe down to dismiss (when appropriate)
+- Tap outside to dismiss (when appropriate)
+- X button in top-right for explicit close
+
+### Transitions
+- Use standard platform transitions (iOS slide, Android material)
+- No custom animations for screen transitions
+
+---
+
+## 7. Sticky CTA Rules
+
+### Appearance
+- Full-width bar docked to bottom
+- Background: subtle blur (frosted glass effect)
+- Button: full-width minus horizontal padding (20px each side)
+- Height: 84px (16px padding + 52px button + 16px padding)
+
+### With Content Above
+- Optional content area above button (price summary, metadata)
+- Total height: ~112px when content present
+- Content uses Caption size text
+
+### Positioning
+- `bottom: tabBarHeight` when tabs visible
+- `bottom: safeAreaBottom` when tabs hidden
+- Content scrolls behind with blur visible
+
+### Non-Negotiable
+- **CTA must never be hidden behind tab bar**
+- **CTA must never overlap with scrollable content**
+- ScrollView must have `paddingBottom` = tabBarHeight + CTAHeight + 16px buffer
+
+---
+
+## 8. Offer Card Specification
+
+Since offers are critical to the core loop, here's the exact specification:
+
+### Layout
+```
++-------------------------------------+
+| +----+                              |
+| |    |  Driver Name        $XX <-- | Price: 24px Bold, right-aligned
+| | ** |  * 4.8 - 2.3 km    [DEAL]<- | Badge if applicable
+| +----+  Toyota Camry - White       |
+|         [Verified]  [PRO]          |
++-------------------------------------+
+```
+
+### Visual Hierarchy (order of attention)
+1. **Price** — largest, right side, 24px Bold
+2. **Driver Photo** — left, 40px circle
+3. **Driver Name** — Headline (16px SemiBold)
+4. **Price Label Badge** — colored pill next to price
+5. **Distance** — visible metric, Caption size
+6. **Rating** — Caption size, star icon
+7. **Badges** — small, below name
+
+### Price Label Badges
+- **Good deal:** Green pill (#DCFCE7 bg, #22C55E text)
+- **Pricier than usual:** Amber pill (#FEF3C7 bg, #F59E0B text)
+- **Normal:** No badge
+
+### Offer List Rules
+- Show top 3 offers expanded
+- "+ X more offers" collapsed below
+- Tap to expand/collapse additional offers
+- Each offer is a tappable card -> selects offer
+
+---
+
+## 9. QR Card Specification
+
+### Layout
+```
++-------------------------------------+
+|           Trip Summary              |
+|   From: Airport                     |
+|   To: Maho Beach                    |
+|                                     |
+|   +-----------------------------+   |
+|   |                             |   |
+|   |         QR CODE             |   | 200x200px
+|   |                             |   |
+|   +-----------------------------+   |
+|                                     |
+|   Rora Fare: $20                    |
+|                                     |
+|   [Look for drivers]                |
++-------------------------------------+
+```
+
+### Rules
+- QR code: black on white, no embedded branding
+- QR size: 200x200px
+- Card padding: 24px
+- Trip summary above QR (origin -> destination)
+- Rora Fare below QR
+- CTA button at bottom of card
+
+---
+
+## 10. Empty, Loading, and Error States
+
+### Empty States
+- **Tone:** Encouraging action
+- **Structure:**
+  - Illustration (optional, simple)
+  - Title: Headline size
+  - Description: Body size, secondary color
+  - CTA button (when applicable)
+- **Examples:**
+  - "No favorites yet" -> "Find your first driver"
+  - "No rides yet" -> "Take your first trip"
+
+### Loading States
+- **Tone:** Subtle and quiet
+- **Pattern:** Skeleton screens with pulse animation
+- No spinners except for button loading states
+- Skeleton matches content layout exactly
+
+### Error States
+- **Tone:** Empathetic and warm
+- **Examples:**
+  - "We couldn't find any drivers nearby. Want to try a different pickup spot?"
+  - "Something went wrong. Please try again."
+- Always provide a next action (retry, adjust, cancel)
+
+---
+
+## 11. Success Feedback
+
+### On Key Actions
+- Confirm driver -> Haptic (success) + visual checkmark
+- Complete ride -> Haptic (success) + summary screen
+- Favorite driver -> Haptic (light) + heart fill animation
+
+### Implementation
+- Use Expo Haptics: `Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)`
+- Visual: brief checkmark animation or color flash
+
+---
+
+## 12. Non-Negotiables (Gate Checklist)
+
+Before any screen ships, verify:
+
+- [ ] **CTA not hidden behind tab bar**
+- [ ] **Touch targets >= 48px**
+- [ ] **Chevron on all tappable list items**
+- [ ] **Empty state defined**
+- [ ] **Loading state defined**
+- [ ] **Error state defined**
+- [ ] **Safe areas respected** (content not under notch)
+- [ ] **Map extends edge-to-edge, UI respects safe area**
+- [ ] **Horizontal padding = 20px**
+- [ ] **Uses only 4-5 type sizes**
+- [ ] **Price is visually dominant** (where applicable)
+- [ ] **Destructive actions use red**
+- [ ] **Cards have subtle shadow**
+
+---
+
+## 13. Screen Inventory
+
+| Screen | Template | Tab Visible | Notes |
+|--------|----------|-------------|-------|
+| Home | Map + Sheet | Yes | Destination input sheet |
+| Route & Estimate | Form | No | Route builder |
+| QR Session | Status | No | QR card + "Look for drivers" |
+| Discovery | Status | No | Rich context, rotating status |
+| Offers List | List | No | Top 3 + expandable |
+| Hold | Status | No | Selected driver, waiting |
+| Active Ride | Map + Sheet | No | Driver info, fare |
+| Completion | Detail | No | Summary + rating prompt |
+| Drivers Directory | List | Yes | Filters via sheet |
+| Driver Profile | Detail | No | Stacked CTAs |
+| Ride History | List | Yes | 10 items, load more |
+| Ride Detail | Detail | No | Report/Favorite actions |
+| Favorites | List | Yes | No limit |
+| Profile/Settings | List | Yes | Account info |
+| Authentication | Form | No | OTP/Magic link |
+
+---
+
+*End of Design System Spec*

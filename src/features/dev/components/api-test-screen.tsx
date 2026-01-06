@@ -191,7 +191,7 @@ export default function APITestScreen() {
       case 'running':
         return <ActivityIndicator size="small" color={Colors.primary} />;
       case 'passed':
-        return <Ionicons name="checkmark-circle" size={20} color="#00BE3C" />;
+        return <Ionicons name="checkmark-circle" size={20} color="#22C55E" />;
       case 'failed':
         return <Ionicons name="close-circle" size={20} color="#D14343" />;
     }

@@ -41,7 +41,7 @@ CREATE TYPE public.price_label AS ENUM (
 -- RIDE SESSIONS TABLE
 -- =============================================================================
 CREATE TABLE public.ride_sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   region_id UUID NOT NULL REFERENCES public.regions(id) ON DELETE CASCADE,
 
   -- Rider (authenticated or guest)
@@ -110,7 +110,7 @@ CREATE UNIQUE INDEX idx_ride_sessions_qr_token_jti ON public.ride_sessions(qr_to
 -- RIDE OFFERS TABLE
 -- =============================================================================
 CREATE TABLE public.ride_offers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   ride_session_id UUID NOT NULL REFERENCES public.ride_sessions(id) ON DELETE CASCADE,
   driver_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
 
@@ -146,7 +146,7 @@ ALTER TABLE public.ride_sessions
 -- RIDE EVENTS TABLE (Append-Only Audit Log)
 -- =============================================================================
 CREATE TABLE public.ride_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   ride_session_id UUID NOT NULL REFERENCES public.ride_sessions(id) ON DELETE CASCADE,
 
   -- Event details

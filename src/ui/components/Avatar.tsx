@@ -1,7 +1,8 @@
-import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Image } from "expo-image";
 import { colors } from "../tokens/colors";
 import { Text } from "../primitives/Text";
+import { DEFAULT_BLURHASH, IMAGE_TRANSITION_DURATION, imageSizes } from "../tokens/images";
 
 type Props = {
   size?: number;
@@ -15,12 +16,15 @@ function initials(name?: string) {
   return parts.map(p => p[0]?.toUpperCase()).join("") || "?";
 }
 
-export function Avatar({ size = 40, uri, name }: Props) {
+export function Avatar({ size = imageSizes.avatarMd, uri, name }: Props) {
   if (uri) {
     return (
       <Image
         source={{ uri }}
         style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: colors.border }}
+        placeholder={{ blurhash: DEFAULT_BLURHASH }}
+        transition={IMAGE_TRANSITION_DURATION}
+        contentFit="cover"
       />
     );
   }

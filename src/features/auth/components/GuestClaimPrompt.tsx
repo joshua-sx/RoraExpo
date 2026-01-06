@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#14B8A6',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: '#007AFF',
+    color: '#14B8A6',
     fontSize: 16,
   },
 });

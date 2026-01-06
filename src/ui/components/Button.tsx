@@ -57,6 +57,7 @@ export function Button({
       ) : (
         <Text
           variant="sub"
+          numberOfLines={1}
           style={{ color: labelColors[variant], fontWeight: "600" }}
         >
           {label}
@@ -95,5 +96,5 @@ const labelColors: Record<Variant, string> = {
   primary: colors.primaryText,
   secondary: colors.text,
   tertiary: colors.primary,
-  danger: "#FFFFFF",
+  danger: colors.primaryText,
 };

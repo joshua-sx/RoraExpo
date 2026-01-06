@@ -24,6 +24,12 @@ type Props = {
   activeOffsetY?: [number, number];
   failOffsetX?: [number, number];
   contentContainerStyle?: StyleProp<ViewStyle>;
+  /**
+   * Bottom inset to account for tab bar or other overlays.
+   * Sheet is the single owner of bottom padding - pass the real tab bar height here.
+   * If not provided, falls back to safe area bottom inset.
+   */
+  bottomInset?: number;
 };
 
 /**
@@ -48,11 +54,16 @@ export const Sheet = forwardRef<BottomSheet, Props>(
       activeOffsetY,
       failOffsetX,
       contentContainerStyle,
+      bottomInset,
     },
     ref,
   ) => {
     const insets = useSafeAreaInsets();
     const snaps = useMemo(() => snapPoints, [snapPoints]);
+
+    // Sheet owns all bottom padding. Use explicit bottomInset if provided,
+    // otherwise fall back to safe area bottom.
+    const effectiveBottomInset = bottomInset ?? insets.bottom;
 
     const defaultBackgroundStyle = {
       backgroundColor: colors.bg,
@@ -87,7 +98,7 @@ export const Sheet = forwardRef<BottomSheet, Props>(
       >
         <BottomSheetView
           style={[
-            { flex: 1, paddingBottom: Math.max(insets.bottom, space[4]) },
+            { flex: 1, paddingBottom: effectiveBottomInset },
             contentContainerStyle,
           ]}
         >

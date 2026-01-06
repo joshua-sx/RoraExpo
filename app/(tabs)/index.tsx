@@ -1,13 +1,14 @@
+import { useRouter } from "expo-router";
+import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import * as Location from "expo-location";
-import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { DestinationBottomSheet } from "@/src/features/home/components/destination-bottom-sheet";
 import { LocationPermissionModal } from "@/src/features/home/components/location-permission-modal";
+import { MapErrorBoundary } from "@/src/ui/components/MapErrorBoundary";
 import { locationService } from "@/src/services/location.service";
 import { locationStorageService } from "@/src/services/location-storage.service";
 import { useLocationStore } from "@/src/store/location-store";
@@ -232,14 +233,16 @@ export default function HomeScreen() {
 	return (
 		<GestureHandlerRootView style={styles.container}>
 			<View style={styles.container}>
-				<MapView
-					provider={PROVIDER_GOOGLE}
-					style={styles.map}
-					initialRegion={mapRegion}
-					showsUserLocation
-					showsMyLocationButton={false}
-					showsCompass={false}
-				/>
+				<MapErrorBoundary>
+					<MapView
+						provider={PROVIDER_GOOGLE}
+						style={styles.map}
+						initialRegion={mapRegion}
+						showsUserLocation
+						showsMyLocationButton={false}
+						showsCompass={false}
+					/>
+				</MapErrorBoundary>
 				<DestinationBottomSheet bottomInset={tabBarHeight} />
 
 				{/* Custom Location Permission Modal */}

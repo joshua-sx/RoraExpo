@@ -134,6 +134,7 @@ export default function ActivityScreen() {
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={[
           styles.listContent,
+          { paddingBottom: tabBarHeight + space[4] },
           data.length === 0 && styles.listContentEmpty,
         ]}
         refreshControl={
@@ -144,7 +145,7 @@ export default function ActivityScreen() {
             colors={[colors.primary]}
           />
         }
-        ListFooterComponent={<View style={{ height: tabBarHeight + space[4] }} />}
+        ListFooterComponent={<View style={{ height: space[2] }} />}
       />
     </SafeAreaView>
   );

@@ -19,11 +19,18 @@ export default ({ config }: { config: ExpoConfig }): ExpoConfig => {
 	// (Falling back to the Places key keeps older setups working, but best practice is separate keys.)
 	const nativeMapsKey = mapsKey || placesKey;
 
+	// Only include Sentry plugin if Sentry is configured (has org/project)
+	// For development builds without Sentry config, skip the plugin to avoid build errors
+	const shouldIncludeSentryPlugin = 
+		process.env.SENTRY_ORG && 
+		process.env.SENTRY_PROJECT &&
+		process.env.SENTRY_AUTH_TOKEN;
+
 	return {
 		...config,
 		plugins: [
 			...(config.plugins ?? []),
-			'@sentry/react-native',
+			...(shouldIncludeSentryPlugin ? ['@sentry/react-native'] : []),
 		],
 		extra: {
 			...(config.extra ?? {}),

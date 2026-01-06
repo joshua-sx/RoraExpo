@@ -231,7 +231,7 @@ export const OffersListScreen = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#14B8A6" />
         <Text style={styles.loadingText}>Loading offers...</Text>
       </View>
     );
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   offerCardTopThree: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#14B8A6',
   },
   offerHeader: {
     flexDirection: 'row',
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   offerAmount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#14B8A6',
     marginBottom: 4,
   },
   priceLabel: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   selectButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#14B8A6',
     borderRadius: 8,
     paddingHorizontal: 20,
     paddingVertical: 12,
@@ -407,6 +407,6 @@ const styles = StyleSheet.create({
   expandButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#14B8A6',
   },
 });

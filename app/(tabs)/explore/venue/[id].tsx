@@ -8,9 +8,11 @@ import { useLocationStore } from "@/src/store/location-store";
 import { useRouteStore } from "@/src/store/route-store";
 import { ThemedText } from "@/src/ui/components/themed-text";
 import { ThemedView } from "@/src/ui/components/themed-view";
+import { MapErrorBoundary } from "@/src/ui/components/MapErrorBoundary";
 import { calculatePrice } from "@/src/utils/pricing";
 import { extractRouteData } from "@/src/utils/route-validation";
-import { getTabBarHeight } from "@/src/utils/safe-area";
+import { useStickyCta } from "@/src/hooks/use-sticky-cta";
+import { RIDE_CTA_CARD_HEIGHT } from "@/src/features/explore/components/ride-cta-card";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
@@ -23,6 +25,7 @@ export default function VenueDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
+	const { scrollViewPadding } = useStickyCta(RIDE_CTA_CARD_HEIGHT);
 
 	const [isSaved, setIsSaved] = useState(false);
 	const [showRideSheet, setShowRideSheet] = useState(false);
@@ -174,7 +177,10 @@ export default function VenueDetailScreen() {
 			<ThemedView style={[styles.container, { backgroundColor }]}>
 				<ScrollView
 					style={styles.scrollView}
-					contentContainerStyle={styles.scrollContent}
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: scrollViewPadding },
+					]}
 					showsVerticalScrollIndicator={false}
 				>
 					{/* Hero Header */}
@@ -234,26 +240,28 @@ export default function VenueDetailScreen() {
 					>
 						<ThemedText style={styles.sectionTitle}>LOCATION</ThemedText>
 						<View style={styles.mapContainer}>
-							<MapView
-								provider={PROVIDER_GOOGLE}
-								style={styles.map}
-								initialRegion={{
-									latitude: venue.latitude,
-									longitude: venue.longitude,
-									latitudeDelta: 0.01,
-									longitudeDelta: 0.01,
-								}}
-								scrollEnabled={false}
-								zoomEnabled={false}
-							>
-								<Marker
-									coordinate={{
+							<MapErrorBoundary>
+								<MapView
+									provider={PROVIDER_GOOGLE}
+									style={styles.map}
+									initialRegion={{
 										latitude: venue.latitude,
 										longitude: venue.longitude,
+										latitudeDelta: 0.01,
+										longitudeDelta: 0.01,
 									}}
-									pinColor={primaryColor}
-								/>
-							</MapView>
+									scrollEnabled={false}
+									zoomEnabled={false}
+								>
+									<Marker
+										coordinate={{
+											latitude: venue.latitude,
+											longitude: venue.longitude,
+										}}
+										pinColor={primaryColor}
+									/>
+								</MapView>
+							</MapErrorBoundary>
 						</View>
 						<View style={styles.distanceRow}>
 							<Ionicons
@@ -269,11 +277,6 @@ export default function VenueDetailScreen() {
 							</ThemedText>
 						</View>
 					</View>
-
-					{/* Bottom Padding for CTA - Account for card height (~160px) + tab bar + safe area */}
-					<View
-						style={{ height: getTabBarHeight(insets) + 180 + insets.bottom }}
-					/>
 				</ScrollView>
 
 				{/* Sticky Bottom CTA */}

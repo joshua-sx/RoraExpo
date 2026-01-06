@@ -96,8 +96,13 @@ export function HomePopularCarousel() {
 				snapToInterval={CARD_WIDTH + CARD_GAP}
 				decelerationRate="fast"
 				showsHorizontalScrollIndicator={false}
+				style={{
+					// Break out of parent's horizontal padding for edge-to-edge scrolling
+					marginHorizontal: -space[4], // -16px to counteract parent padding
+				}}
 				contentContainerStyle={{
-					paddingHorizontal: space[5], // 20px on sides
+					// Content aligns with pill edges (parent's 16px padding)
+					paddingHorizontal: space[4], // 16px on sides - matches parent padding
 					gap: CARD_GAP, // 16px gap between cards
 				}}
 				renderItem={({ item }: { item: NonNullable<typeof venues[number]> }) => (
@@ -123,11 +128,13 @@ export function HomePopularCarousel() {
 const styles = StyleSheet.create({
 	container: {
 		// No top margin - parent controls spacing
+		// Horizontal alignment is controlled by parent's paddingHorizontal
+		paddingBottom: space[6], // 24px bottom spacing under cards
 	},
 	headerRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: space[5], // 20px to align with cards
+		// No paddingHorizontal - uses parent's 16px padding to align with pill edges
 		marginBottom: space[4], // 16px gap before cards
 		gap: space[2], // 8px between star and text
 	},
