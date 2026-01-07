@@ -319,6 +319,140 @@ export interface RideOffer {
 }
 
 /**
+ * Select offer response
+ */
+export interface SelectOfferResponse {
+  success: boolean;
+  ride_session_id?: string;
+  offer_id?: string;
+  driver_user_id?: string;
+  final_fare_amount?: number;
+  new_status?: string;
+  error?: string;
+}
+
+/**
+ * Cancel ride response
+ */
+export interface CancelRideResponse {
+  success: boolean;
+  ride_session_id?: string;
+  previous_status?: string;
+  new_status?: string;
+  error?: string;
+}
+
+/**
+ * Cancel a ride session
+ *
+ * This calls the cancel-ride Edge Function which:
+ * - Validates user owns the ride session
+ * - Validates ride is in a cancelable state (created, discovery, hold)
+ * - Updates ride status to 'canceled'
+ * - Rejects all pending offers
+ * - Logs ride event
+ * - Notifies affected driver (if any)
+ *
+ * SECURITY: State transition is validated server-side
+ */
+export async function cancelRide(
+  rideSessionId: string,
+  reason?: string
+): Promise<CancelRideResponse> {
+  if (!isSupabaseConfigured()) {
+    console.warn('Supabase not configured, returning mock response');
+    return {
+      success: true,
+      ride_session_id: rideSessionId,
+      previous_status: 'discovery',
+      new_status: 'canceled',
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke('cancel-ride', {
+      body: {
+        ride_session_id: rideSessionId,
+        reason,
+      },
+    });
+
+    if (error) {
+      // Log as warning for offline/development fallback
+      console.warn('[rides.service] Cancel ride failed:', error.message);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    return data as CancelRideResponse;
+  } catch (error) {
+    console.error('Error canceling ride:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Select a driver's offer for the ride
+ *
+ * This calls the select-offer Edge Function which:
+ * - Validates user owns the ride session
+ * - Validates ride is in 'discovery' status
+ * - Validates offer is still pending
+ * - Accepts the offer and rejects all others
+ * - Updates ride status to 'hold'
+ * - Logs ride event
+ * - Notifies the driver
+ *
+ * SECURITY: State transition is validated server-side
+ */
+export async function selectOffer(
+  rideSessionId: string,
+  offerId: string
+): Promise<SelectOfferResponse> {
+  if (!isSupabaseConfigured()) {
+    console.warn('Supabase not configured, returning mock response');
+    return {
+      success: true,
+      ride_session_id: rideSessionId,
+      offer_id: offerId,
+      driver_user_id: 'mock-driver-id',
+      final_fare_amount: 25,
+      new_status: 'hold',
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke('select-offer', {
+      body: {
+        ride_session_id: rideSessionId,
+        offer_id: offerId,
+      },
+    });
+
+    if (error) {
+      console.error('Failed to select offer:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    return data as SelectOfferResponse;
+  } catch (error) {
+    console.error('Error selecting offer:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Fetch offers for a ride session
  */
 export async function fetchRideOffers(rideSessionId: string): Promise<RideOffer[]> {
