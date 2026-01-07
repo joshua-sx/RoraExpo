@@ -14,12 +14,12 @@ import { type } from '../tokens/typography';
  * DriverCard
  *
  * Displays a driver in a compact card format for the available drivers grid.
- * Shows driver photo, name, verification status, rating, trips, and vehicle info.
+ * Shows driver photo, name, verification status, rating, rides, and vehicle info.
  *
  * Design:
  * - Large square photo with rounded top corners
  * - Name with verified checkmark inline
- * - Star rating + trip count
+ * - Star rating + ride count
  * - Tags row (vehicle type, VIP badge, seats)
  */
 
@@ -34,7 +34,7 @@ type Props = {
   isVip?: boolean;
   /** Driver's rating (0-5) */
   rating?: number;
-  /** Number of completed trips */
+  /** Number of completed rides */
   tripCount?: number;
   /** Vehicle type (e.g., "Sedan", "SUV") */
   vehicleType?: string;
@@ -91,7 +91,7 @@ export function DriverCard({
           )}
         </View>
 
-        {/* Rating + Trips */}
+        {/* Rating + Rides */}
         {(rating !== undefined || tripCount !== undefined) && (
           <View style={styles.statsRow}>
             {rating !== undefined && (
@@ -104,7 +104,9 @@ export function DriverCard({
               <Text style={styles.statsDot}>·</Text>
             )}
             {tripCount !== undefined && (
-              <Text style={styles.trips}>{tripCount} trips</Text>
+              <Text style={styles.trips}>
+                {tripCount} ride{tripCount === 1 ? '' : 's'}
+              </Text>
             )}
           </View>
         )}

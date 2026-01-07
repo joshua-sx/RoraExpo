@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,35 +23,87 @@ type TimeGroup = {
 export default function ActivityScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = getTabBarHeight(insets);
-  const { trips } = useTripHistoryStore();
+  const { trips, seedDemoUpcomingTrip } = useTripHistoryStore();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"past" | "upcoming">("past");
 
-  // Filter trips by active tab
+  // Seed demo data on first load if store is empty
+  useEffect(() => {
+    seedDemoUpcomingTrip();
+  }, [seedDemoUpcomingTrip]);
+
+  // Filter trips by active tab with proper temporal logic
   const filteredTrips = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     return trips.filter((trip) => {
+      const tripDate = new Date(trip.quote.createdAt || trip.timestamp);
+
       if (activeTab === "past") {
-        return trip.status === "completed" || trip.status === "cancelled";
+        // Past: completed/cancelled rides OR any ride with a past date
+        const isPastDate = tripDate < todayStart;
+        const isTerminalStatus = trip.status === "completed" || trip.status === "cancelled";
+        return isPastDate || isTerminalStatus;
       }
-      return ["not_taken", "pending", "in_progress"].includes(trip.status);
+
+      // Upcoming: future dates only, with active statuses
+      const isFutureDate = tripDate >= todayStart;
+      const isActiveStatus = ["not_taken", "pending", "in_progress"].includes(trip.status);
+      return isFutureDate && isActiveStatus;
     });
   }, [trips, activeTab]);
 
-  // Group trips by time periods
+  // Group trips by time periods (different logic for past vs upcoming)
   const groupedTrips = useMemo((): TimeGroup[] => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const thisWeek = new Date(today);
-    thisWeek.setDate(thisWeek.getDate() - 7);
 
-    const groups: Record<string, Trip[]> = {
-      Today: [],
-      Yesterday: [],
-      "This Week": [],
-      Earlier: [],
-    };
+    if (activeTab === "past") {
+      // Past uses backward-looking groups
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const thisWeekStart = new Date(today);
+      thisWeekStart.setDate(thisWeekStart.getDate() - 7);
+
+      const groups: Record<string, Trip[]> = {
+        Today: [],
+        Yesterday: [],
+        "This Week": [],
+        Earlier: [],
+      };
+
+      filteredTrips.forEach((trip) => {
+        const tripDate = new Date(trip.quote.createdAt || trip.timestamp);
+        const tripDay = new Date(
+          tripDate.getFullYear(),
+          tripDate.getMonth(),
+          tripDate.getDate()
+        );
+
+        if (tripDay.getTime() === today.getTime()) {
+          groups.Today.push(trip);
+        } else if (tripDay.getTime() === yesterday.getTime()) {
+          groups.Yesterday.push(trip);
+        } else if (tripDay >= thisWeekStart) {
+          groups["This Week"].push(trip);
+        } else {
+          groups.Earlier.push(trip);
+        }
+      });
+
+      return Object.entries(groups)
+        .filter(([_, groupTrips]) => groupTrips.length > 0)
+        .map(([title, groupTrips]) => ({ title, trips: groupTrips }));
+    }
+
+    // Upcoming uses forward-looking groups with human-readable dates
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextWeekEnd = new Date(today);
+    nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+
+    const groups: Record<string, Trip[]> = {};
 
     filteredTrips.forEach((trip) => {
       const tripDate = new Date(trip.quote.createdAt || trip.timestamp);
@@ -61,22 +113,28 @@ export default function ActivityScreen() {
         tripDate.getDate()
       );
 
-      if (tripDay.getTime() === today.getTime()) {
-        groups.Today.push(trip);
-      } else if (tripDay.getTime() === yesterday.getTime()) {
-        groups.Yesterday.push(trip);
-      } else if (tripDay >= thisWeek) {
-        groups["This Week"].push(trip);
-      } else {
-        groups.Earlier.push(trip);
+      // Format as human-readable date: "Monday, Jan 13"
+      const dateLabel = tripDay.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+      });
+
+      if (!groups[dateLabel]) {
+        groups[dateLabel] = [];
       }
+      groups[dateLabel].push(trip);
     });
 
-    // Return only non-empty groups
+    // Sort by date (earliest first) and return
     return Object.entries(groups)
-      .filter(([_, groupTrips]) => groupTrips.length > 0)
+      .sort(([, tripsA], [, tripsB]) => {
+        const dateA = new Date(tripsA[0].quote.createdAt || tripsA[0].timestamp);
+        const dateB = new Date(tripsB[0].quote.createdAt || tripsB[0].timestamp);
+        return dateA.getTime() - dateB.getTime();
+      })
       .map(([title, groupTrips]) => ({ title, trips: groupTrips }));
-  }, [filteredTrips]);
+  }, [filteredTrips, activeTab]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -104,10 +162,10 @@ export default function ActivityScreen() {
       message={
         activeTab === "past"
           ? "No completed rides yet"
-          : "No upcoming rides. Plan a trip to get started!"
+          : "No upcoming rides. Schedule a ride to get started!"
       }
-      actionLabel="Plan a trip"
-      onAction={() => router.push("/")}
+      actionLabel={activeTab === "past" ? "Request a ride" : "Schedule a ride"}
+      onAction={() => router.push(activeTab === "past" ? "/" : "/route-input")}
       style={styles.emptyState}
     />
   );
@@ -134,7 +192,7 @@ export default function ActivityScreen() {
           Activity
         </Text>
         <Text variant="body" muted style={styles.headerSubtitle}>
-          {activeTab === "past" ? "Your completed rides" : "Rides you've planned"}
+          {activeTab === "past" ? "Your completed rides" : "Your scheduled rides"}
         </Text>
       </Box>
 

@@ -123,8 +123,14 @@ export default function TripHistoryScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <Box style={styles.header}>
-        <Text style={styles.headerTitle}>
-          Rides
+        <IconButton
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </IconButton>
+        <Text variant="h2" style={styles.headerTitle}>
+          Ride History
         </Text>
         <IconButton
           accessibilityLabel="Info"
@@ -296,13 +302,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: space[5],
-    paddingVertical: space[4],
+    paddingHorizontal: space[4],
+    paddingVertical: space[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.text,
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: '600',
   },
   tabContainer: {
     flexDirection: 'row',

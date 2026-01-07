@@ -29,8 +29,8 @@ type Props = {
  *
  * Orchestrates content based on RideSheetState:
  * - IDLE: Search pill + popular destinations
- * - ROUTE_SET: Fare summary + "Find Drivers" CTA
- * - QR_READY: QR code display + "Look for Drivers"
+ * - ROUTE_SET: Fare summary + "Look for drivers" CTA
+ * - QR_READY: QR code display + "Look for drivers"
  * - DISCOVERING: Animated status messages
  * - OFFERS_RECEIVED: Driver offer cards
  * - CONFIRMING: Modal confirmation overlay (rendered separately)
@@ -225,11 +225,14 @@ export function RideSheet({ bottomInset }: Props) {
     }
   };
 
+  // Ensure index is always valid for current snap points to prevent race conditions
+  const safeIndex = Math.min(Math.max(defaultIndex, 0), snapPoints.length - 1);
+
   return (
     <>
       <Sheet
         ref={bottomSheetRef}
-        index={defaultIndex}
+        index={safeIndex}
         snapPoints={snapPoints}
         animatedIndex={animatedIndex}
         backgroundStyle={styles.background}

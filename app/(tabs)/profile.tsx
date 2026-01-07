@@ -53,9 +53,6 @@ export default function ProfileScreen() {
 						leading={
 							<Ionicons name="person-outline" size={24} color={colors.textMuted} />
 						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-						}
 					/>
 					<Divider />
 
@@ -70,9 +67,6 @@ export default function ProfileScreen() {
 								color={colors.textMuted}
 							/>
 						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-						}
 					/>
 				</Box>
 
@@ -83,14 +77,11 @@ export default function ProfileScreen() {
 					</Text>
 
 					<ListItem
-						title="Trip History"
-						subtitle="View all your trips"
+						title="Ride History"
+						subtitle="View all your rides"
 						onPress={() => router.push("/trip-history")}
 						leading={
 							<Ionicons name="time-outline" size={24} color={colors.textMuted} />
-						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
 						}
 					/>
 					<Divider />
@@ -106,9 +97,6 @@ export default function ProfileScreen() {
 								color={colors.textMuted}
 							/>
 						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-						}
 					/>
 					<Divider />
 
@@ -118,9 +106,6 @@ export default function ProfileScreen() {
 						onPress={() => router.push("/favorite-drivers")}
 						leading={
 							<Ionicons name="star-outline" size={24} color={colors.textMuted} />
-						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
 						}
 					/>
 				</Box>
@@ -140,9 +125,6 @@ export default function ProfileScreen() {
 						}}
 						leading={
 							<Ionicons name="card-outline" size={24} color={colors.textMuted} />
-						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
 						}
 					/>
 				</Box>
@@ -167,9 +149,6 @@ export default function ProfileScreen() {
 								color={colors.textMuted}
 							/>
 						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-						}
 					/>
 					<Divider />
 
@@ -182,9 +161,6 @@ export default function ProfileScreen() {
 						}}
 						leading={
 							<Ionicons name="mail-outline" size={24} color={colors.textMuted} />
-						}
-						trailing={
-							<Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
 						}
 					/>
 				</Box>

@@ -141,7 +141,7 @@ export const QRSessionScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Ride QR Code</Text>
+      <Text style={styles.title}>Ride code</Text>
 
       {/* Route Summary */}
       <View style={styles.summaryContainer}>
@@ -184,7 +184,7 @@ export const QRSessionScreen = () => {
           2. Wait for driver offers to come in
         </Text>
         <Text style={styles.instructionText}>
-          3. Or show this QR code to any driver
+          3. Or show this ride code to any driver
         </Text>
       </View>
 
@@ -193,7 +193,7 @@ export const QRSessionScreen = () => {
         style={styles.startButton}
         onPress={handleStartDiscovery}
       >
-        <Text style={styles.startButtonText}>Look for Drivers</Text>
+        <Text style={styles.startButtonText}>Look for drivers</Text>
       </TouchableOpacity>
     </View>
   );

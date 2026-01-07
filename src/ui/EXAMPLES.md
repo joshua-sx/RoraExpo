@@ -237,7 +237,7 @@ export function BookingFormScreen() {
         </Card>
 
         <Button
-          label="Confirm Booking"
+          label="Confirm ride request"
           onPress={handleSubmit}
           loading={isSubmitting}
           disabled={!pickup || !destination}

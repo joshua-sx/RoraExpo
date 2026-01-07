@@ -180,7 +180,7 @@ import { ListItem, Avatar } from '@/src/ui';
 
 <ListItem
   title="John Doe"
-  subtitle="4.8 stars • 156 trips"
+  subtitle="4.8 stars • 156 rides"
   onPress={handlePress}
   leading={<Avatar initials="JD" size="md" />}
   trailing={<ChevronRight />}
@@ -362,7 +362,7 @@ export function BookingScreen() {
         <Box style={{ marginTop: space[3] }}>
           <ListItem
             title="John Doe"
-            subtitle="4.8 stars • 156 trips"
+            subtitle="4.8 stars • 156 rides"
             leading={<Avatar initials="JD" />}
             onPress={selectDriver}
           />
@@ -370,7 +370,7 @@ export function BookingScreen() {
       </Card>
 
       <Button
-        label="Confirm Booking"
+        label="Confirm ride request"
         onPress={handleConfirm}
         loading={isLoading}
       />

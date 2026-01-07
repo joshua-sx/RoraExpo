@@ -144,7 +144,7 @@ function VenueDetailScreen() {
           label="Get a ride"
           onPress={handleBookRide}
           content={
-            <Text>Est. trip: 12 min</Text>
+            <Text>Est. ride time: 12 min</Text>
           }
         />
       }
@@ -187,7 +187,7 @@ function DriverProfileScreen() {
       <ScrollView>{/* content */}</ScrollView>
 
       <StickyCtaButton
-        label="Book Ride"
+        label="Request ride"
         onPress={handleBookRide}
         disabled={!driverOnDuty}
         content={

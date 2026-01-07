@@ -252,7 +252,7 @@ export default function DriverProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* Book Ride Button */}
+      {/* Request ride button */}
       <View
         style={[
           styles.footer,
@@ -274,7 +274,7 @@ export default function DriverProfileScreen() {
           disabled={!driver.onDuty}
         >
           <ThemedText style={styles.bookButtonText}>
-            {driver.onDuty ? 'Book Ride' : 'Driver Off Duty'}
+            {driver.onDuty ? 'Request ride' : 'Driver off duty'}
           </ThemedText>
         </Pressable>
       </View>

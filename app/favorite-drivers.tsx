@@ -204,7 +204,7 @@ export default function FavoriteDriversScreen() {
                           color: driver.onDuty ? colors.primaryText : colors.textMuted,
                           fontWeight: '600',
                         }}>
-                        Book Ride
+                        Request ride
                       </Text>
                     </Pressable>
                   </Box>

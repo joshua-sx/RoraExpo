@@ -32,7 +32,7 @@ type Props = {
  * Snap points:
  * - Collapsed (100px): Summary row only "$12 · 15 min · 4.2 mi"
  * - Peek (200px): Route summary + Fare card + Negotiation note
- * - Expanded (65%): All above + "Find Drivers" CTA + "Edit route" link
+ * - Expanded (65%): All above + "Look for drivers" CTA + "Edit route" link
  */
 export function RideSheetFareSummary({ animatedIndex, currentIndex }: Props) {
   const router = useRouter();
@@ -131,7 +131,7 @@ export function RideSheetFareSummary({ animatedIndex, currentIndex }: Props) {
         {/* CTA section (only at expanded) */}
         <Animated.View style={[styles.ctaSection, ctaStyle]}>
           <Button
-            label="Find Drivers"
+            label="Look for drivers"
             onPress={handleFindDrivers}
             loading={data.isGeneratingQR}
           />

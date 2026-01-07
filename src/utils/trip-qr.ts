@@ -32,6 +32,24 @@ function isCryptoAvailable(): boolean {
 }
 
 /**
+ * Get the QR secret from environment
+ * Throws in production if not configured, uses fallback in development
+ */
+function getQRSecret(): string {
+  const secret = process.env.EXPO_PUBLIC_QR_SECRET;
+  if (secret) {
+    return secret;
+  }
+
+  if (__DEV__) {
+    console.warn('[trip-qr] EXPO_PUBLIC_QR_SECRET not set, using development fallback');
+    return 'dev-secret-change-in-production';
+  }
+
+  throw new Error('[trip-qr] EXPO_PUBLIC_QR_SECRET must be configured in production');
+}
+
+/**
  * Generate a QR code value for a trip with cryptographic signature
  * @param trip - The trip to encode
  * @returns JSON string containing the trip data and signature
@@ -110,8 +128,8 @@ async function createSignature(payload: TripQRPayload): Promise<string> {
     throw new Error('expo-crypto is not available');
   }
 
-  // Get secret from environment (fallback to default for development)
-  const secret = process.env.EXPO_PUBLIC_QR_SECRET || 'dev-secret-change-in-production';
+  // Get secret from environment (throws in production if missing)
+  const secret = getQRSecret();
 
   // Create deterministic JSON string (sorted keys)
   const message = JSON.stringify(payload, Object.keys(payload).sort());
@@ -146,7 +164,8 @@ export async function generateManualCode(tripId: string): Promise<string> {
   }
 
   try {
-    const secret = process.env.EXPO_PUBLIC_QR_SECRET || 'dev-secret-change-in-production';
+    // Get secret from environment (throws in production if missing)
+    const secret = getQRSecret();
 
     // Hash trip ID with secret
     const hash = await Crypto.digestStringAsync(

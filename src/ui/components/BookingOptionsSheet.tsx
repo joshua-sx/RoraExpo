@@ -20,8 +20,8 @@ interface BookingOptionsSheetProps {
 }
 
 /**
- * BookingOptionsSheet - Modal shown after "Book Ride" button on driver profile
- * Presents two options: Book New Ride or Use Saved Trip
+ * BookingOptionsSheet - Modal shown after "Request ride" button on driver profile
+ * Presents two options: Request a ride now or use a saved ride
  */
 export function BookingOptionsSheet({
   driver,
@@ -80,9 +80,9 @@ export function BookingOptionsSheet({
 
       {/* Action Buttons */}
       <Box style={styles.actions}>
-        {/* Primary: Book New Ride */}
+        {/* Primary: Request a ride now */}
         <Button
-          label="Book New Ride"
+          label="Request a ride"
           onPress={onBookNow}
           variant="primary"
           left={<Ionicons name="add-circle-outline" size={20} color={colors.primaryText} />}
@@ -91,9 +91,9 @@ export function BookingOptionsSheet({
           Enter pickup & destination
         </Text>
 
-        {/* Secondary: Use Saved Trip */}
+        {/* Secondary: Use saved ride */}
         <Button
-          label="Use Saved Trip"
+          label="Use saved ride"
           onPress={onUseSaved}
           variant="secondary"
           disabled={!hasSavedTrips}
@@ -101,7 +101,7 @@ export function BookingOptionsSheet({
           style={styles.secondaryButton}
         />
         <Text variant="sub" muted style={styles.actionDescription}>
-          {hasSavedTrips ? 'Select from saved trips' : 'No saved trips available'}
+          {hasSavedTrips ? 'Select from saved rides' : 'No saved rides available'}
         </Text>
 
         {/* Cancel */}

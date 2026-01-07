@@ -59,7 +59,7 @@ type Props = {
  * - QR code: black on white, no embedded branding
  * - QR size: 200x200px
  * - Card padding: 24px
- * - Trip summary above QR (origin -> destination)
+ * - Ride summary above QR (pickup -> destination)
  * - Rora Fare below QR
  * - CTA button at bottom of card
  */
@@ -76,10 +76,10 @@ export function QRCard({
 }: Props) {
   return (
     <View style={styles.card}>
-      {/* Trip Summary */}
+      {/* Ride summary */}
       <View style={styles.tripSummary}>
         <Text variant="caption" style={styles.label}>
-          Trip Summary
+          Ride summary
         </Text>
         <View style={styles.routeRow}>
           <Text variant="caption" style={styles.routeLabel}>From:</Text>

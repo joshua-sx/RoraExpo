@@ -683,7 +683,7 @@ export default function RouteInputScreen() {
 										<TextInput
 											ref={destinationAutocompleteRef}
 											style={[styles.input, { color: textColor }]}
-											placeholder="Dropoff location"
+											placeholder="Destination"
 											placeholderTextColor={secondaryTextColor}
 											value={destinationInput}
 											onChangeText={handleDestinationChange}

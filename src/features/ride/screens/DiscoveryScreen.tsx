@@ -268,7 +268,7 @@ export const DiscoveryScreen = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Looking for Drivers</Text>
+        <Text style={styles.title}>Looking for drivers</Text>
         <Text style={styles.subtitle}>
           {params.originLabel} → {params.destinationLabel}
         </Text>
@@ -286,8 +286,7 @@ export const DiscoveryScreen = () => {
 
         {offersCount > 0 && (
           <Text style={styles.offersCountText}>
-            {offersCount} {offersCount === 1 ? 'driver has' : 'drivers have'}{' '}
-            responded
+            {offersCount} offer{offersCount === 1 ? '' : 's'} received
           </Text>
         )}
       </View>

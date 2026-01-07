@@ -303,7 +303,7 @@ export default function TripPreviewScreen() {
 		}
 
 		// Show success feedback
-		showToast("Trip saved successfully");
+		showToast("Ride saved successfully");
 		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
 		// Delay navigation to show toast
@@ -595,17 +595,17 @@ export default function TripPreviewScreen() {
 											)}
 										</Pressable>
 
-										{/* Secondary CTA: Save Trip */}
+										{/* Secondary CTA: Save ride */}
 										<Pressable
 											onPress={handleSaveAndGoHome}
 											style={[styles.secondaryButton, { borderColor }]}
 											accessible
 											accessibilityRole="button"
-											accessibilityLabel="Save trip for later"
+											accessibilityLabel="Save ride for later"
 										>
 											<Ionicons name="heart-outline" size={20} color={tintColor} />
 											<ThemedText style={[styles.secondaryButtonText, { color: tintColor }]}>
-												Save Trip
+												Save ride
 											</ThemedText>
 										</Pressable>
 									</View>

@@ -29,7 +29,7 @@ type Props = {
  *
  * Snap points:
  * - Peek (280px): QR code + instruction text
- * - Expanded (55%): QR + route summary + "Look for Drivers" CTA + Cancel
+ * - Expanded (55%): QR + route summary + "Look for drivers" CTA + Cancel
  */
 export function RideSheetQR({ animatedIndex, currentIndex }: Props) {
   const data = useRideSheetStore((s) => s.data);
@@ -62,7 +62,7 @@ export function RideSheetQR({ animatedIndex, currentIndex }: Props) {
     <View style={styles.container}>
       {/* QR Code section (always visible) */}
       <View style={styles.qrSection}>
-        <Text style={styles.title}>Your Ride Code</Text>
+        <Text style={styles.title}>Ride code</Text>
 
         <View style={styles.qrContainer}>
           {qrData ? (
@@ -105,7 +105,7 @@ export function RideSheetQR({ animatedIndex, currentIndex }: Props) {
         {/* CTA section */}
         <View style={styles.ctaSection}>
           <Button
-            label="Look for Drivers"
+            label="Look for drivers"
             onPress={handleLookForDrivers}
             loading={data.isStartingDiscovery}
           />

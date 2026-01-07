@@ -53,7 +53,7 @@ export function RideCtaCard({ venue, onPress }: RideCtaCardProps) {
 				<View style={styles.metaRow}>
 					<Ionicons name="time-outline" size={14} color={subtextColor} />
 					<ThemedText style={[styles.metaText, { color: subtextColor }]}>
-						Est. trip: {venue.estimatedDuration || 12} min
+						Est. ride time: {venue.estimatedDuration || 12} min
 					</ThemedText>
 				</View>
 			</View>

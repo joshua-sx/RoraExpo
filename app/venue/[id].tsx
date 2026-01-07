@@ -1,6 +1,4 @@
-import { RideCtaCard } from "@/src/features/explore/components/ride-cta-card";
-import { RideCtaSheet } from "@/src/features/explore/components/ride-cta-sheet";
-import { VenueHeader } from "@/src/features/explore/components/venue-header";
+import { AnimatedVenueHeader } from "@/src/features/explore/components/animated-venue-header";
 import { getVenueById } from "@/src/features/explore/data/venues";
 import { useThemeColor } from "@/src/hooks/use-theme-color";
 import { googleMapsService } from "@/src/services/google-maps.service";
@@ -9,27 +7,25 @@ import { useRouteStore } from "@/src/store/route-store";
 import { ThemedText } from "@/src/ui/components/themed-text";
 import { ThemedView } from "@/src/ui/components/themed-view";
 import { MapErrorBoundary } from "@/src/ui/components/MapErrorBoundary";
+import { Button } from "@/src/ui/components/Button";
 import { calculatePrice } from "@/src/utils/pricing";
 import { extractRouteData } from "@/src/utils/route-validation";
-import { useStickyCta } from "@/src/hooks/use-sticky-cta";
-import { RIDE_CTA_CARD_HEIGHT } from "@/src/features/explore/components/ride-cta-card";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "@/src/ui/tokens/colors";
+import { space } from "@/src/ui/tokens/spacing";
 
 export default function VenueDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
-	const { scrollViewPadding } = useStickyCta(RIDE_CTA_CARD_HEIGHT);
 
 	const [isSaved, setIsSaved] = useState(false);
-	const [showRideSheet, setShowRideSheet] = useState(false);
-	const [, setIsLoadingRoute] = useState(false);
+	const [isLoadingRoute, setIsLoadingRoute] = useState(false);
 
 	const { setOrigin, setDestination, setRouteData, setError } = useRouteStore();
 	const { currentLocation, formattedAddress, permissionGranted } =
@@ -55,19 +51,10 @@ export default function VenueDetailScreen() {
 		setIsSaved((prev) => !prev);
 	}, []);
 
-	const handleRidePress = useCallback(() => {
-		setShowRideSheet(true);
-	}, []);
-
-	const handleCloseSheet = useCallback(() => {
-		setShowRideSheet(false);
-	}, []);
-
-	const handleGetQuote = useCallback(async () => {
+	const handleGetRide = useCallback(async () => {
 		if (!venue) return;
 
 		setIsLoadingRoute(true);
-		setShowRideSheet(false);
 
 		try {
 			// Use user's actual location from store, fallback to Sint Maarten
@@ -173,24 +160,29 @@ export default function VenueDetailScreen() {
 	}
 
 	return (
-		<GestureHandlerRootView style={styles.container}>
-			<ThemedView style={[styles.container, { backgroundColor }]}>
-				<ScrollView
-					style={styles.scrollView}
-					contentContainerStyle={[
-						styles.scrollContent,
-						{ paddingBottom: scrollViewPadding },
-					]}
-					showsVerticalScrollIndicator={false}
-				>
-					{/* Hero Header */}
-					<VenueHeader
-						venue={venue}
-						onSavePress={handleSavePress}
-						isSaved={isSaved}
+		<ThemedView style={[styles.container, { backgroundColor }]}>
+			<AnimatedVenueHeader
+				venue={venue}
+				isSaved={isSaved}
+				onSavePress={handleSavePress}
+				onBackPress={() => router.back()}
+			>
+				{/* Ride CTA Block */}
+				<View style={[styles.rideCta, { backgroundColor: cardBackgroundColor }]}>
+					<View style={styles.rideCtaInfo}>
+						<Ionicons name="time-outline" size={16} color={subtextColor} />
+						<ThemedText style={[styles.rideCtaText, { color: subtextColor }]}>
+							Est. ride time: {venue.estimatedDuration || 12} min
+						</ThemedText>
+					</View>
+					<Button
+						label="Get a ride"
+						onPress={handleGetRide}
+						loading={isLoadingRoute}
 					/>
+				</View>
 
-					{/* About Section */}
+				{/* About Section */}
 					<View
 						style={[styles.section, { backgroundColor: cardBackgroundColor }]}
 					>
@@ -277,20 +269,8 @@ export default function VenueDetailScreen() {
 							</ThemedText>
 						</View>
 					</View>
-				</ScrollView>
-
-				{/* Sticky Bottom CTA */}
-				<RideCtaCard venue={venue} onPress={handleRidePress} />
-
-				{/* Ride CTA Sheet */}
-				<RideCtaSheet
-					venue={venue}
-					isVisible={showRideSheet}
-					onClose={handleCloseSheet}
-					onGetQuote={handleGetQuote}
-				/>
-			</ThemedView>
-		</GestureHandlerRootView>
+			</AnimatedVenueHeader>
+		</ThemedView>
 	);
 }
 
@@ -298,11 +278,20 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	scrollView: {
-		flex: 1,
+	rideCta: {
+		marginHorizontal: 16,
+		marginTop: 16,
+		padding: 16,
+		borderRadius: 12,
+		gap: 12,
 	},
-	scrollContent: {
-		paddingBottom: 20,
+	rideCtaInfo: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+	},
+	rideCtaText: {
+		fontSize: 14,
 	},
 	section: {
 		marginHorizontal: 16,

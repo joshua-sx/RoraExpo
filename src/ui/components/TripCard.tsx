@@ -137,7 +137,7 @@ export function TripCard({ trip, onPress, showQuoteAge, warnIfStale }: TripCardP
           <Box style={styles.warningBox}>
             <Ionicons name="warning-outline" size={16} color={colors.warning} />
             <Text variant="sub" style={styles.warningText}>
-              Quote may be outdated. Price may have changed.
+              Fare estimate may be outdated. Price may have changed.
             </Text>
           </Box>
         )}

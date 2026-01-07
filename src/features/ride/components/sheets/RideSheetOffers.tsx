@@ -29,7 +29,7 @@ type Props = {
  * RideSheetOffers - Content for OFFERS_RECEIVED state
  *
  * Snap points:
- * - Collapsed (140px): "3 drivers responded · From $10"
+ * - Collapsed (140px): "3 offers received · From $10"
  * - Peek (320px): Top 2-3 offer cards
  * - Expanded (75%): All offers + "Cancel search" link
  */
@@ -66,12 +66,12 @@ export function RideSheetOffers({ animatedIndex, currentIndex }: Props) {
 
   const handleCancel = () => {
     Alert.alert(
-      'Cancel Ride?',
+      'Cancel ride?',
       'Are you sure you want to cancel this ride request?',
       [
         { text: 'No', style: 'cancel' },
         {
-          text: 'Yes, Cancel',
+          text: 'Yes, cancel',
           style: 'destructive',
           onPress: () => cancel(),
         },
@@ -114,7 +114,7 @@ export function RideSheetOffers({ animatedIndex, currentIndex }: Props) {
       {/* Collapsed: Summary row */}
       <View style={styles.summaryRow}>
         <Text style={styles.summaryText}>
-          {offerCount} driver{offerCount === 1 ? '' : 's'} responded
+          {offerCount} offer{offerCount === 1 ? '' : 's'} received
         </Text>
         {bestPrice && (
           <Text style={styles.bestPrice}>
@@ -126,7 +126,7 @@ export function RideSheetOffers({ animatedIndex, currentIndex }: Props) {
       {/* Peek/Expanded: Driver Grid */}
       {!isCollapsed && (
         <Animated.View style={[styles.offersSection, expandedStyle]}>
-          <Text style={styles.sectionTitle}>Available Drivers</Text>
+          <Text style={styles.sectionTitle}>Driver offers</Text>
 
           {/* 2-column grid of drivers */}
           <FlatList
@@ -143,7 +143,7 @@ export function RideSheetOffers({ animatedIndex, currentIndex }: Props) {
           {/* More offers indicator (peek state only) */}
           {isPeek && moreOffersCount > 0 && (
             <Text style={styles.moreOffersText}>
-              + {moreOffersCount} more driver{moreOffersCount === 1 ? '' : 's'}
+              + {moreOffersCount} more offer{moreOffersCount === 1 ? '' : 's'}
             </Text>
           )}
 

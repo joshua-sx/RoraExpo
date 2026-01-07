@@ -58,12 +58,12 @@ type StickyCtaButtonProps = {
  * @example
  * ```tsx
  * <StickyCtaButton
- *   label="Book Ride"
+ *   label="Request ride"
  *   onPress={handleBookRide}
  *   content={
  *     <View>
  *       <Text>Estimated fare: $20</Text>
- *       <Text>12 min trip</Text>
+ *       <Text>12 min ride</Text>
  *     </View>
  *   }
  * />

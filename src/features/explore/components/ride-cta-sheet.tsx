@@ -118,7 +118,7 @@ export function RideCtaSheet({
 
       {/* CTA Button */}
       <Button
-        label="See fare & drivers"
+        label="See fare estimate"
         onPress={onGetQuote}
         variant="primary"
       />

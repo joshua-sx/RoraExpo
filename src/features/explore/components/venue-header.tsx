@@ -1,7 +1,7 @@
 import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/src/ui/components/themed-text';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
@@ -21,7 +21,7 @@ export function VenueHeader({
   onSavePress,
   isSaved = false,
 }: VenueHeaderProps) {
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor(
     { light: '#FFFFFF', dark: '#0E0F0F' },
     'surface'
@@ -52,14 +52,8 @@ export function VenueHeader({
           transition={300}
         />
         
-        {/* Overlay Buttons */}
-        <View style={styles.overlayButtons}>
-          <Pressable
-            style={styles.iconButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </Pressable>
+        {/* Heart Button Overlay */}
+        <View style={[styles.overlayButtons, { top: insets.top + 8 }]}>
           <Pressable
             style={styles.iconButton}
             onPress={onSavePress}
@@ -131,12 +125,9 @@ const styles = StyleSheet.create({
   },
   overlayButtons: {
     position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
+    right: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    justifyContent: 'flex-end',
   },
   iconButton: {
     width: 40,

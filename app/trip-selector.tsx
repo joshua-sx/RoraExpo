@@ -37,8 +37,8 @@ export default function TripSelectorScreen() {
     }
 
     Alert.alert(
-      'Confirm Booking',
-      `Book this trip with ${selectedDriver.name}?`,
+      'Confirm ride request',
+      `Request this ride with ${selectedDriver.name}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -69,7 +69,7 @@ export default function TripSelectorScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </IconButton>
         <Text variant="h2" style={styles.headerTitle}>
-          Select Saved Trip
+          Select Saved Ride
         </Text>
         <View style={{ width: 40 }} />
       </Box>
@@ -94,14 +94,14 @@ export default function TripSelectorScreen() {
         {availableTrips.length === 0 ? (
           <EmptyState
             icon={<Ionicons name="bookmark-outline" size={48} color={colors.muted} />}
-            message="No saved trips available. Create one first!"
-            actionLabel="Create New Trip"
+            message="No saved rides available. Create one first!"
+            actionLabel="Create New Ride"
             onAction={handleCreateNew}
           />
         ) : (
           <>
             <Text variant="sub" muted style={styles.instructionText}>
-              Select a trip to book with {selectedDriver?.name || 'this driver'}
+              Select a ride to request with {selectedDriver?.name || 'this driver'}
             </Text>
             {availableTrips.map((trip) => (
               <TripCard

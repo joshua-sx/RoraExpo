@@ -54,7 +54,7 @@ export function DriverCard({ driver }: DriverCardProps) {
       onPress={handlePress}
       accessible
       accessibilityRole="button"
-      accessibilityLabel={`${firstName}, ${driver.rating} stars, ${driver.reviewCount} trips, ${driver.vehicleType}, ${seatCount} seats`}
+      accessibilityLabel={`${firstName}, ${driver.rating} stars, ${driver.reviewCount} rides, ${driver.vehicleType}, ${seatCount} seats`}
     >
       {/* Photo */}
       <View style={[styles.photoContainer, { backgroundColor: placeholderColor }]}>
@@ -89,7 +89,7 @@ export function DriverCard({ driver }: DriverCardProps) {
           <Ionicons name="star" size={12} color="#222222" />
           <ThemedText style={styles.rating}>{driver.rating.toFixed(2)}</ThemedText>
           <ThemedText style={[styles.trips, { color: secondaryTextColor }]}>
-            · {driver.reviewCount} trips
+            · {driver.reviewCount} ride{driver.reviewCount === 1 ? '' : 's'}
           </ThemedText>
         </View>
       </View>

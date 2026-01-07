@@ -98,10 +98,10 @@ export default function SettingsScreen() {
           <View style={styles.settingItem}>
             <Box style={{ flex: 1 }}>
               <Text variant="body" style={styles.settingLabel}>
-                Trip Updates
+                Ride Updates
               </Text>
               <Text variant="sub" muted>
-                Driver arrival, trip start, completion
+                Driver arrival, ride start, completion
               </Text>
             </Box>
             <Switch

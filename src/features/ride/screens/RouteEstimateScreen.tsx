@@ -120,7 +120,7 @@ export const RouteEstimateScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Text style={styles.title}>Plan Your Ride</Text>
+        <Text style={styles.title}>Request a ride</Text>
 
         {/* Origin Input */}
         <Box style={styles.inputContainer}>
@@ -200,7 +200,7 @@ export const RouteEstimateScreen = () => {
       {fare && (
         <Box style={[styles.ctaContainer, { paddingBottom: Math.max(insets.bottom, space[4]) }]}>
           <Button
-            label="Generate QR Code"
+            label="Get ride code"
             onPress={handleGenerateQR}
             variant="primary"
           />

@@ -50,7 +50,7 @@ type DetailScreenTemplateProps = {
  *       label="Get a ride"
  *       onPress={handleBookRide}
  *       content={
- *         <Text>Est. trip: 12 min</Text>
+ *         <Text>Est. ride time: 12 min</Text>
  *       }
  *     />
  *   }
