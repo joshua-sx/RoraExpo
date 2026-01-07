@@ -50,6 +50,8 @@ export interface CreateRideSessionResponse {
   ride_session?: RideSession;
   qr_token_jti?: string;
   error?: string;
+  /** Indicates if mock/offline data was returned instead of real data */
+  isMockData?: boolean;
 }
 
 /**
@@ -69,32 +71,38 @@ export interface StartDiscoveryResponse {
  * - Creates a ride_sessions record in the database
  * - Logs a 'created' event to ride_events
  * - Returns a QR token JTI for the QR code
+ *
+ * Returns isMockData: true when returning offline/development fallback data
  */
 export async function createRideSession(
   request: CreateRideSessionRequest
 ): Promise<CreateRideSessionResponse> {
+  // Helper to create mock ride session data
+  const createMockResponse = (prefix: string): CreateRideSessionResponse => ({
+    success: true,
+    isMockData: true,
+    ride_session: {
+      id: `${prefix}-ride-${Date.now()}`,
+      region_id: `${prefix}-region`,
+      rider_user_id: null,
+      guest_token_id: null,
+      status: 'created',
+      origin_lat: request.origin.lat,
+      origin_lng: request.origin.lng,
+      origin_label: request.origin.label,
+      destination_lat: request.destination.lat,
+      destination_lng: request.destination.lng,
+      destination_label: request.destination.label,
+      rora_fare_amount: request.rora_fare_amount,
+      qr_token_jti: `${prefix}-qr-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    },
+    qr_token_jti: `${prefix}-qr-${Date.now()}`,
+  });
+
   if (!isSupabaseConfigured()) {
-    console.warn('Supabase not configured, returning mock response');
-    return {
-      success: true,
-      ride_session: {
-        id: `mock-ride-${Date.now()}`,
-        region_id: 'mock-region',
-        rider_user_id: null,
-        guest_token_id: null,
-        status: 'created',
-        origin_lat: request.origin.lat,
-        origin_lng: request.origin.lng,
-        origin_label: request.origin.label,
-        destination_lat: request.destination.lat,
-        destination_lng: request.destination.lng,
-        destination_label: request.destination.label,
-        rora_fare_amount: request.rora_fare_amount,
-        qr_token_jti: `mock-qr-${Date.now()}`,
-        created_at: new Date().toISOString(),
-      },
-      qr_token_jti: `mock-qr-${Date.now()}`,
-    };
+    console.warn('[rides.service] Supabase not configured, returning mock response');
+    return createMockResponse('mock');
   }
 
   try {
@@ -103,56 +111,27 @@ export async function createRideSession(
     });
 
     if (error) {
-      // Log as warning instead of error to avoid dev console error overlay
-      console.warn('[rides.service] Edge function unavailable, using local fallback:', error.message);
-      // Return mock response for offline/development use
+      console.warn('[rides.service] Edge function error, using local fallback:', error.message);
+      // Return mock response with isMockData flag so caller knows this is fallback data
+      return createMockResponse('local');
+    }
+
+    // Validate response structure
+    const response = data as CreateRideSessionResponse;
+    if (!response || typeof response.success !== 'boolean') {
+      console.warn('[rides.service] Invalid response format from server');
       return {
-        success: true,
-        ride_session: {
-          id: `local-ride-${Date.now()}`,
-          region_id: 'local-region',
-          rider_user_id: null,
-          guest_token_id: null,
-          status: 'created',
-          origin_lat: request.origin.lat,
-          origin_lng: request.origin.lng,
-          origin_label: request.origin.label,
-          destination_lat: request.destination.lat,
-          destination_lng: request.destination.lng,
-          destination_label: request.destination.label,
-          rora_fare_amount: request.rora_fare_amount,
-          qr_token_jti: `local-qr-${Date.now()}`,
-          created_at: new Date().toISOString(),
-        },
-        qr_token_jti: `local-qr-${Date.now()}`,
+        success: false,
+        error: 'Invalid response format from server',
       };
     }
 
-    return data as CreateRideSessionResponse;
+    return response;
   } catch (error) {
-    // Log as warning instead of error to avoid dev console error overlay
-    console.warn('[rides.service] Error creating ride session, using local fallback:', error);
-    // Return mock response for offline/development use
-    return {
-      success: true,
-      ride_session: {
-        id: `local-ride-${Date.now()}`,
-        region_id: 'local-region',
-        rider_user_id: null,
-        guest_token_id: null,
-        status: 'created',
-        origin_lat: request.origin.lat,
-        origin_lng: request.origin.lng,
-        origin_label: request.origin.label,
-        destination_lat: request.destination.lat,
-        destination_lng: request.destination.lng,
-        destination_label: request.destination.label,
-        rora_fare_amount: request.rora_fare_amount,
-        qr_token_jti: `local-qr-${Date.now()}`,
-        created_at: new Date().toISOString(),
-      },
-      qr_token_jti: `local-qr-${Date.now()}`,
-    };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.warn('[rides.service] Error creating ride session, using local fallback:', errorMessage);
+    // Return mock response with isMockData flag so caller knows this is fallback data
+    return createMockResponse('local');
   }
 }
 
@@ -319,12 +298,24 @@ export interface RideOffer {
 }
 
 /**
- * Fetch offers for a ride session
+ * Result type for fetch ride offers operation
  */
-export async function fetchRideOffers(rideSessionId: string): Promise<RideOffer[]> {
+export interface FetchRideOffersResult {
+  success: boolean;
+  offers: RideOffer[];
+  error?: string;
+  /** True if Supabase is not configured (development mode) */
+  isUnconfigured?: boolean;
+}
+
+/**
+ * Fetch offers for a ride session
+ * Returns a result object that distinguishes between "no offers" and "error fetching"
+ */
+export async function fetchRideOffers(rideSessionId: string): Promise<FetchRideOffersResult> {
   if (!isSupabaseConfigured()) {
-    console.warn('Supabase not configured, returning empty offers');
-    return [];
+    console.warn('[rides.service] Supabase not configured, returning empty offers');
+    return { success: true, offers: [], isUnconfigured: true };
   }
 
   try {
@@ -347,13 +338,17 @@ export async function fetchRideOffers(rideSessionId: string): Promise<RideOffer[
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Failed to fetch ride offers:', error);
-      return [];
+      const errorMessage = `Failed to fetch ride offers: ${error.message}`;
+      console.error('[rides.service]', errorMessage);
+      return { success: false, offers: [], error: errorMessage };
     }
 
-    return (data || []) as unknown as RideOffer[];
+    return { success: true, offers: (data || []) as unknown as RideOffer[] };
   } catch (error) {
-    console.error('Error fetching ride offers:', error);
-    return [];
+    const errorMessage = error instanceof Error
+      ? `Error fetching ride offers: ${error.message}`
+      : 'Error fetching ride offers: Unknown error';
+    console.error('[rides.service]', errorMessage);
+    return { success: false, offers: [], error: errorMessage };
   }
 }
