@@ -25,6 +25,13 @@ function getFirstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || fullName;
 }
 
+// Specialization badge styling
+const SPECIALIZATION_BADGES: Record<string, { label: string; icon: string; color: string }> = {
+  vip: { label: 'VIP', icon: 'diamond', color: '#FFD700' }, // Gold
+  airport: { label: 'Airport', icon: 'airplane', color: '#4A90E2' }, // Blue
+  cruise_port: { label: 'Cruise', icon: 'boat', color: '#50C878' }, // Emerald
+};
+
 export function DriverCard({ driver }: DriverCardProps) {
   const router = useRouter();
 
@@ -92,6 +99,22 @@ export function DriverCard({ driver }: DriverCardProps) {
             · {driver.reviewCount} ride{driver.reviewCount === 1 ? '' : 's'}
           </ThemedText>
         </View>
+
+        {/* Specialization badges */}
+        {driver.specializations && driver.specializations.length > 0 && (
+          <View style={styles.badgeRow}>
+            {driver.specializations.map((spec) => {
+              const badge = SPECIALIZATION_BADGES[spec];
+              if (!badge) return null;
+              return (
+                <View key={spec} style={[styles.badge, { backgroundColor: badge.color }]}>
+                  <Ionicons name={badge.icon as keyof typeof Ionicons.glyphMap} size={10} color="#FFFFFF" />
+                  <ThemedText style={styles.badgeText}>{badge.label}</ThemedText>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -150,5 +173,24 @@ const styles = StyleSheet.create({
   trips: {
     fontSize: 14,
     fontWeight: '400',
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    marginTop: 6,
+    gap: 4,
+    flexWrap: 'wrap',
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    gap: 3,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

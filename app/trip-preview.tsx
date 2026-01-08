@@ -8,7 +8,7 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -54,6 +54,7 @@ function validateCoordinates(coords: { latitude: number; longitude: number }[]):
 
 export default function TripPreviewScreen() {
 	const router = useRouter();
+	const { tripId: urlTripId } = useLocalSearchParams<{ tripId?: string }>();
 	const insets = useSafeAreaInsets();
 	const { height: screenHeight } = useWindowDimensions();
 	const mapRef = useRef<MapView>(null);
@@ -62,8 +63,8 @@ export default function TripPreviewScreen() {
 	const animatedIndex = useSharedValue(1); // Start expanded (index 1)
 	const [isCollapsed, setIsCollapsed] = useState(false);
 
-	const { origin, destination, routeData, selectedDriverId, clearDriver } = useRouteStore();
-	const { addTrip, toggleSaved } = useTripHistoryStore();
+	const { origin, destination, routeData, selectedDriverId, clearDriver, setOrigin, setDestination, setRouteData } = useRouteStore();
+	const { addTrip, toggleSaved, getTripById } = useTripHistoryStore();
 
 	// Get selected driver if any
 	const selectedDriver = selectedDriverId ? getDriverById(selectedDriverId) : null;
@@ -145,6 +146,25 @@ export default function TripPreviewScreen() {
 		},
 		[mapEdgePadding],
 	);
+
+	// Load trip data from history if tripId is provided
+	useEffect(() => {
+		if (urlTripId && !routeData) {
+			const savedTrip = getTripById(urlTripId);
+			if (savedTrip) {
+				console.log('[trip-preview] Loading saved trip data:', urlTripId);
+				// Populate route store with saved trip data
+				setOrigin(savedTrip.origin);
+				setDestination(savedTrip.destination);
+				setRouteData(savedTrip.routeData);
+				setTripId(urlTripId);
+			} else {
+				console.error('[trip-preview] Trip not found:', urlTripId);
+				showToast('Trip not found');
+				router.replace('/trip-history');
+			}
+		}
+	}, [urlTripId, routeData, getTripById, setOrigin, setDestination, setRouteData, showToast, router]);
 
 	// Validate route data exists and is valid
 	useEffect(() => {

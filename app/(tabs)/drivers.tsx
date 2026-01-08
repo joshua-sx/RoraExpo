@@ -35,7 +35,7 @@ const DEFAULT_FILTERS: DriverFilters = {
   seats: 'Any',
   vehicleType: 'Any',
   rating: 'Any',
-  vipOnly: false,
+  specializations: [],
 };
 
 // Map vehicle types to seat counts
@@ -130,10 +130,14 @@ export default function DriversScreen() {
       result = result.filter((d) => d.rating >= (filters.rating as number));
     }
 
-    // VIP filter (assuming all drivers are VIP for now, can add vip field to Driver type later)
-    if (filters.vipOnly) {
-      // For now, treat drivers with 5.0 rating as VIP
-      result = result.filter((d) => d.rating === 5.0);
+    // Specializations filter (AND logic - driver must have ALL selected specializations)
+    if (filters.specializations.length > 0) {
+      result = result.filter((d) => {
+        if (!d.specializations || d.specializations.length === 0) return false;
+        return filters.specializations.every((spec) =>
+          d.specializations?.includes(spec) ?? false
+        );
+      });
     }
 
     return result;
@@ -170,7 +174,7 @@ export default function DriversScreen() {
     filters.seats !== 'Any' ||
     filters.vehicleType !== 'Any' ||
     filters.rating !== 'Any' ||
-    filters.vipOnly ||
+    filters.specializations.length > 0 ||
     searchQuery.trim() !== '';
 
   return (
@@ -194,7 +198,11 @@ export default function DriversScreen() {
           </View>
 
           <Pressable
-            style={[styles.filterButton, { backgroundColor: surfaceColor, borderColor }]}
+            style={({ pressed }) => [
+              styles.filterButton,
+              { backgroundColor: surfaceColor, borderColor },
+              pressed && { opacity: 0.7 },
+            ]}
             onPress={() => setShowFilterModal(true)}
           >
             <Ionicons name="options-outline" size={20} color={textColor} />

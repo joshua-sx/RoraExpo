@@ -15,6 +15,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Professional driver with 8 years of experience. I know every corner of Sint Maarten and love sharing local tips with visitors!',
     yearsExperience: 8,
     languages: ['English', 'Dutch', 'Spanish'],
+    specializations: ['airport'],
   },
   {
     id: 'driver-2',
@@ -30,6 +31,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Bilingual driver specializing in airport transfers and island tours. Safety and comfort are my top priorities.',
     yearsExperience: 12,
     languages: ['English', 'French', 'Papiamento'],
+    specializations: ['airport'],
   },
   {
     id: 'driver-3',
@@ -45,6 +47,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Large group specialist with a spacious van. Perfect for family trips and group outings around the island.',
     yearsExperience: 5,
     languages: ['English', 'Spanish'],
+    specializations: ['cruise_port', 'airport'],
   },
   {
     id: 'driver-4',
@@ -75,6 +78,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Born and raised on the island. I can take you to the best local spots and hidden gems. Excellent for custom tours!',
     yearsExperience: 15,
     languages: ['French', 'English', 'Dutch'],
+    specializations: ['vip'],
   },
   {
     id: 'driver-6',
@@ -90,6 +94,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Efficient and punctual driver. Specializing in business travel and airport runs. Always on time!',
     yearsExperience: 4,
     languages: ['English'],
+    specializations: ['airport'],
   },
   {
     id: 'driver-7',
@@ -120,6 +125,7 @@ export const MOCK_DRIVERS: Driver[] = [
     bio: 'Eco-friendly rides in a fully electric vehicle. Quiet, smooth, and environmentally conscious. Currently off duty.',
     yearsExperience: 3,
     languages: ['English', 'Mandarin'],
+    specializations: ['vip'],
   },
 ];
 

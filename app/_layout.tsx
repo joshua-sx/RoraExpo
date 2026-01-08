@@ -131,6 +131,34 @@ export default Sentry.wrap(function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="personal-info"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                  }}
+                />
+                <Stack.Screen
+                  name="payment-methods"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                  }}
+                />
+                <Stack.Screen
+                  name="help-center"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                  }}
+                />
+                <Stack.Screen
+                  name="contact-us"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                  }}
+                />
               </Stack>
               <StatusBar style="auto" />
           </ToastProvider>

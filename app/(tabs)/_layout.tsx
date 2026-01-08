@@ -6,7 +6,7 @@ export default function TabLayout() {
       blurEffect="systemThickMaterial"
       iconColor={{
         default: "#8C9390",
-        selected: "#00BE3C"
+        selected: "#000000"
       }}
       backgroundColor="#FFFFFF"
     >

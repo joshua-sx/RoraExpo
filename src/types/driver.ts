@@ -15,7 +15,8 @@ export interface Driver {
   languages: string[];
   // Extended fields from database
   isRoraPro?: boolean;
-  serviceAreaTags?: string[];
+  serviceAreaTags?: string[]; // Geographic area tags
+  specializations?: string[]; // Service type tags: 'vip', 'airport', 'cruise_port'
   seats?: number;
 }
 

@@ -23,6 +23,27 @@ import { useToast } from '@/src/ui/providers/ToastProvider';
 import { useRouteStore } from '@/src/store/route-store';
 import { useTripHistoryStore } from '@/src/store/trip-history-store';
 
+const SPECIALIZATION_INFO: Record<string, { label: string; icon: string; color: string; description: string }> = {
+  vip: {
+    label: 'VIP Service',
+    icon: 'diamond',
+    color: '#FFD700',
+    description: 'Premium luxury transportation',
+  },
+  airport: {
+    label: 'Airport Specialist',
+    icon: 'airplane',
+    color: '#4A90E2',
+    description: 'Expert in airport transfers',
+  },
+  cruise_port: {
+    label: 'Cruise Port Specialist',
+    icon: 'boat',
+    color: '#50C878',
+    description: 'Specialized cruise terminal service',
+  },
+};
+
 export default function DriverProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -52,7 +73,7 @@ export default function DriverProfileScreen() {
     { light: '#E3E6E3', dark: '#2F3237' },
     'border'
   );
-  const roraGreen = Colors.primary; // Rora Green #00BE3C
+  const roraBrand = Colors.primary; // Rora Black #000000
 
   const handleBack = () => {
     router.back();
@@ -170,7 +191,7 @@ export default function DriverProfileScreen() {
               )}
             </View>
             {/* Verified checkmark badge */}
-            <View style={[styles.verifiedBadge, { backgroundColor: roraGreen }]}>
+            <View style={[styles.verifiedBadge, { backgroundColor: roraBrand }]}>
               <Ionicons name="checkmark" size={20} color="#FFFFFF" />
             </View>
           </View>
@@ -183,13 +204,13 @@ export default function DriverProfileScreen() {
             <View
               style={[
                 styles.statusDot,
-                { backgroundColor: driver.onDuty ? roraGreen : '#8C9390' },
+                { backgroundColor: driver.onDuty ? roraBrand : '#8C9390' },
               ]}
             />
             <ThemedText
               style={[
                 styles.statusText,
-                { color: driver.onDuty ? roraGreen : '#8C9390' },
+                { color: driver.onDuty ? roraBrand : '#8C9390' },
               ]}
             >
               {driver.onDuty ? 'On duty' : 'Off duty'}
@@ -202,8 +223,8 @@ export default function DriverProfileScreen() {
               style={[styles.actionButton, { borderColor }]}
               onPress={handleCall}
             >
-              <Ionicons name="call-outline" size={24} color={roraGreen} />
-              <ThemedText style={[styles.actionButtonText, { color: roraGreen }]}>
+              <Ionicons name="call-outline" size={24} color={roraBrand} />
+              <ThemedText style={[styles.actionButtonText, { color: roraBrand }]}>
                 Call
               </ThemedText>
             </Pressable>
@@ -212,8 +233,8 @@ export default function DriverProfileScreen() {
               style={[styles.actionButton, { borderColor }]}
               onPress={handleMessage}
             >
-              <Ionicons name="chatbubble-outline" size={24} color={roraGreen} />
-              <ThemedText style={[styles.actionButtonText, { color: roraGreen }]}>
+              <Ionicons name="chatbubble-outline" size={24} color={roraBrand} />
+              <ThemedText style={[styles.actionButtonText, { color: roraBrand }]}>
                 Message
               </ThemedText>
             </Pressable>
@@ -227,6 +248,30 @@ export default function DriverProfileScreen() {
             {driver.bio}
           </ThemedText>
         </View>
+
+        {/* Specializations */}
+        {driver.specializations && driver.specializations.length > 0 && (
+          <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor }]}>
+            <ThemedText style={styles.cardTitle}>Specializations</ThemedText>
+            <View style={styles.specializationList}>
+              {driver.specializations.map((spec) => {
+                const badge = SPECIALIZATION_INFO[spec];
+                if (!badge) return null;
+                return (
+                  <View key={spec} style={styles.specializationItem}>
+                    <Ionicons name={badge.icon as keyof typeof Ionicons.glyphMap} size={24} color={badge.color} />
+                    <View style={styles.specializationText}>
+                      <ThemedText style={styles.specializationLabel}>{badge.label}</ThemedText>
+                      <ThemedText style={[styles.specializationDescription, { color: secondaryTextColor }]}>
+                        {badge.description}
+                      </ThemedText>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Vehicle & Ride Photos */}
         <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor }]}>
@@ -266,7 +311,7 @@ export default function DriverProfileScreen() {
           style={({ pressed }) => [
             styles.bookButton,
             {
-              backgroundColor: driver.onDuty ? roraGreen : '#8C9390',
+              backgroundColor: driver.onDuty ? roraBrand : '#8C9390',
               opacity: pressed ? 0.8 : driver.onDuty ? 1 : 0.6,
             },
           ]}
@@ -446,6 +491,26 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 15,
     lineHeight: 22,
+  },
+  specializationList: {
+    gap: Spacing.md,
+  },
+  specializationItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  specializationText: {
+    flex: 1,
+  },
+  specializationLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  specializationDescription: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   photoGridContent: {
     gap: Spacing.md,

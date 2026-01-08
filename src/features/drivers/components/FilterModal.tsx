@@ -14,7 +14,7 @@ export interface DriverFilters {
   seats: number | 'Any';
   vehicleType: VehicleType;
   rating: RatingFilter;
-  vipOnly: boolean;
+  specializations: string[];
 }
 
 interface FilterModalProps {
@@ -33,6 +33,12 @@ const VEHICLE_TYPES: Array<{ type: VehicleType; label: string; icon: string }> =
   { type: 'Sedan', label: 'Sedan', icon: 'car' },
   { type: 'SUV', label: 'SUV', icon: 'car-sport' },
   { type: 'Van', label: 'Van', icon: 'bus' },
+];
+
+const SPECIALIZATIONS: Array<{ value: string; label: string; icon: string }> = [
+  { value: 'vip', label: 'VIP', icon: 'diamond-outline' },
+  { value: 'airport', label: 'Airport', icon: 'airplane-outline' },
+  { value: 'cruise_port', label: 'Cruise Port', icon: 'boat-outline' },
 ];
 
 export function FilterModal({
@@ -98,6 +104,15 @@ export function FilterModal({
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  const toggleSpecialization = (spec: string) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      specializations: prev.specializations.includes(spec)
+        ? prev.specializations.filter((s) => s !== spec)
+        : [...prev.specializations, spec],
+    }));
+  };
+
   return (
     <BottomSheet
       ref={sheetRef}
@@ -131,12 +146,18 @@ export function FilterModal({
             {VEHICLE_TYPES.map((vehicle) => (
               <Pressable
                 key={vehicle.type}
-                style={[
+                style={({ pressed }) => [
                   styles.vehicleTypeButton,
-                  { borderColor },
-                  localFilters.vehicleType === vehicle.type && {
-                    borderColor: textColor,
-                    borderWidth: 2,
+                  {
+                    borderColor:
+                      localFilters.vehicleType === vehicle.type
+                        ? textColor
+                        : borderColor,
+                    backgroundColor:
+                      localFilters.vehicleType === vehicle.type
+                        ? `${textColor}08`
+                        : 'transparent',
+                    opacity: pressed ? 0.6 : 1,
                   },
                 ]}
                 onPress={() => updateFilter('vehicleType', vehicle.type)}
@@ -155,6 +176,7 @@ export function FilterModal({
                     styles.vehicleTypeLabel,
                     localFilters.vehicleType === vehicle.type && {
                       fontWeight: '600',
+                      color: textColor,
                     },
                   ]}
                 >
@@ -181,10 +203,11 @@ export function FilterModal({
             </View>
             <View style={styles.seatsControls}>
               <Pressable
-                style={[
+                style={({ pressed }) => [
                   styles.seatsButton,
                   { borderColor },
                   localFilters.seats === 'Any' && styles.seatsButtonDisabled,
+                  pressed && !((localFilters.seats === 'Any' || localFilters.seats === 1)) && { opacity: 0.6 },
                 ]}
                 onPress={() => {
                   if (localFilters.seats !== 'Any' && localFilters.seats > 1) {
@@ -205,11 +228,12 @@ export function FilterModal({
               </Pressable>
 
               <Pressable
-                style={[
+                style={({ pressed }) => [
                   styles.anyButton,
                   localFilters.seats === 'Any' && {
                     backgroundColor: textColor,
                   },
+                  pressed && { opacity: 0.6 },
                 ]}
                 onPress={() => updateFilter('seats', 'Any')}
               >
@@ -224,7 +248,11 @@ export function FilterModal({
               </Pressable>
 
               <Pressable
-                style={[styles.seatsButton, { borderColor }]}
+                style={({ pressed }) => [
+                  styles.seatsButton,
+                  { borderColor },
+                  pressed && { opacity: 0.6 },
+                ]}
                 onPress={() => {
                   if (localFilters.seats === 'Any') {
                     updateFilter('seats', 1);
@@ -246,12 +274,14 @@ export function FilterModal({
           <ThemedText style={styles.sectionTitle}>Minimum Rating</ThemedText>
           <View style={styles.ratingOptions}>
             <Pressable
-              style={[
+              style={({ pressed }) => [
                 styles.ratingOption,
-                { borderColor },
-                localFilters.rating === 'Any' && {
-                  borderColor: textColor,
-                  borderWidth: 2,
+                {
+                  borderColor:
+                    localFilters.rating === 'Any' ? textColor : borderColor,
+                  backgroundColor:
+                    localFilters.rating === 'Any' ? `${textColor}08` : 'transparent',
+                  opacity: pressed ? 0.6 : 1,
                 },
               ]}
               onPress={() => updateFilter('rating', 'Any')}
@@ -259,7 +289,7 @@ export function FilterModal({
               <ThemedText
                 style={[
                   styles.ratingOptionText,
-                  localFilters.rating === 'Any' && { fontWeight: '600' },
+                  localFilters.rating === 'Any' && { fontWeight: '600', color: textColor },
                 ]}
               >
                 Any
@@ -269,12 +299,14 @@ export function FilterModal({
             {([4, 3, 2, 1] as const).map((rating) => (
               <Pressable
                 key={rating}
-                style={[
+                style={({ pressed }) => [
                   styles.ratingOption,
-                  { borderColor },
-                  localFilters.rating === rating && {
-                    borderColor: textColor,
-                    borderWidth: 2,
+                  {
+                    borderColor:
+                      localFilters.rating === rating ? textColor : borderColor,
+                    backgroundColor:
+                      localFilters.rating === rating ? `${textColor}08` : 'transparent',
+                    opacity: pressed ? 0.6 : 1,
                   },
                 ]}
                 onPress={() => updateFilter('rating', rating)}
@@ -284,7 +316,7 @@ export function FilterModal({
                   <ThemedText
                     style={[
                       styles.ratingOptionText,
-                      localFilters.rating === rating && { fontWeight: '600' },
+                      localFilters.rating === rating && { fontWeight: '600', color: textColor },
                     ]}
                   >
                     {rating}+
@@ -307,10 +339,11 @@ export function FilterModal({
               </ThemedText>
             </View>
             <Pressable
-              style={[
+              style={({ pressed }) => [
                 styles.customSwitch,
                 localFilters.dutyStatus && { backgroundColor: tintColor },
                 !localFilters.dutyStatus && { backgroundColor: borderColor },
+                pressed && { opacity: 0.7 },
               ]}
               onPress={() => updateFilter('dutyStatus', !localFilters.dutyStatus)}
             >
@@ -326,30 +359,49 @@ export function FilterModal({
 
         <View style={[styles.divider, { backgroundColor: borderColor }]} />
 
-        {/* VIP Filter */}
+        {/* Specializations Filter */}
         <View style={styles.section}>
-          <View style={styles.switchRow}>
-            <View style={styles.switchLeft}>
-              <ThemedText style={styles.switchTitle}>VIP drivers</ThemedText>
-              <ThemedText style={[styles.switchSubtitle, { color: secondaryTextColor }]}>
-                Top-rated drivers (5.0 stars)
-              </ThemedText>
-            </View>
-            <Pressable
-              style={[
-                styles.customSwitch,
-                localFilters.vipOnly && { backgroundColor: tintColor },
-                !localFilters.vipOnly && { backgroundColor: borderColor },
-              ]}
-              onPress={() => updateFilter('vipOnly', !localFilters.vipOnly)}
-            >
-              <View
-                style={[
-                  styles.customSwitchThumb,
-                  localFilters.vipOnly && styles.customSwitchThumbActive,
+          <ThemedText style={styles.sectionTitle}>Specializations</ThemedText>
+          <View style={styles.specializationOptions}>
+            {SPECIALIZATIONS.map((spec) => (
+              <Pressable
+                key={spec.value}
+                style={({ pressed }) => [
+                  styles.specializationPill,
+                  {
+                    borderColor: localFilters.specializations.includes(spec.value)
+                      ? textColor
+                      : borderColor,
+                    backgroundColor: localFilters.specializations.includes(spec.value)
+                      ? `${textColor}08`
+                      : 'transparent',
+                    opacity: pressed ? 0.6 : 1,
+                  },
                 ]}
-              />
-            </Pressable>
+                onPress={() => toggleSpecialization(spec.value)}
+              >
+                <Ionicons
+                  name={spec.icon as keyof typeof Ionicons.glyphMap}
+                  size={20}
+                  color={
+                    localFilters.specializations.includes(spec.value)
+                      ? textColor
+                      : secondaryTextColor
+                  }
+                />
+                <ThemedText
+                  style={[
+                    styles.specializationLabel,
+                    localFilters.specializations.includes(spec.value) && {
+                      fontWeight: '600',
+                      color: textColor,
+                    },
+                  ]}
+                >
+                  {spec.label}
+                </ThemedText>
+              </Pressable>
+            ))}
           </View>
         </View>
 
@@ -359,14 +411,24 @@ export function FilterModal({
 
       {/* Footer with buttons */}
       <View style={[styles.footer, { backgroundColor, borderTopColor: borderColor, paddingBottom: 16 + bottomInset }]}>
-        <Pressable onPress={handleClearAll} style={styles.clearButton}>
+        <Pressable
+          onPress={handleClearAll}
+          style={({ pressed }) => [
+            styles.clearButton,
+            pressed && { opacity: 0.6 },
+          ]}
+        >
           <ThemedText style={[styles.clearButtonText, { color: textColor }]}>
             Clear all
           </ThemedText>
         </Pressable>
 
         <Pressable
-          style={[styles.showButton, { backgroundColor: textColor }]}
+          style={({ pressed }) => [
+            styles.showButton,
+            { backgroundColor: textColor },
+            pressed && { opacity: 0.85 },
+          ]}
           onPress={handleApply}
         >
           <ThemedText style={styles.showButtonText}>
@@ -433,7 +495,7 @@ const styles = StyleSheet.create({
   vehicleTypeButton: {
     width: '48%',
     aspectRatio: 1.5,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -500,7 +562,7 @@ const styles = StyleSheet.create({
   ratingOption: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderRadius: 24,
   },
   ratingContent: {
@@ -509,6 +571,24 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   ratingOptionText: {
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  specializationOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  specializationPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1.5,
+    borderRadius: 24,
+    gap: 8,
+  },
+  specializationLabel: {
     fontSize: 14,
     fontWeight: '400',
   },
